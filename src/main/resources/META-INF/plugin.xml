@@ -9,8 +9,20 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.erotourtes.jetbrainsharpoon.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <service interface="com.github.erotourtes.jetbrainsharpoon.services.HarpoonService" serviceImplementation="com.github.erotourtes.jetbrainsharpoon.services.HarpoonService"/>
     </extensions>
+
+    <actions>
+        <action id="AddFile"
+                class="com.github.erotourtes.jetbrainsharpoon.actions.AddFileAction"
+                text="Harpoon Add File"
+                description="Add File to Harpoon" />
+
+        <action id="QuickMenu"
+                class="com.github.erotourtes.jetbrainsharpoon.actions.QuickMenuAction"
+                text="Harpoon Show Menu"
+                description="Show quick menu of harpoon" />
+    </actions>
 
     <applicationListeners>
         <listener class="com.github.erotourtes.jetbrainsharpoon.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>

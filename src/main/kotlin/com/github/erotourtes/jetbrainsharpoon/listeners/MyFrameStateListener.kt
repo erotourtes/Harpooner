@@ -2,6 +2,7 @@ package com.github.erotourtes.jetbrainsharpoon.listeners
 
 import com.intellij.ide.FrameStateListener
 import com.intellij.openapi.diagnostic.thisLogger
+import com.intellij.ide.DataManager
 
 internal class MyFrameStateListener : FrameStateListener {
 
