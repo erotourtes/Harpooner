@@ -2,7 +2,7 @@ package com.github.erotourtes.jetbrainsharpoon.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import  com.github.erotourtes.jetbrainsharpoon.window.HarpoonMenu
+import com.github.erotourtes.jetbrainsharpoon.window.HarpoonMenu
 import com.github.erotourtes.jetbrainsharpoon.services.HarpoonService
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.components.service

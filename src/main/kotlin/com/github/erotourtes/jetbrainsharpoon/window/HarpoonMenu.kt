@@ -2,13 +2,7 @@ package com.github.erotourtes.jetbrainsharpoon.window
 
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.EditorTextField
-import java.awt.BorderLayout
-import java.awt.FlowLayout
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
-import javax.swing.BorderFactory
 import javax.swing.JComponent
-import javax.swing.JPanel
 
 class HarpoonMenu(private val text: String, private val fontSize: Int) : DialogWrapper(true) {
     private var textField: EditorTextField? = null

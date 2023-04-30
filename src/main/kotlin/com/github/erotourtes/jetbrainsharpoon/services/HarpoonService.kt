@@ -5,10 +5,6 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
-import com.intellij.util.xmlb.Converter
-import com.intellij.util.xmlb.XmlSerializerUtil
-import kotlinx.serialization.Serializable
 
 @State(name = "Harpoon_State", storages = [Storage("harpoon_state.xml")])
 @Service(Service.Level.PROJECT)
