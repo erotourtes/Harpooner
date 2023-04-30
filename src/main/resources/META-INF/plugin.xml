@@ -22,9 +22,22 @@
                 class="com.github.erotourtes.jetbrainsharpoon.actions.QuickMenuAction"
                 text="Harpoon Show Menu"
                 description="Show quick menu of harpoon" />
-    </actions>
 
-    <applicationListeners>
-        <listener class="com.github.erotourtes.jetbrainsharpoon.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>
-    </applicationListeners>
+        <action id="OpenFile0"
+                class="com.github.erotourtes.jetbrainsharpoon.actions.OpenFileAction0"
+                text="Harpoon Open File 1"
+                description="Open the first file" />
+        <action id="OpenFile1"
+                class="com.github.erotourtes.jetbrainsharpoon.actions.OpenFileAction1"
+                text="Harpoon Open File 2"
+                description="Open the second file" />
+        <action id="OpenFile2"
+                class="com.github.erotourtes.jetbrainsharpoon.actions.OpenFileAction2"
+                text="Harpoon Open File 3"
+                description="Open the third fiel" />
+        <action id="OpenFile3"
+                class="com.github.erotourtes.jetbrainsharpoon.actions.OpenFileAction3"
+                text="Harpoon Open File 4"
+                description="Open the fourth file" />
+    </actions>
 </idea-plugin>

@@ -1,5 +1,6 @@
 package com.github.erotourtes.jetbrainsharpoon.actions
 
+import com.github.erotourtes.jetbrainsharpoon.factories.notify
 import com.github.erotourtes.jetbrainsharpoon.services.HarpoonService
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -13,21 +14,9 @@ class AddFileAction : AnAction() {
         val harpoonService = event.project?.service<HarpoonService>()
         val file = event.dataContext.getData(CommonDataKeys.PSI_FILE)
 
-        if (harpoonService == null || file == null) {
-            val notification = Notification(
-                "Harpoon",
-                "Harpoon",
-                "message: file or project is not  defined",
-                NotificationType.ERROR
-            )
-            notification.notify(event.project)
-            return
-        }
+        if (harpoonService == null || file == null)
+            return notify("File or project is not defined")
 
-        val editor = event.getRequiredData(CommonDataKeys.EDITOR)
-        val line = editor?.caretModel?.logicalPosition?.line ?: 0
-        val column = editor?.caretModel?.logicalPosition?.column ?: 0
-
-        harpoonService.addFile(file.virtualFile.path, line, column)
+        harpoonService.addFile(file.virtualFile.path)
     }
 }
