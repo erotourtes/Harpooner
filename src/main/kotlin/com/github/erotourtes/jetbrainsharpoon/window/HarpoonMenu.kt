@@ -1,20 +1,31 @@
-package com.github.erotourtes.jetbrainsharpoon.Window
+package com.github.erotourtes.jetbrainsharpoon.window
 
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.EditorTextField
+import java.awt.BorderLayout
+import java.awt.FlowLayout
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import javax.swing.BorderFactory
 import javax.swing.JComponent
+import javax.swing.JPanel
 
-class HarpoonMenu(private val text: String) : DialogWrapper(true) {
+class HarpoonMenu(private val text: String, private val fontSize: Int) : DialogWrapper(true) {
     private var textField: EditorTextField? = null
     init {
         setSize(500, 300)
         title = "Harpoon Menu"
+        setUndecorated(false)
+//        this.rootPane
         init()
     }
     override fun createCenterPanel(): JComponent? {
         textField = EditorTextField(text)
         textField!!.setOneLineMode(false)
-
+        textField!!.addSettingsProvider { provider ->
+            provider.setFontSize(fontSize)
+            provider.settings.isLineNumbersShown = true
+        }
         return textField
     }
 
