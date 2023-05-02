@@ -1,43 +1,48 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.erotourtes.jetbrainsharpoon</id>
-    <name>erotourtes-Harpoon Template</name>
-    <vendor>erotourtes</vendor>
+    <id>com.github.erotourtes.harpoon</id>
+    <name>Harpoon-JB</name>
+    <vendor email="erotourtes@gmail.com" url="https://github.com/erotourtes">erotourtes</vendor>
+
+    <description><![CDATA[
+    Harpoon-JB is a navigation plugin
+    This plugin inspired by <a href="https://github.com/ThePrimeagen/harpoon">Harpoon</a> for <a href="https://github.com/neovim/neovim">NeoVim</a>created by ThePrimeagen
+  ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <service interface="com.github.erotourtes.jetbrainsharpoon.services.HarpoonService" serviceImplementation="com.github.erotourtes.jetbrainsharpoon.services.HarpoonService"/>
+        <service interface="com.github.erotourtes.harpoon.services.HarpoonService" serviceImplementation="com.github.erotourtes.harpoon.services.HarpoonService"/>
     </extensions>
 
     <actions>
         <action id="AddFile"
-                class="com.github.erotourtes.jetbrainsharpoon.actions.AddFileAction"
-                text="Harpoon Add File"
+                class="com.github.erotourtes.harpoon.actions.AddFileAction"
+                text="Harpoon-JB Add File"
                 description="Add File to Harpoon" />
 
         <action id="QuickMenu"
-                class="com.github.erotourtes.jetbrainsharpoon.actions.QuickMenuAction"
-                text="Harpoon Show Menu"
+                class="com.github.erotourtes.harpoon.actions.QuickMenuAction"
+                text="Harpoon-JB Show Menu"
                 description="Show quick menu of harpoon" />
 
         <action id="OpenFile0"
-                class="com.github.erotourtes.jetbrainsharpoon.actions.OpenFileAction0"
-                text="Harpoon Open File 1"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction0"
+                text="Harpoon-JB Open File 1"
                 description="Open the first file" />
         <action id="OpenFile1"
-                class="com.github.erotourtes.jetbrainsharpoon.actions.OpenFileAction1"
-                text="Harpoon Open File 2"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction1"
+                text="Harpoon-JB Open File 2"
                 description="Open the second file" />
         <action id="OpenFile2"
-                class="com.github.erotourtes.jetbrainsharpoon.actions.OpenFileAction2"
-                text="Harpoon Open File 3"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction2"
+                text="Harpoon-JB Open File 3"
                 description="Open the third fiel" />
         <action id="OpenFile3"
-                class="com.github.erotourtes.jetbrainsharpoon.actions.OpenFileAction3"
-                text="Harpoon Open File 4"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction3"
+                text="Harpoon-JB Open File 4"
                 description="Open the fourth file" />
     </actions>
 </idea-plugin>

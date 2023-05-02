@@ -1,4 +1,4 @@
-package com.github.erotourtes.jetbrainsharpoon.window
+package com.github.erotourtes.harpoon.window
 
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.EditorTextField

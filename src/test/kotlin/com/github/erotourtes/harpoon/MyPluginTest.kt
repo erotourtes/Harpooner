@@ -1,4 +1,4 @@
-package com.github.erotourtes.jetbrainsharpoon
+package com.github.erotourtes.harpoon
 
 import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.openapi.components.service
@@ -6,7 +6,7 @@ import com.intellij.psi.xml.XmlFile
 import com.intellij.testFramework.TestDataPath
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.PsiErrorElementUtil
-import com.github.erotourtes.jetbrainsharpoon.services.MyProjectService
+import com.github.erotourtes.harpoon.services.MyProjectService
 
 @TestDataPath("\$CONTENT_ROOT/src/test/testData")
 class MyPluginTest : BasePlatformTestCase() {

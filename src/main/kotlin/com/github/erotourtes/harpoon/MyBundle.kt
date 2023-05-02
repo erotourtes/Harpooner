@@ -1,4 +1,4 @@
-package com.github.erotourtes.jetbrainsharpoon
+package com.github.erotourtes.harpoon
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

@@ -1,4 +1,4 @@
-package com.github.erotourtes.jetbrainsharpoon.services
+package com.github.erotourtes.harpoon.services
 
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
