@@ -1,6 +1,7 @@
 package com.github.erotourtes.harpoon.actions
 
 import com.github.erotourtes.harpoon.services.HarpoonService
+import com.github.erotourtes.harpoon.listeners.FileEditorListener
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
@@ -9,28 +10,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.messages.MessageBusConnection
 import java.io.File
-
-// It was not registered in plugin.xml as it shouldn't start with the IDE
-// TODO: does this violate stateless principle?
-class FileEditorListener(
-    private val tmpFile: File,
-    private val connection: MessageBusConnection
-) : FileEditorManagerListener {
-    override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
-        if (file.path != tmpFile.path) return
-
-        val project = source.project
-        val harpoonService = project.service<HarpoonService>()
-        val paths = tmpFile.readLines()
-        harpoonService.setPaths(paths)
-
-        tmpFile.delete()
-        connection.disconnect()
-    }
-}
 
 class QuickMenuAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
@@ -51,6 +31,8 @@ class QuickMenuAction : AnAction() {
         val tempFile = File.createTempFile("harpoon", ".txt")
         val writer = tempFile.bufferedWriter()
         content.forEach { writer.write(it + "\n") }
+        for (i in content.size until 3)
+            writer.write("\n")
         writer.close()
 
         return tempFile
