@@ -36,6 +36,7 @@ class HarpoonService(val project: Project) : PersistentStateComponent<HarpoonSer
     }
 
     fun setPaths(paths: List<String>) {
-        state.data = ArrayList(paths)
+        if (paths != state.data)
+            state.data = ArrayList(paths)
     }
 }

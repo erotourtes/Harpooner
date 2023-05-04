@@ -1,11 +1,11 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.erotourtes.harpoon</id>
-    <name>Harpoon-JB</name>
+    <name>Harpooner</name>
     <vendor email="erotourtes@gmail.com" url="https://github.com/erotourtes">erotourtes</vendor>
 
     <description><![CDATA[
-    Harpoon-JB is a navigation plugin
+    Harpooner is a navigation plugin
     This plugin inspired by <a href="https://github.com/ThePrimeagen/harpoon">Harpoon</a> for <a href="https://github.com/neovim/neovim">NeoVim</a>created by ThePrimeagen
   ]]></description>
 
@@ -20,29 +20,29 @@
     <actions>
         <action id="AddFile"
                 class="com.github.erotourtes.harpoon.actions.AddFileAction"
-                text="Harpoon-JB Add File"
+                text="Harpooner Add File"
                 description="Add File to Harpoon" />
 
         <action id="QuickMenu"
                 class="com.github.erotourtes.harpoon.actions.QuickMenuAction"
-                text="Harpoon-JB Show Menu"
+                text="Harpooner Show Menu"
                 description="Show quick menu of harpoon" />
 
         <action id="OpenFile0"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction0"
-                text="Harpoon-JB Open File 1"
+                text="Harpooner Open File 1"
                 description="Open the first file" />
         <action id="OpenFile1"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction1"
-                text="Harpoon-JB Open File 2"
+                text="Harpooner Open File 2"
                 description="Open the second file" />
         <action id="OpenFile2"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction2"
-                text="Harpoon-JB Open File 3"
-                description="Open the third fiel" />
+                text="Harpooner Open File 3"
+                description="Open the third file" />
         <action id="OpenFile3"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction3"
-                text="Harpoon-JB Open File 4"
+                text="Harpooner Open File 4"
                 description="Open the fourth file" />
     </actions>
 </idea-plugin>
