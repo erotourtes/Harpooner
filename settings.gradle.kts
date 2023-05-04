@@ -1,1 +1,1 @@
-rootProject.name = "JetBrains-Harpoon"
+rootProject.name = "Harpooner"
