@@ -6,16 +6,14 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.vfs.LocalFileSystem
 
 abstract class OpenFileAction : AnAction() {
     abstract fun index(): Int
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val harpoonService = project.service<HarpoonService>()
-        val filePath = harpoonService?.getPath(index()) ?: return notify("Out of bounds")
-        if (filePath.isEmpty()) return notify("File path is empty")
-        val file = LocalFileSystem.getInstance().findFileByPath(filePath) ?: return notify("File path is corrupted")
+        val file = harpoonService?.getFile(index()) ?: return notify("Can't find file")
+        
         val fileManager = FileEditorManager.getInstance(project)
         fileManager.openFile(file, true)
     }

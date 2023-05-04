@@ -15,6 +15,6 @@ class AddFileAction : AnAction() {
         if (harpoonService == null || file == null)
             return notify("File or project is not defined")
 
-        harpoonService.addFile(file.virtualFile.path)
+        harpoonService.addFile(file.virtualFile)
     }
 }
