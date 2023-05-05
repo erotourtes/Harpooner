@@ -6,15 +6,18 @@
     <vendor email="erotourtes@gmail.com" url="https://github.com/erotourtes">erotourtes</vendor>
 
     <description><![CDATA[
-    Harpooner is a navigation plugin. You can "harpoon" the file and quickly open it later in the quick menu or through the keyboard shortcut.
-    For more information see
-    <a href="https://github.com/erotourtes/Harpooner">plugin repo</a>
-
-    This plugin inspired by
+    <p>Harpooner is a navigation plugin. You can "harpoon" the file and quickly open it later in the Tools menu or through the keyboard shortcuts.</p>
+    <p>Note: you need to configure the keyboard shortcuts yourself.</p>
+    <p>
+    For more information, see
+    <a href="https://github.com/erotourtes/Harpooner">the plugin repo</a>.
+    </p>
+    <p>
+    This plugin is inspired by
     <a href="https://github.com/ThePrimeagen/harpoon">Harpoon</a>
     for
     <a href="https://github.com/neovim/neovim">NeoVim</a>
-    created by ThePrimeagen
+    </p>
   ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -22,35 +25,68 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <service interface="com.github.erotourtes.harpoon.services.HarpoonService" serviceImplementation="com.github.erotourtes.harpoon.services.HarpoonService"/>
+        <service interface="com.github.erotourtes.harpoon.services.HarpoonService"
+                 serviceImplementation="com.github.erotourtes.harpoon.services.HarpoonService"/>
     </extensions>
 
     <actions>
-        <action id="AddFile"
+        <group id="com.github.erotourtes.harpoon.pluginsGroup" text="Harpooner"
+               description="Harpooner is a navigation plugin" popup="true">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+
+        <action id="com.github.erotourtes.harpoon.AddFile"
                 class="com.github.erotourtes.harpoon.actions.AddFileAction"
                 text="Harpooner Add File"
-                description="Add File to Harpoon" />
+                description="Add File to Harpoon"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
 
-        <action id="QuickMenu"
+        <action id="com.github.erotourtes.harpoon.QuickMenu"
                 class="com.github.erotourtes.harpoon.actions.QuickMenuAction"
                 text="Harpooner Show Menu"
-                description="Show quick menu of harpoon" />
+                description="Show quick menu of harpoon"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
 
-        <action id="OpenFile0"
+        <action id="com.github.erotourtes.harpoon.OpenFile0"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction0"
                 text="Harpooner Open File 1"
-                description="Open the first file" />
-        <action id="OpenFile1"
+                description="Open the first file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
+        <action id="com.github.erotourtes.harpoon.OpenFile1"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction1"
                 text="Harpooner Open File 2"
-                description="Open the second file" />
-        <action id="OpenFile2"
+                description="Open the second file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
+        <action id="com.github.erotourtes.harpoon.OpenFile2"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction2"
                 text="Harpooner Open File 3"
-                description="Open the third file" />
-        <action id="OpenFile3"
+                description="Open the third file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
+        <action id="com.github.erotourtes.harpoon.OpenFile3"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction3"
                 text="Harpooner Open File 4"
-                description="Open the fourth file" />
+                description="Open the fourth file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
     </actions>
 </idea-plugin>
