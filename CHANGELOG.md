@@ -1,7 +1,8 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# JetBrains-Harpoon Changelog
+# Harpooner Changelog
 
-## [Unreleased]
+
+## [1.0.0] - 2023-05-05
 ### Added
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
+- Basic functionality of what the original Harpoon can do

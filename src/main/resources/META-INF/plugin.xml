@@ -13,6 +13,9 @@
     <a href="https://github.com/erotourtes/Harpooner">the plugin repo</a>.
     </p>
     <p>
+        Note: Harpooner menu doesn't update on changes. You need to save and close the file to update the list.
+    </p>
+    <p>
     This plugin is inspired by
     <a href="https://github.com/ThePrimeagen/harpoon">Harpoon</a>
     for
