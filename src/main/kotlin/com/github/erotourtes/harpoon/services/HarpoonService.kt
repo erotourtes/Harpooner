@@ -47,7 +47,6 @@ class HarpoonService(val project: Project) : PersistentStateComponent<HarpoonSer
 
     fun setPaths(paths: List<String>) {
         val lastNotEmpty = paths.indexOfLast { it.isNotEmpty() }
-        if (lastNotEmpty == -1) return
         val paths = paths.subList(0, lastNotEmpty + 1)
         if (paths != state.data)
             state.data = ArrayList(paths)
