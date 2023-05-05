@@ -2,11 +2,19 @@
 <idea-plugin>
     <id>com.github.erotourtes.harpoon</id>
     <name>Harpooner</name>
+    <version>1.0.0</version>
     <vendor email="erotourtes@gmail.com" url="https://github.com/erotourtes">erotourtes</vendor>
 
     <description><![CDATA[
-    Harpooner is a navigation plugin
-    This plugin inspired by <a href="https://github.com/ThePrimeagen/harpoon">Harpoon</a> for <a href="https://github.com/neovim/neovim">NeoVim</a>created by ThePrimeagen
+    Harpooner is a navigation plugin. You can "harpoon" the file and quickly open it later in the quick menu or through the keyboard shortcut.
+    For more information see
+    <a href="https://github.com/erotourtes/Harpooner">plugin repo</a>
+
+    This plugin inspired by
+    <a href="https://github.com/ThePrimeagen/harpoon">Harpoon</a>
+    for
+    <a href="https://github.com/neovim/neovim">NeoVim</a>
+    created by ThePrimeagen
   ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
