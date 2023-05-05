@@ -1,5 +1,6 @@
 package com.github.erotourtes.harpoon.services
 
+import com.github.erotourtes.harpoon.utils.QuickMenu
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
@@ -11,8 +12,14 @@ import com.intellij.openapi.vfs.VirtualFile
 @State(name = "Harpoon_State", storages = [Storage("harpoon_state.xml")])
 @Service(Service.Level.PROJECT)
 class HarpoonService(val project: Project) : PersistentStateComponent<HarpoonService.State> {
+    var menu = QuickMenu()
     private val virtualFiles = mutableMapOf<String, VirtualFile?>()
     private var state = State()
+        set(value) {
+            field = value
+            menu.updateFile(value.data)
+        }
+
     override fun getState(): State {
         return state
     }
@@ -26,10 +33,7 @@ class HarpoonService(val project: Project) : PersistentStateComponent<HarpoonSer
         if (state.data.any { it == path }) return
         state.data += path;
         virtualFiles[path] = file
-    }
-
-    fun getPaths(): List<String> {
-        return state.data
+        menu.updateFile(state.data)
     }
 
     fun getFile(index: Int): VirtualFile? {
@@ -42,8 +46,12 @@ class HarpoonService(val project: Project) : PersistentStateComponent<HarpoonSer
     }
 
     fun setPaths(paths: List<String>) {
+        val lastNotEmpty = paths.indexOfLast { it.isNotEmpty() }
+        if (lastNotEmpty == -1) return
+        val paths = paths.subList(0, lastNotEmpty + 1)
         if (paths != state.data)
             state.data = ArrayList(paths)
+        menu.updateFile(state.data)
     }
 
     class State {

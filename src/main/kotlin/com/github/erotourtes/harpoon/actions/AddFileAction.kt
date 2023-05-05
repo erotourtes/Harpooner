@@ -1,6 +1,6 @@
 package com.github.erotourtes.harpoon.actions
 
-import com.github.erotourtes.harpoon.factories.notify
+import com.github.erotourtes.harpoon.utils.notify
 import com.github.erotourtes.harpoon.services.HarpoonService
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
