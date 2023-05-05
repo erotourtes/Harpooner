@@ -22,8 +22,6 @@
 
     <depends>com.intellij.modules.platform</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
-
     <extensions defaultExtensionNs="com.intellij">
         <service interface="com.github.erotourtes.harpoon.services.HarpoonService"
                  serviceImplementation="com.github.erotourtes.harpoon.services.HarpoonService"/>
