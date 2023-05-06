@@ -9,10 +9,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 
-@State(name = "Harpoon_State", storages = [Storage("harpoon_state.xml")])
+@State(name = "HarpoonerState", storages = [Storage("Harpooner.xml")])
 @Service(Service.Level.PROJECT)
-class HarpoonService(val project: Project) : PersistentStateComponent<HarpoonService.State> {
-    var menu = QuickMenu()
+class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService.State> {
+    var menu = QuickMenu(project.projectFilePath)
     private val virtualFiles = mutableMapOf<String, VirtualFile?>()
     private var state = State()
         set(value) {
@@ -31,9 +31,9 @@ class HarpoonService(val project: Project) : PersistentStateComponent<HarpoonSer
     fun addFile(file: VirtualFile) {
         val path = file.path
         if (state.data.any { it == path }) return
-        state.data += path;
+        state.data += path
         virtualFiles[path] = file
-        menu.updateFile(state.data)
+        menu.addToFile(path)
     }
 
     fun getFile(index: Int): VirtualFile? {
@@ -46,10 +46,9 @@ class HarpoonService(val project: Project) : PersistentStateComponent<HarpoonSer
     }
 
     fun setPaths(paths: List<String>) {
-        val lastNotEmpty = paths.indexOfLast { it.isNotEmpty() }
-        val paths = paths.subList(0, lastNotEmpty + 1)
-        if (paths != state.data)
-            state.data = ArrayList(paths)
+        val filtered = paths.filter { it.isNotEmpty() }
+        if (filtered != state.data)
+            state.data = ArrayList(filtered)
         menu.updateFile(state.data)
     }
 
