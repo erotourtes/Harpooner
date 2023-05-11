@@ -5,21 +5,6 @@
     <version>1.0.0</version>
     <vendor email="erotourtes@gmail.com" url="https://github.com/erotourtes">erotourtes</vendor>
 
-    <description><![CDATA[
-    <p>Harpooner is a navigation plugin. You can "harpoon" the file and quickly open it later in the Tools menu or through the keyboard shortcuts.</p>
-    <p>Note: you need to configure the keyboard shortcuts yourself.</p>
-    <p>
-    For more information, see
-    <a href="https://github.com/erotourtes/Harpooner">the plugin repo</a>.
-    </p>
-    <p>
-    This plugin is inspired by
-    <a href="https://github.com/ThePrimeagen/harpoon">Harpoon</a>
-    for
-    <a href="https://github.com/neovim/neovim">NeoVim</a>
-    </p>
-  ]]></description>
-
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -33,7 +18,7 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
 
-        <action id="com.github.erotourtes.harpoon.AddFile"
+        <action id="HarpoonerAddFile"
                 class="com.github.erotourtes.harpoon.actions.AddFileAction"
                 text="Harpooner Add File"
                 description="Add File to Harpoon"
@@ -42,7 +27,7 @@
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
 
-        <action id="com.github.erotourtes.harpoon.QuickMenu"
+        <action id="HarpoonerQuickMenu"
                 class="com.github.erotourtes.harpoon.actions.QuickMenuAction"
                 text="Harpooner Show Menu"
                 description="Show quick menu of harpoon"
@@ -51,7 +36,7 @@
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
 
-        <action id="com.github.erotourtes.harpoon.OpenFile0"
+        <action id="HarpoonerOpenFile0"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction0"
                 text="Harpooner Open File 1"
                 description="Open the first file"
@@ -60,7 +45,7 @@
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
 
-        <action id="com.github.erotourtes.harpoon.OpenFile1"
+        <action id="HarpoonerOpenFile1"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction1"
                 text="Harpooner Open File 2"
                 description="Open the second file"
@@ -69,7 +54,7 @@
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
 
-        <action id="com.github.erotourtes.harpoon.OpenFile2"
+        <action id="HarpoonerOpenFile2"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction2"
                 text="Harpooner Open File 3"
                 description="Open the third file"
@@ -78,7 +63,7 @@
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
 
-        <action id="com.github.erotourtes.harpoon.OpenFile3"
+        <action id="HarpoonerOpenFile3"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction3"
                 text="Harpooner Open File 4"
                 description="Open the fourth file"
