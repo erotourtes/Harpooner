@@ -18,15 +18,18 @@ class QuickMenu(projectPath: String?) {
     private var virtualFile: VirtualFile
     private var connection: MessageBusConnection? = null
     private val name = "Harpooner Menu"
+    private val ideaProjectFolder = ".idea"
+    private val projectPath: String;
 
     init {
-        menuFile = getMenuFile(projectPath)
+        this.projectPath = projectPath?.substring(0, projectPath.lastIndexOf(ideaProjectFolder)) ?: ""
+        menuFile = getMenuFile()
         virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(menuFile)
             ?: throw Exception("File not found, this should not happen")
     }
 
     fun readLines(): List<String> {
-        return menuFile.readLines()
+        return menuFile.readLines().map { projectPath + it }
     }
 
     fun isMenuFile(path: String): Boolean {
@@ -58,20 +61,24 @@ class QuickMenu(projectPath: String?) {
 
     fun updateFile(content: List<String>) {
         val writer = menuFile.bufferedWriter()
-        content.forEach { writer.write(it + "\n") }
+        content.forEach { writer.write(formatPath(it) + "\n") }
         writer.close()
     }
 
     fun addToFile(str: String) {
         FileWriter(menuFile, true).buffered().use { writer ->
-            writer.write(str + "\n")
+            writer.write(formatPath(str) + "\n")
         }
     }
 
-    private fun getMenuFile(path: String?): File {
-        if (path == null) return File.createTempFile(name, null)
+    private fun formatPath(path: String): String {
+        return path.removePrefix(projectPath)
+    }
 
-        val projectPath = path.substring(0, path.indexOf(".idea") + 5)
+    private fun getMenuFile(): File {
+        if (projectPath.isEmpty()) return File.createTempFile(name, null)
+
+        val projectPath = projectPath + ideaProjectFolder
         val menuPath = projectPath.plus("/$name")
 
         val menu = File(menuPath)
