@@ -2,6 +2,7 @@ package com.github.erotourtes.harpoon.utils
 
 import com.github.erotourtes.harpoon.listeners.FileEditorListener
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
@@ -26,6 +27,14 @@ class QuickMenu(projectPath: String?) {
         menuFile = getMenuFile()
         virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(menuFile)
             ?: throw Exception("File not found, this should not happen")
+    }
+
+    fun save(): QuickMenu {
+        val docManager = FileDocumentManager.getInstance()
+        val document = docManager.getDocument(virtualFile) ?: return this
+        docManager.saveDocument(document)
+
+        return this
     }
 
     fun readLines(): List<String> {
