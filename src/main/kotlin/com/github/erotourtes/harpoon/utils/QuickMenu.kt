@@ -2,6 +2,8 @@ package com.github.erotourtes.harpoon.utils
 
 import com.github.erotourtes.harpoon.listeners.FileEditorListener
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
@@ -29,16 +31,11 @@ class QuickMenu(projectPath: String?) {
             ?: throw Exception("File not found, this should not happen")
     }
 
-    fun save(): QuickMenu {
-        val docManager = FileDocumentManager.getInstance()
-        val document = docManager.getDocument(virtualFile) ?: return this
-        docManager.saveDocument(document)
-
-        return this
-    }
-
     fun readLines(): List<String> {
-        return menuFile.readLines().map { projectPath + it }
+        val docManager = FileDocumentManager.getInstance()
+        val document = docManager.getDocument(virtualFile) ?: throw Error("Can't read file")
+
+        return document.text.split("\n").map { if (it.isNotEmpty()) projectPath + it else it }
     }
 
     fun isMenuFile(path: String): Boolean {
@@ -68,15 +65,28 @@ class QuickMenu(projectPath: String?) {
         return this
     }
 
-    fun updateFile(content: List<String>) {
-        val writer = menuFile.bufferedWriter()
-        content.forEach { writer.write(formatPath(it) + "\n") }
-        writer.close()
+    fun updateFile(content: List<String>): QuickMenu {
+        ApplicationManager.getApplication().runWriteAction {
+            val docManager = FileDocumentManager.getInstance()
+            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+            content.joinToString("\n") { formatPath(it) }.let { document.setText(it) }
+        }
+
+        return this
     }
 
-    fun addToFile(str: String) {
-        FileWriter(menuFile, true).buffered().use { writer ->
-            writer.write(formatPath(str) + "\n")
+    fun addToFile(str: String, project: Project) {
+        ApplicationManager.getApplication().runWriteAction {
+            val docManager = FileDocumentManager.getInstance()
+            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+            val endLine = document.getLineEndOffset(document.lineCount - 1)
+            CommandProcessor.getInstance().executeCommand(
+                project, {
+                    WriteCommandAction.runWriteCommandAction(project) {
+                        document.insertString(endLine, "\n" + formatPath(str))
+                    }
+                }, "Harpooner", null
+            )
         }
     }
 

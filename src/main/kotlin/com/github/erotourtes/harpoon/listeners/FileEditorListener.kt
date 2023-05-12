@@ -15,7 +15,7 @@ class FileEditorListener : FileEditorManagerListener {
 
         if (menu == null || !menu.isMenuFile(file.path)) return
 
-        harpoonService.setPaths(menu.save().readLines())
+        harpoonService.setPaths(menu.readLines())
         menu.disconnectListener()
     }
 }

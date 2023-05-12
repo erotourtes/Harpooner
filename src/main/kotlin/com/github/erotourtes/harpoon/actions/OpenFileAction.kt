@@ -12,7 +12,7 @@ abstract class OpenFileAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val harpoonService = project.service<HarpoonService>()
-        val file = harpoonService?.getFile(index()) ?: return notify("Can't find file")
+        val file = harpoonService.getFile(index()) ?: return notify("Can't find file")
 
         try {
             val fileManager = FileEditorManager.getInstance(project)
