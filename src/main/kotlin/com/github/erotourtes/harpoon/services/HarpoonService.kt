@@ -20,6 +20,10 @@ class HarpoonService(private val project: Project) : PersistentStateComponent<Ha
             menu.updateFile(value.data)
         }
 
+    fun getPaths(): List<String> {
+        return state.data.toList()
+    }
+
     override fun getState(): State {
         return state
     }
