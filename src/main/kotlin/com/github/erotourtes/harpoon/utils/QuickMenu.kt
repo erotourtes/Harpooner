@@ -23,6 +23,7 @@ class QuickMenu(projectPath: String?) {
     private val name = "Harpooner Menu"
     private val ideaProjectFolder = ".idea"
     private val projectPath: String
+    private val projectPathIndicator = "\$PROJECT_DIR\$/"
 
     init {
         this.projectPath = projectPath?.substring(0, projectPath.lastIndexOf(ideaProjectFolder)) ?: ""
@@ -33,7 +34,7 @@ class QuickMenu(projectPath: String?) {
         val docManager = FileDocumentManager.getInstance()
         val document = docManager.getDocument(virtualFile) ?: throw Error("Can't read file")
 
-        return document.text.split("\n").map { if (it.isNotEmpty()) projectPath + it else it }
+        return document.text.split("\n").map { it.replaceFirst(projectPathIndicator, projectPath) }
     }
 
     fun isMenuFile(path: String): Boolean {
@@ -98,7 +99,7 @@ class QuickMenu(projectPath: String?) {
     }
 
     private fun formatPath(path: String): String {
-        return path.removePrefix(projectPath)
+        return path.replaceFirst(projectPath, projectPathIndicator)
     }
 
     private fun initMenuFile() {
