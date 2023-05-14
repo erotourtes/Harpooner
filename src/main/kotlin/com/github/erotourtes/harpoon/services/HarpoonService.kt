@@ -11,14 +11,10 @@ import com.intellij.openapi.vfs.VirtualFile
 
 @State(name = "HarpoonerState", storages = [Storage("Harpooner.xml")])
 @Service(Service.Level.PROJECT)
-class HarpoonService(private val project: Project) : PersistentStateComponent<HarpoonService.State> {
-    var menu = QuickMenu(project.projectFilePath)
+class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService.State> {
+    var menu = QuickMenu(project)
     private val virtualFiles = mutableMapOf<String, VirtualFile?>()
     private var state = State()
-        set(value) {
-            field = value
-            menu.updateFile(project, value.data)
-        }
 
     fun getPaths(): List<String> {
         return state.data.toList()
@@ -37,7 +33,7 @@ class HarpoonService(private val project: Project) : PersistentStateComponent<Ha
         if (state.data.any { it == path }) return
         state.data += path
         virtualFiles[path] = file
-        menu.addToFile(path, project)
+        menu.addToFile(path)
     }
 
     fun getFile(index: Int): VirtualFile? {
@@ -50,11 +46,9 @@ class HarpoonService(private val project: Project) : PersistentStateComponent<Ha
     }
 
     fun setPaths(paths: List<String>) {
-        val filtered = paths.filter { it.isNotEmpty() }
+        val filtered = paths.filter { it.isNotEmpty() }.distinct()
         if (filtered != state.data)
             state.data = ArrayList(filtered)
-        if (paths.size != state.data.size)
-            menu.updateFile(project, state.data)
     }
 
     class State {
