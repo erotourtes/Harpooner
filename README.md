@@ -33,7 +33,6 @@ keyboard shortcuts.
 > the [example](https://github.com/erotourtes/Harpooner#example) section.
 
 The harpooner menu is a file. All changes to a file are saved after **closing the IDE tab**.  
-For the best experience, you should treat the harpooner menu as menu. After some edits save the file and close it.
 
 This plugin is inspired by [Harpoon](https://github.com/ThePrimeagen/harpoon)
 <!-- Plugin description end -->
