@@ -17,5 +17,8 @@ class FileEditorListener : FileEditorManagerListener {
 
         harpoonService.setPaths(menu.readLines())
         menu.disconnectListener()
+
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        editor.contentComponent.requestFocus()
     }
 }

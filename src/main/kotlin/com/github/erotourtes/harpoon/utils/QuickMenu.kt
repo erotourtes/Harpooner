@@ -66,6 +66,7 @@ class QuickMenu(private val project: Project) {
         fileManager.openFile(virtualFile, true)
         updateFile(harpoonService.getPaths())
         collapseAllFolds()
+        setCursorToEnd()
 
         return this
     }
@@ -102,6 +103,14 @@ class QuickMenu(private val project: Project) {
                 updateFile(listOf(str))
             }
         }
+    }
+
+    private fun setCursorToEnd() {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val caretModel = editor.caretModel
+        val currentLineNumber = caretModel.logicalPosition.line
+        val currentLineEndOffset = editor.document.getLineEndOffset(currentLineNumber)
+        caretModel.moveToOffset(currentLineEndOffset)
     }
 
     private fun collapseAllFolds() {
