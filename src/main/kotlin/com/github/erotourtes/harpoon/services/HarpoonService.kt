@@ -17,7 +17,7 @@ class HarpoonService(private val project: Project) : PersistentStateComponent<Ha
     private var state = State()
         set(value) {
             field = value
-            menu.updateFile(value.data)
+            menu.updateFile(project, value.data)
         }
 
     fun getPaths(): List<String> {
@@ -54,7 +54,7 @@ class HarpoonService(private val project: Project) : PersistentStateComponent<Ha
         if (filtered != state.data)
             state.data = ArrayList(filtered)
         if (paths.size != state.data.size)
-            menu.updateFile(state.data)
+            menu.updateFile(project, state.data)
     }
 
     class State {

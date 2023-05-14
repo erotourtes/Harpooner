@@ -13,6 +13,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.io.createFile
 import com.intellij.util.messages.MessageBusConnection
+import org.intellij.markdown.lexer.push
 import java.io.File
 import kotlin.io.path.Path
 
@@ -21,12 +22,10 @@ class QuickMenu(projectPath: String?) {
     private lateinit var virtualFile: VirtualFile
     private var connection: MessageBusConnection? = null
     private val name = "Harpooner Menu"
-    private val ideaProjectFolder = ".idea"
-    private val projectPath: String
-    private val projectPathIndicator = "\$PROJECT_DIR\$/"
+    private val projectInfo: ProjectInfo
 
     init {
-        this.projectPath = projectPath?.substring(0, projectPath.lastIndexOf(ideaProjectFolder)) ?: ""
+        projectInfo = ProjectInfo.from(projectPath)
         initMenuFile()
     }
 
@@ -34,7 +33,7 @@ class QuickMenu(projectPath: String?) {
         val docManager = FileDocumentManager.getInstance()
         val document = docManager.getDocument(virtualFile) ?: throw Error("Can't read file")
 
-        return document.text.split("\n").map { it.replaceFirst(projectPathIndicator, projectPath) }
+        return document.text.split("\n").map { it }
     }
 
     fun isMenuFile(path: String): Boolean {
@@ -63,17 +62,22 @@ class QuickMenu(projectPath: String?) {
         if (!virtualFile.isValid) {
             initMenuFile()
             val harpoonService = project.getService(HarpoonService::class.java)
-            updateFile(harpoonService.getPaths())
+            updateFile(project, harpoonService.getPaths())
         }
         fileManager.openFile(virtualFile, true)
         return this
     }
 
-    fun updateFile(content: List<String>): QuickMenu {
+    fun updateFile(project: Project, content: List<String>): QuickMenu {
         ApplicationManager.getApplication().runWriteAction {
             val docManager = FileDocumentManager.getInstance()
             val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
             content.joinToString("\n") { formatPath(it) }.let { document.setText(it) }
+
+            content.forEachIndexed { index, it ->
+                val line = document.getLineStartOffset(index)
+                foldLine(project, line, it)
+            }
         }
 
         return this
@@ -92,14 +96,43 @@ class QuickMenu(projectPath: String?) {
                         }
                     }, "Harpooner", null
                 )
+                foldLine(project, document.lineCount - 1, str)
             } catch (e: Exception) {
-                updateFile(listOf(str))
+                updateFile(project, listOf(str))
+            }
+        }
+    }
+
+    private fun foldLine(project: Project, line: Int, str: String) {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val foldingModel = editor.foldingModel
+        val foldings = ArrayList<Triple<Int, Int, String>>()
+
+        var lastFoldIndex = line
+        val lineLenLimit = 50
+
+        if (str.startsWith(projectInfo.path)) {
+            foldings.push(Triple(line, projectInfo.path.length, projectInfo.name))
+            lastFoldIndex += projectInfo.path.length + 1
+        } else if (str.contains(projectInfo.name, false)) {
+            foldings.push(Triple(lastFoldIndex, projectInfo.path.length, "${projectInfo.name}/"))
+            lastFoldIndex += projectInfo.path.length + 1
+        }
+        if (str.length - (lastFoldIndex - line) > lineLenLimit) {
+            val index = str.indexOf("/", lastFoldIndex + lineLenLimit)
+            foldings.push(Triple(lastFoldIndex, index, "..."))
+        }
+
+        foldingModel.runBatchFoldingOperation {
+            for ((start, end, placeHolder) in foldings) {
+                val foldRegion = foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
+                foldRegion.isExpanded = false
             }
         }
     }
 
     private fun formatPath(path: String): String {
-        return path.replaceFirst(projectPath, projectPathIndicator)
+        return path
     }
 
     private fun initMenuFile() {
@@ -109,9 +142,9 @@ class QuickMenu(projectPath: String?) {
     }
 
     private fun getMenuFile(): File {
-        if (projectPath.isEmpty()) return File.createTempFile(name, null)
+        if (projectInfo.path.isEmpty()) return File.createTempFile(name, null)
 
-        val projectPath = projectPath + ideaProjectFolder
+        val projectPath = projectInfo.path + ProjectInfo.ideaProjectFolder
         val menuPath = projectPath.plus("/$name")
 
         val menu = File(menuPath)
@@ -120,5 +153,17 @@ class QuickMenu(projectPath: String?) {
 
     private fun createMenuFile(path: String): File {
         return Path(path).createFile().toFile()
+    }
+
+    data class ProjectInfo(val name: String, val path: String) {
+        companion object {
+            const val ideaProjectFolder = ".idea"
+            fun from(path: String?): ProjectInfo {
+                val projectPath = path?.substring(0, path.lastIndexOf(ideaProjectFolder)) ?: ""
+                val name = projectPath.substring(projectPath.lastIndexOf("/") + 1)
+                return ProjectInfo(name, projectPath)
+            }
+
+        }
     }
 }
