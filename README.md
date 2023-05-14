@@ -38,8 +38,7 @@ This plugin is inspired by [Harpoon](https://github.com/ThePrimeagen/harpoon)
 <!-- Plugin description end -->
 
 ### Example
-You need to use [Ideavim](https://plugins.jetbrains.com/plugin/164-ideavim) plugin to use the following keybindings.  
-For more useful keybindings see [my set-up](https://github.com/erotourtes/IntellijVim)
+You need to use [IdeaVim](https://plugins.jetbrains.com/plugin/164-ideavim) plugin to use the following keybindings.  
 
 ```Vim
 " Harpoon
