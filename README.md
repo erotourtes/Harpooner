@@ -8,7 +8,7 @@
   [![Downloads](https://img.shields.io/jetbrains/plugin/d/com.github.erotourtes.harpoon.svg)](https://plugins.jetbrains.com/plugin/21796-harpooner)
 </div>
 
-Harpooner - Harpoon by Erotourtes for JetBrains products  
+Harpooner - the Harpoon by Erotourtes for JetBrains products  
 ###### Inspired by [ThePrimeagen/harpoon](https://github.com/ThePrimeagen/harpoon)
 
 ## Preview
