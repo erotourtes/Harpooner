@@ -1,11 +1,15 @@
-<h1>Harpooner
-  <img src="https://github.com/erotourtes/Harpooner/blob/main/src/main/resources/META-INF/pluginIcon.svg"  width="100" height="100">
-</h1>
+<div align="center">
+  <h1>Harpooner
+    <img src="https://github.com/erotourtes/Harpooner/blob/main/src/main/resources/META-INF/pluginIcon.svg"  width="100" height="100">
+  </h1>
+  
+  ![Build](https://github.com/erotourtes/Harpooner/workflows/Build/badge.svg)
+  [![Version](https://img.shields.io/jetbrains/plugin/v/com.github.erotourtes.harpoon.svg)](https://plugins.jetbrains.com/plugin/21796-harpooner)
+  [![Downloads](https://img.shields.io/jetbrains/plugin/d/com.github.erotourtes.harpoon.svg)](https://plugins.jetbrains.com/plugin/21796-harpooner)
+</div>
 
-![Build](https://github.com/erotourtes/Harpooner/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/com.github.erotourtes.harpoon.svg)](https://plugins.jetbrains.com/plugin/21796-harpooner)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/com.github.erotourtes.harpoon.svg)](https://plugins.jetbrains.com/plugin/21796-harpooner)
-
+Harpooner - Harpoon by Erotourtes for JetBrains products  
+###### Inspired by [ThePrimeagen/harpoon](https://github.com/ThePrimeagen/harpoon)
 
 ## Preview
 [Preview.webm](https://github.com/erotourtes/Harpooner/assets/67370189/6dfed402-ac46-48fe-8331-c620cdc301be)
