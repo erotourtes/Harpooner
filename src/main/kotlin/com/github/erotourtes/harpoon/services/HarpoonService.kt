@@ -1,6 +1,7 @@
 package com.github.erotourtes.harpoon.services
 
 import com.github.erotourtes.harpoon.utils.QuickMenu
+import com.github.erotourtes.harpoon.utils.XML_HARPOONER_FILE_NAME
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
@@ -9,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 
-@State(name = "HarpoonerState", storages = [Storage("Harpooner.xml")])
+@State(name = "HarpoonerState", storages = [Storage(XML_HARPOONER_FILE_NAME)])
 @Service(Service.Level.PROJECT)
 class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService.State> {
     var menu = QuickMenu(project)

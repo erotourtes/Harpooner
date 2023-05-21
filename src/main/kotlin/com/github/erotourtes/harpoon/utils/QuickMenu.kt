@@ -21,7 +21,6 @@ class QuickMenu(private val project: Project) {
     private lateinit var menuFile: File
     private lateinit var virtualFile: VirtualFile
     private var connection: MessageBusConnection? = null
-    private val name = "Harpooner Menu"
     private val projectInfo = ProjectInfo.from(project.projectFilePath)
 
     init {
@@ -97,7 +96,7 @@ class QuickMenu(private val project: Project) {
                         WriteCommandAction.runWriteCommandAction(project) {
                             document.insertString(endLine, "\n" + str)
                         }
-                    }, name, null
+                    }, PLUGIN_NAME, null
                 )
             } catch (e: Exception) {
                 updateFile(listOf(str))
@@ -144,7 +143,7 @@ class QuickMenu(private val project: Project) {
         var lastFoldIndex = 0
         if (str.startsWith(projectInfo.path)) {
             val endIndex = projectInfo.path.length
-            folds.push(Triple(line, line + endIndex , projectInfo.name))
+            folds.push(Triple(line, line + endIndex, projectInfo.name))
             lastFoldIndex += endIndex
         } else if (str.contains(projectInfo.name, false)) { // in case there is a symbolic links
             val endIndex = str.indexOf(projectInfo.name) + projectInfo.name.length
@@ -171,10 +170,10 @@ class QuickMenu(private val project: Project) {
     }
 
     private fun getMenuFile(): File {
-        if (projectInfo.path.isEmpty()) return File.createTempFile(name, null)
+        if (projectInfo.path.isEmpty()) return File.createTempFile(MENU_NAME, null)
 
-        val projectPath = projectInfo.path + ProjectInfo.ideaProjectFolder
-        val menuPath = projectPath.plus("/$name")
+        val projectPath = projectInfo.path + IDEA_PROJECT_FOLDER
+        val menuPath = projectPath.plus("/$MENU_NAME")
 
         val menu = File(menuPath)
         return if (menu.exists()) menu else createMenuFile(menuPath)
@@ -186,9 +185,8 @@ class QuickMenu(private val project: Project) {
 
     data class ProjectInfo(val name: String, val path: String) {
         companion object {
-            const val ideaProjectFolder = ".idea"
             fun from(path: String?): ProjectInfo {
-                val projectPath = path?.substring(0, path.lastIndexOf(ideaProjectFolder)) ?: ""
+                val projectPath = path?.substring(0, path.lastIndexOf(IDEA_PROJECT_FOLDER)) ?: ""
                 val name = projectPath.substring(projectNameIndex(projectPath))
                 return ProjectInfo(name, projectPath)
             }
@@ -203,7 +201,6 @@ class QuickMenu(private val project: Project) {
 
                 return lastIndex
             }
-
         }
     }
 }

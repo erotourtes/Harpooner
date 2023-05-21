@@ -11,6 +11,10 @@
         <service interface="com.github.erotourtes.harpoon.services.HarpoonService"
                  serviceImplementation="com.github.erotourtes.harpoon.services.HarpoonService"/>
     </extensions>
+    
+    <projectListeners>
+        <listener class="com.github.erotourtes.harpoon.listeners.ProjectManagerListener" topic="com.intellij.openapi.project.ProjectManagerListener" />
+    </projectListeners>
 
     <actions>
         <group id="com.github.erotourtes.harpoon.pluginsGroup" text="Harpooner"
