@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.0.3] - 2023-05-21
+
+### Added
+
+- Files the plugin generates (Harpooner Menu & Harpooner.xml) are added to a .gitignore
+
 ## [1.0.2] - 2023-05-14
 
 ### Added

@@ -2,7 +2,6 @@
 <idea-plugin>
     <id>com.github.erotourtes.harpoon</id>
     <name>Harpooner</name>
-    <version>1.0.1</version>
     <vendor email="erotourtes@gmail.com" url="https://github.com/erotourtes">erotourtes</vendor>
 
     <depends>com.intellij.modules.platform</depends>
