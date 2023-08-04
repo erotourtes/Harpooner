@@ -4,6 +4,23 @@
 
 ## [Unreleased]
 
+## [1.0.4] - 2023-08-04
+
+### Added
+
+- Icon in the toolbar menu
+- GitHub Actions — use Java `17` explicitly
+
+### Fixed
+
+- Compatibility with the latest Jetbrains IDEs
+
+### Changed
+
+- StartupActivity instead of ProjectManagerListener
+- Upgrade Gradle Wrapper to `8.2.1`
+- GitHub Actions — rearrange the Build workflow
+
 ## [1.0.3] - 2023-05-21
 
 ### Added
