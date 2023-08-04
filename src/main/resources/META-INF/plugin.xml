@@ -7,24 +7,23 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <service interface="com.github.erotourtes.harpoon.services.HarpoonService"
-                 serviceImplementation="com.github.erotourtes.harpoon.services.HarpoonService"/>
+        <!-- The service is now light-weight and does not require defining it in the plugin.xml -->
+        <!--        <projectService-->
+        <!--                serviceImplementation="com.github.erotourtes.harpoon.services.HarpoonService"/>-->
+        <postStartupActivity
+                implementation="com.github.erotourtes.harpoon.listeners.ProjectOnStartListener"/>
     </extensions>
-    
-    <projectListeners>
-        <listener class="com.github.erotourtes.harpoon.listeners.ProjectManagerListener" topic="com.intellij.openapi.project.ProjectManagerListener" />
-    </projectListeners>
 
     <actions>
         <group id="com.github.erotourtes.harpoon.pluginsGroup" text="Harpooner"
-               description="Harpooner is a navigation plugin" popup="true">
+               description="Harpooner is a navigation plugin" popup="true" icon="/META-INF/pluginIcon.svg">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
 
         <action id="HarpoonerAddFile"
                 class="com.github.erotourtes.harpoon.actions.AddFileAction"
                 text="Harpooner Add File"
-                description="Add File to Harpoon"
+                description="Add File to the Harpoon"
                 popup="true"
         >
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
