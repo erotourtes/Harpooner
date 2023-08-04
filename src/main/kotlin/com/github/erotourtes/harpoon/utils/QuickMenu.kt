@@ -5,6 +5,7 @@ import com.github.erotourtes.harpoon.services.HarpoonService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
@@ -17,6 +18,7 @@ import org.intellij.markdown.lexer.push
 import java.io.File
 import kotlin.io.path.Path
 
+// TODO: decompose class to a fold manager and a quick menu
 class QuickMenu(private val project: Project) {
     private lateinit var menuFile: File
     private lateinit var virtualFile: VirtualFile
@@ -58,10 +60,10 @@ class QuickMenu(private val project: Project) {
     fun open(): QuickMenu {
         val fileManager = FileEditorManager.getInstance(project)
         val harpoonService = project.getService(HarpoonService::class.java)
-        if (!virtualFile.isValid) {
+
+        if (!virtualFile.isValid)
             initMenuFile()
-            updateFile(harpoonService.getPaths())
-        }
+
         fileManager.openFile(virtualFile, true)
         updateFile(harpoonService.getPaths())
         collapseAllFolds()
@@ -78,7 +80,7 @@ class QuickMenu(private val project: Project) {
 
             content.forEachIndexed { index, it ->
                 val line = document.getLineStartOffset(index)
-                foldLine(line, it)
+                addFoldsToLine(line, it)
             }
         }
 
@@ -121,10 +123,9 @@ class QuickMenu(private val project: Project) {
         }
     }
 
-    private fun foldLine(line: Int, str: String) {
+    private fun addFoldsToLine(line: Int, str: String) {
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        val editorFilePath = FileDocumentManager.getInstance().getFile(editor.document)?.path ?: return
-        if (editorFilePath != virtualFile.path) return
+        if (!isMenuFileOpenedWith(editor)) return
 
         val foldingModel = editor.foldingModel
         val folds = getFoldsFrom(line, str)
@@ -138,6 +139,11 @@ class QuickMenu(private val project: Project) {
         }
     }
 
+    private fun isMenuFileOpenedWith(editor: Editor): Boolean {
+        val editorFilePath = FileDocumentManager.getInstance().getFile(editor.document)?.path ?: return false
+        return editorFilePath == virtualFile.path
+    }
+
     private fun getFoldsFrom(line: Int, str: String): List<Triple<Int, Int, String>> {
         val folds = ArrayList<Triple<Int, Int, String>>()
         var lastFoldIndex = 0
@@ -145,7 +151,11 @@ class QuickMenu(private val project: Project) {
             val endIndex = projectInfo.path.length
             folds.push(Triple(line, line + endIndex, projectInfo.name))
             lastFoldIndex += endIndex
-        } else if (str.contains(projectInfo.name, false)) { // in case there is a symbolic links
+        } else if (str.contains(
+                projectInfo.name,
+                false
+            )
+        ) { // TODO: in case there is a symbolic links, may be handle differently
             val endIndex = str.indexOf(projectInfo.name) + projectInfo.name.length
             folds.push(Triple(line, line + endIndex, projectInfo.name))
             lastFoldIndex += endIndex
