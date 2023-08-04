@@ -2,11 +2,6 @@
   <configuration default="false" name="Run Plugin" type="GradleRunConfiguration" factoryName="Gradle">
     <log_file alias="idea.log" path="$PROJECT_DIR$/build/idea-sandbox/system/log/idea.log" />
     <ExternalSystemSettings>
-      <option name="env">
-        <map>
-          <entry key="Dorg.gradle.project.intellijPublishToken" value="perm:ZXJvdG91cnRlcw==.OTItNzk3OA==.Kgx0v9yOu5DBjzPyACsHKjDlaQ7cvy" />
-        </map>
-      </option>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
       <option name="externalSystemIdString" value="GRADLE" />
@@ -24,7 +19,6 @@
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
     <DebugAllEnabled>false</DebugAllEnabled>
-    <ForceTestExec>false</ForceTestExec>
     <method v="2" />
   </configuration>
 </component>
