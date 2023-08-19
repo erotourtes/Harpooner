@@ -18,12 +18,71 @@ import org.intellij.markdown.lexer.push
 import java.io.File
 import kotlin.io.path.Path
 
-// TODO: decompose class to a fold manager and a quick menu
+class FoldManager(private val menu: QuickMenu, private val project: Project) {
+    private val projectInfo = menu.projectInfo
+
+    private fun getFoldsFrom(line: Int, str: String): List<Triple<Int, Int, String>> {
+        val folds = ArrayList<Triple<Int, Int, String>>()
+        var lastFoldIndex = 0
+        if (str.startsWith(projectInfo.path)) {
+            val endIndex = projectInfo.path.length
+            folds.push(Triple(line, line + endIndex, projectInfo.name))
+            lastFoldIndex += endIndex
+        } else if (str.contains(
+                projectInfo.name,
+                false
+            )
+        ) { // TODO: in case there is a symbolic links, may be handle differently
+            val endIndex = str.indexOf(projectInfo.name) + projectInfo.name.length
+            folds.push(Triple(line, line + endIndex, projectInfo.name))
+            lastFoldIndex += endIndex
+        }
+
+        var count = 0
+        for (index in str.length - 1 downTo lastFoldIndex) {
+            if (str[index] == '/') count++
+            if (count == 3) {
+                folds.push(Triple(line + lastFoldIndex, line + index + 1, ".../"))
+                break
+            }
+        }
+
+        return folds
+    }
+
+    fun addFoldsToLine(line: Int, str: String) {
+        if (!menu.isMenuFileOpenedWithCurEditor()) return
+
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val foldingModel = editor.foldingModel
+        val folds = getFoldsFrom(line, str)
+
+        foldingModel.runBatchFoldingOperation {
+            for ((start, end, placeHolder) in folds) {
+                val foldRegion =
+                    foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
+                foldRegion.isExpanded = false
+            }
+        }
+    }
+
+    fun collapseAllFolds() {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val foldingModel = editor.foldingModel
+
+        foldingModel.runBatchFoldingOperation {
+            foldingModel.allFoldRegions.forEach { it.isExpanded = false }
+        }
+    }
+}
+
+
 class QuickMenu(private val project: Project) {
     private lateinit var menuFile: File
     private lateinit var virtualFile: VirtualFile
     private var connection: MessageBusConnection? = null
-    private val projectInfo = ProjectInfo.from(project.projectFilePath)
+    val projectInfo = ProjectInfo.from(project.projectFilePath)
+    private val foldManager = FoldManager(this, project)
 
     init {
         initMenuFile()
@@ -66,13 +125,13 @@ class QuickMenu(private val project: Project) {
 
         fileManager.openFile(virtualFile, true)
         updateFile(harpoonService.getPaths())
-        collapseAllFolds()
+        foldManager.collapseAllFolds()
         setCursorToEnd()
 
         return this
     }
 
-    fun updateFile(content: List<String>): QuickMenu {
+    private fun updateFile(content: List<String>): QuickMenu {
         ApplicationManager.getApplication().runWriteAction {
             val docManager = FileDocumentManager.getInstance()
             val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
@@ -80,7 +139,7 @@ class QuickMenu(private val project: Project) {
 
             content.forEachIndexed { index, it ->
                 val line = document.getLineStartOffset(index)
-                addFoldsToLine(line, it)
+                foldManager.addFoldsToLine(line, it)
             }
         }
 
@@ -114,63 +173,14 @@ class QuickMenu(private val project: Project) {
         caretModel.moveToOffset(currentLineEndOffset)
     }
 
-    private fun collapseAllFolds() {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        val foldingModel = editor.foldingModel
-
-        foldingModel.runBatchFoldingOperation {
-            foldingModel.allFoldRegions.forEach { it.isExpanded = false }
-        }
-    }
-
-    private fun addFoldsToLine(line: Int, str: String) {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        if (!isMenuFileOpenedWith(editor)) return
-
-        val foldingModel = editor.foldingModel
-        val folds = getFoldsFrom(line, str)
-
-        foldingModel.runBatchFoldingOperation {
-            for ((start, end, placeHolder) in folds) {
-                val foldRegion =
-                    foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
-                foldRegion.isExpanded = false
-            }
-        }
+    fun isMenuFileOpenedWithCurEditor(): Boolean {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return false
+        return isMenuFileOpenedWith(editor)
     }
 
     private fun isMenuFileOpenedWith(editor: Editor): Boolean {
         val editorFilePath = FileDocumentManager.getInstance().getFile(editor.document)?.path ?: return false
         return editorFilePath == virtualFile.path
-    }
-
-    private fun getFoldsFrom(line: Int, str: String): List<Triple<Int, Int, String>> {
-        val folds = ArrayList<Triple<Int, Int, String>>()
-        var lastFoldIndex = 0
-        if (str.startsWith(projectInfo.path)) {
-            val endIndex = projectInfo.path.length
-            folds.push(Triple(line, line + endIndex, projectInfo.name))
-            lastFoldIndex += endIndex
-        } else if (str.contains(
-                projectInfo.name,
-                false
-            )
-        ) { // TODO: in case there is a symbolic links, may be handle differently
-            val endIndex = str.indexOf(projectInfo.name) + projectInfo.name.length
-            folds.push(Triple(line, line + endIndex, projectInfo.name))
-            lastFoldIndex += endIndex
-        }
-
-        var count = 0
-        for (index in str.length - 1 downTo lastFoldIndex) {
-            if (str[index] == '/') count++
-            if (count == 3) {
-                folds.push(Triple(line + lastFoldIndex, line + index + 1, ".../"))
-                break
-            }
-        }
-
-        return folds
     }
 
     private fun initMenuFile() {
@@ -191,26 +201,5 @@ class QuickMenu(private val project: Project) {
 
     private fun createMenuFile(path: String): File {
         return Path(path).createFile().toFile()
-    }
-
-    data class ProjectInfo(val name: String, val path: String) {
-        companion object {
-            fun from(path: String?): ProjectInfo {
-                val projectPath = path?.substring(0, path.lastIndexOf(IDEA_PROJECT_FOLDER)) ?: ""
-                val name = projectPath.substring(projectNameIndex(projectPath))
-                return ProjectInfo(name, projectPath)
-            }
-
-            private fun projectNameIndex(projectPath: String): Int {
-                var lastIndex = -1
-                for (index in projectPath.length - 2 downTo 0) {
-                    if (projectPath[index] != '/') continue
-                    lastIndex = index + 1
-                    break
-                }
-
-                return lastIndex
-            }
-        }
     }
 }
