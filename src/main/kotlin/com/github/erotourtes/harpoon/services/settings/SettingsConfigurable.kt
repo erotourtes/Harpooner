@@ -1,5 +1,6 @@
 package com.github.erotourtes.harpoon.services.settings
 
+import com.github.erotourtes.harpoon.utils.SETTINGS_HEADER
 import com.intellij.openapi.options.Configurable
 import javax.swing.JComponent
 
@@ -20,7 +21,7 @@ class SettingsConfigurable : Configurable {
         settingsComponent = null
     }
 
-    override fun getDisplayName(): String = "Harpooner Settings"
+    override fun getDisplayName(): String = SETTINGS_HEADER
 
     override fun isModified(): Boolean = settingsComponent!!.state.isModified(SettingsState.getInstance())
 }
