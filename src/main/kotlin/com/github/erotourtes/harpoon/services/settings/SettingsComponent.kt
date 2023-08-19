@@ -15,10 +15,8 @@ class SettingsComponent {
     private val numberOfSlashesUI = JBSlider(1, 10, SettingsState.getInstance().numberOfSlashes)
     private val numberOfSlashesLabelUI = JBLabel("Number of visible words: ")
     private val showProjectPathUI = JBCheckBox("Show project path")
-    private val foldProjectPathUI = JBCheckBox("Fold project path")
 
     val state = UIState()
-
 
     private fun createSlider(slider: JBSlider): JBSlider {
         val label = numberOfSlashesLabelUI
@@ -41,7 +39,6 @@ class SettingsComponent {
                 false
             )
             .addComponent(showProjectPathUI, 1)
-            .addComponent(foldProjectPathUI, 1)
             .addComponentFillVertically(JPanel(), 0)
             .panel
     }
@@ -51,23 +48,19 @@ class SettingsComponent {
     inner class UIState {
         private var numberOfSlashes: Int by SliderDelegate(numberOfSlashesUI)
         private var showProjectPath: Boolean by CheckBoxDelegate(showProjectPathUI)
-        private var foldProjectPath: Boolean by CheckBoxDelegate(foldProjectPathUI)
 
         fun reset(settings: SettingsState) {
             numberOfSlashes = settings.numberOfSlashes
             showProjectPath = settings.showProjectPath
-            foldProjectPath = settings.foldProjectPath
         }
 
         fun apply(settings: SettingsState) {
             settings.numberOfSlashes = numberOfSlashes
             settings.showProjectPath = showProjectPath
-            settings.foldProjectPath = foldProjectPath
         }
 
         fun isModified(state: SettingsState): Boolean =
             showProjectPath != state.showProjectPath ||
-                    foldProjectPath != state.foldProjectPath ||
                     numberOfSlashes != state.numberOfSlashes
     }
 }
