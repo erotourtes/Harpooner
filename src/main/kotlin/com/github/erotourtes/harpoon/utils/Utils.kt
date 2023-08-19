@@ -1,5 +1,6 @@
 package com.github.erotourtes.harpoon.utils
 
+import com.github.erotourtes.harpoon.services.settings.SettingsState
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBSlider
 import com.intellij.notification.Notification
@@ -7,6 +8,9 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
 
 fun notify(message: String, type: NotificationType = NotificationType.ERROR, project: Project? = null) {
+    val settings = SettingsState.getInstance()
+    if (!settings.showNotifications) return
+
     val notification = Notification(
         PLUGIN_NAME,
         PLUGIN_NAME,

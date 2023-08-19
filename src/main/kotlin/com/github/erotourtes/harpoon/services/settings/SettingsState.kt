@@ -18,6 +18,9 @@ class SettingsState : PersistentStateComponent<SettingsState>, Observable<Settin
     // Folding options
     var numberOfSlashes = 3
 
+    // Other
+    var showNotifications = true
+
     override fun getState(): SettingsState = this
     override fun loadState(state: SettingsState) = XmlSerializerUtil.copyBean(state, this)
 
@@ -25,6 +28,7 @@ class SettingsState : PersistentStateComponent<SettingsState>, Observable<Settin
         val snapshot = SettingsState()
         snapshot.showProjectPath = showProjectPath
         snapshot.numberOfSlashes = numberOfSlashes
+        snapshot.showNotifications = showNotifications
         return snapshot
     }
 
