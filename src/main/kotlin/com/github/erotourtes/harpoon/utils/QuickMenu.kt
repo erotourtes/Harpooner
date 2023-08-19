@@ -59,7 +59,7 @@ class QuickMenu(private val project: Project) {
 
     fun open(): QuickMenu {
         val fileManager = FileEditorManager.getInstance(project)
-        val harpoonService = project.getService(HarpoonService::class.java)
+        val harpoonService = HarpoonService.getInstance(project)
 
         if (!virtualFile.isValid)
             initMenuFile()

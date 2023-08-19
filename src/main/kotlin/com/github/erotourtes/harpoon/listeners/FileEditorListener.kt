@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 class FileEditorListener : FileEditorManagerListener {
     override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
         val project = source.project
-        val harpoonService = project.service<HarpoonService>()
+        val harpoonService = HarpoonService.getInstance(project)
         val menu = harpoonService.menu
 
         if (menu == null || !menu.isMenuFile(file.path)) return

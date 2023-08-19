@@ -6,8 +6,8 @@ import com.intellij.openapi.project.Project
 
 fun notify(message: String, type: NotificationType = NotificationType.ERROR, project: Project? = null) {
     val notification = Notification(
-        "Harpooner",
-        "Harpooner",
+        PLUGIN_NAME,
+        PLUGIN_NAME,
         message,
         type
     )

@@ -2,10 +2,7 @@ package com.github.erotourtes.harpoon.services
 
 import com.github.erotourtes.harpoon.utils.QuickMenu
 import com.github.erotourtes.harpoon.utils.XML_HARPOONER_FILE_NAME
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
+import com.intellij.openapi.components.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -54,5 +51,12 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
 
     class State {
         var data: ArrayList<String> = ArrayList()
+    }
+
+    companion object {
+        fun getInstance(project: Project): HarpoonService {
+//            return project.getService(HarpoonService::class.java)
+            return project.service<HarpoonService>()
+        }
     }
 }
