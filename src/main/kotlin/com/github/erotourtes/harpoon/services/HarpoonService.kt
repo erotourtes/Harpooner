@@ -1,6 +1,6 @@
 package com.github.erotourtes.harpoon.services
 
-import com.github.erotourtes.harpoon.utils.QuickMenu
+import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.github.erotourtes.harpoon.utils.XML_HARPOONER_FILE_NAME
 import com.intellij.openapi.components.*
 import com.intellij.openapi.project.Project
