@@ -2,6 +2,7 @@ package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.listeners.FileEditorListener
 import com.github.erotourtes.harpoon.services.HarpoonService
+import com.github.erotourtes.harpoon.services.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
 import com.github.erotourtes.harpoon.utils.PLUGIN_NAME
@@ -21,12 +22,18 @@ import java.io.File
 import kotlin.io.path.Path
 
 
+/*
+* TODO:
+*  make settings reload menu dynamically
+*  may be observe settings change and update processor and fold manager
+* */
 class QuickMenu(private val project: Project) {
     private lateinit var menuFile: File
     private lateinit var virtualFile: VirtualFile
     private var connection: MessageBusConnection? = null
     val projectInfo = ProjectInfo.from(project.projectFilePath)
     private val foldManager = FoldManager(this, project)
+    private var processor = PathsProcessor(this)
 
     init {
         initMenuFile()
@@ -36,7 +43,7 @@ class QuickMenu(private val project: Project) {
         val docManager = FileDocumentManager.getInstance()
         val document = docManager.getDocument(virtualFile) ?: throw Error("Can't read file")
 
-        return document.text.split("\n").map { it }
+        return document.text.split("\n").map { processor.unprocess(it) }
     }
 
     fun isMenuFile(path: String): Boolean {
@@ -79,6 +86,8 @@ class QuickMenu(private val project: Project) {
         ApplicationManager.getApplication().runWriteAction {
             val docManager = FileDocumentManager.getInstance()
             val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+
+            val content = processor.process(content)
             content.joinToString("\n").let { document.setText(it) }
 
             content.forEachIndexed { index, it ->
@@ -90,7 +99,7 @@ class QuickMenu(private val project: Project) {
         return this
     }
 
-    fun addToFile(str: String) {
+    private fun addToFile(str: String) {
         ApplicationManager.getApplication().runWriteAction {
             val docManager = FileDocumentManager.getInstance()
             val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
@@ -130,7 +139,7 @@ class QuickMenu(private val project: Project) {
     private fun initMenuFile() {
         menuFile = getMenuFile()
         virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(menuFile)
-            ?: throw Exception("File not found, this should not happen")
+            ?: throw Exception("File is not found, this should not happen")
     }
 
     private fun getMenuFile(): File {
