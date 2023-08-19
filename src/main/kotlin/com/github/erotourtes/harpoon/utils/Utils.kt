@@ -27,3 +27,16 @@ class SliderDelegate(private val slider: JBSlider) {
         slider.value = value
     }
 }
+
+open class Observable<T> {
+    @Transient
+    private val observers = mutableListOf<(T) -> Unit>()
+
+    fun addObserver(observer: (T) -> Unit) {
+        observers.add(observer)
+    }
+
+    fun notifyObservers(value: T) {
+        observers.forEach { it(value) }
+    }
+}

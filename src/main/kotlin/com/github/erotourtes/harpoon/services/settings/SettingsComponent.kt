@@ -57,6 +57,8 @@ class SettingsComponent {
         fun apply(settings: SettingsState) {
             settings.numberOfSlashes = numberOfSlashes
             settings.showProjectPath = showProjectPath
+
+            settings.notifyObservers(settings.snapshot())
         }
 
         fun isModified(state: SettingsState): Boolean =

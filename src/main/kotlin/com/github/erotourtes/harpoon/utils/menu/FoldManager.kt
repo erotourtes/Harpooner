@@ -9,10 +9,6 @@ class FoldManager(private val menu: QuickMenu, private val project: Project) {
     private val projectInfo = menu.projectInfo
     private var settings = SettingsState.getInstance()
 
-    init {
-        removeAllFolds()
-    }
-
     fun addFoldsToLine(line: Int, str: String) {
         if (!menu.isMenuFileOpenedWithCurEditor()) return
 
@@ -29,7 +25,7 @@ class FoldManager(private val menu: QuickMenu, private val project: Project) {
         }
     }
 
-    fun removeAllFolds() {
+    private fun removeAllFolds() {
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
         val foldingModel = editor.foldingModel
 
@@ -41,6 +37,7 @@ class FoldManager(private val menu: QuickMenu, private val project: Project) {
     }
 
     fun updateSettings(newState: SettingsState) {
+        removeAllFolds()
         settings = newState
     }
 

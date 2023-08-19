@@ -5,10 +5,7 @@ import com.github.erotourtes.harpoon.services.HarpoonService
 import com.github.erotourtes.harpoon.services.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
-import com.github.erotourtes.harpoon.utils.PLUGIN_NAME
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -22,11 +19,6 @@ import java.io.File
 import kotlin.io.path.Path
 
 
-/*
-* TODO:
-*  make settings reload menu dynamically
-*  may be observe settings change and update processor and fold manager
-* */
 class QuickMenu(private val project: Project) {
     private lateinit var menuFile: File
     private lateinit var virtualFile: VirtualFile
@@ -37,6 +29,7 @@ class QuickMenu(private val project: Project) {
 
     init {
         initMenuFile()
+        SettingsState.getInstance().addObserver { updateSettings(it) }
     }
 
     fun readLines(): List<String> {
@@ -87,10 +80,10 @@ class QuickMenu(private val project: Project) {
             val docManager = FileDocumentManager.getInstance()
             val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
 
-            val content = processor.process(content)
-            content.joinToString("\n").let { document.setText(it) }
+            val processedContent = processor.process(content)
+            processedContent.joinToString("\n").let { document.setText(it) }
 
-            content.forEachIndexed { index, it ->
+            processedContent.forEachIndexed { index, it ->
                 val line = document.getLineStartOffset(index)
                 foldManager.addFoldsToLine(line, it)
             }
@@ -99,24 +92,32 @@ class QuickMenu(private val project: Project) {
         return this
     }
 
-    private fun addToFile(str: String) {
-        ApplicationManager.getApplication().runWriteAction {
-            val docManager = FileDocumentManager.getInstance()
-            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
-            try {
-                val endLine = document.getLineEndOffset(document.lineCount - 1)
-                CommandProcessor.getInstance().executeCommand(
-                    project, {
-                        WriteCommandAction.runWriteCommandAction(project) {
-                            document.insertString(endLine, "\n" + str)
-                        }
-                    }, PLUGIN_NAME, null
-                )
-            } catch (e: Exception) {
-                updateFile(listOf(str))
-            }
-        }
+    private fun updateSettings(settings: SettingsState) {
+        foldManager.updateSettings(settings)
+
+        processor = PathsProcessor(this)
+        val harpoonService = HarpoonService.getInstance(project)
+        updateFile(harpoonService.getPaths())
     }
+
+//    private fun addToFile(str: String) {
+//        ApplicationManager.getApplication().runWriteAction {
+//            val docManager = FileDocumentManager.getInstance()
+//            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+//            try {
+//                val endLine = document.getLineEndOffset(document.lineCount - 1)
+//                CommandProcessor.getInstance().executeCommand(
+//                    project, {
+//                        WriteCommandAction.runWriteCommandAction(project) {
+//                            document.insertString(endLine, "\n" + str)
+//                        }
+//                    }, PLUGIN_NAME, null
+//                )
+//            } catch (e: Exception) {
+//                updateFile(listOf(str))
+//            }
+//        }
+//    }
 
     private fun setCursorToEnd() {
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
