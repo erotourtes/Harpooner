@@ -31,7 +31,7 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
         if (state.data.any { it == path }) return
         state.data += path
         virtualFiles[path] = file
-        menu.addToFile(path)
+//        menu.addToFile(path)
     }
 
     fun getFile(index: Int): VirtualFile? {
