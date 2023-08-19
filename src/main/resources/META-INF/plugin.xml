@@ -12,6 +12,13 @@
         <!--                serviceImplementation="com.github.erotourtes.harpoon.services.HarpoonService"/>-->
         <postStartupActivity
                 implementation="com.github.erotourtes.harpoon.listeners.ProjectOnStartListener"/>
+        <applicationService
+                serviceImplementation="com.github.erotourtes.harpoon.services.settings.SettingsState"/>
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.github.erotourtes.harpoon.services.settings.SettingsConfigurable"/>
+                id="com.github.erotourtes.harpoon.services.settings.SettingsConfigurable"
+                displayName="Harpooner Settings"/>
     </extensions>
 
     <actions>
