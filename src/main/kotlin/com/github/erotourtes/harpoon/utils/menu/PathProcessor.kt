@@ -20,7 +20,7 @@ class PathsProcessor(private val menu: QuickMenu) {
         val settings = SettingsState.getInstance()
         var updatedPath = path
 
-        if (!settings.showProjectPath)
+        if (!settings.showProjectPath && updatedPath.isNotEmpty())
             updatedPath = "${menu.projectInfo.pathWithSlashAtEnd}${updatedPath}"
 
         return updatedPath
