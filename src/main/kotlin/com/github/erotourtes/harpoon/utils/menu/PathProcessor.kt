@@ -11,7 +11,7 @@ class PathsProcessor(private val menu: QuickMenu) {
         var updatedPath = path
 
         if (!settings.showProjectPath)
-            updatedPath = updatedPath.removePrefix(menu.projectInfo.path)
+            updatedPath = updatedPath.removePrefix(menu.projectInfo.pathWithSlashAtEnd)
 
         return updatedPath
     }
@@ -21,7 +21,7 @@ class PathsProcessor(private val menu: QuickMenu) {
         var updatedPath = path
 
         if (!settings.showProjectPath)
-            updatedPath = menu.projectInfo.path + updatedPath
+            updatedPath = "${menu.projectInfo.pathWithSlashAtEnd}${updatedPath}"
 
         return updatedPath
     }

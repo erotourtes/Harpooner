@@ -145,9 +145,9 @@ class QuickMenu(private val project: Project) {
     }
 
     private fun getMenuFile(): File {
-        if (projectInfo.path.isEmpty()) return File.createTempFile(MENU_NAME, null)
+        if (projectInfo.pathWithSlashAtEnd.isEmpty()) return File.createTempFile(MENU_NAME, null)
 
-        val projectPath = projectInfo.path + IDEA_PROJECT_FOLDER
+        val projectPath = projectInfo.pathWithSlashAtEnd + IDEA_PROJECT_FOLDER
         val menuPath = projectPath.plus("/$MENU_NAME")
 
         val menu = File(menuPath)

@@ -3,11 +3,11 @@ package com.github.erotourtes.harpoon.utils.menu
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import kotlin.io.path.Path
 
-data class ProjectInfo(val name: String, val path: String) {
+data class ProjectInfo(val name: String, val pathWithSlashAtEnd: String) {
     companion object {
         fun from(path: String?): ProjectInfo {
             val projectPath = path?.substring(0, path.lastIndexOf(IDEA_PROJECT_FOLDER)) ?: ""
-            val realPath = Path(projectPath).toRealPath().toString()
+            val realPath = Path(projectPath).toRealPath().toString() + "/"
             val name = projectPath.substring(projectNameIndex(projectPath))
             return ProjectInfo(name, realPath)
         }

@@ -53,16 +53,8 @@ class FoldManager(private val menu: QuickMenu, private val project: Project) {
     private fun getFoldsFrom(line: Int, str: String): List<Triple<Int, Int, String>> {
         val folds = ArrayList<Triple<Int, Int, String>>()
         var lastFoldIndex = 0
-        if (settings.showProjectPath && str.startsWith(projectInfo.path)) {
-            val endIndex = projectInfo.path.length
-            folds.push(Triple(line, line + endIndex, projectInfo.name))
-            lastFoldIndex += endIndex
-        } else if (settings.showProjectPath && str.contains(
-                projectInfo.name,
-                false
-            )
-        ) { // TODO: Think about symbolic links
-            val endIndex = str.indexOf(projectInfo.name) + projectInfo.name.length
+        if (settings.showProjectPath && str.startsWith(projectInfo.pathWithSlashAtEnd)) {
+            val endIndex = projectInfo.pathWithSlashAtEnd.length
             folds.push(Triple(line, line + endIndex, projectInfo.name))
             lastFoldIndex += endIndex
         }
