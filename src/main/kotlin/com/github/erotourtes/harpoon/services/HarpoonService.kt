@@ -6,6 +6,7 @@ import com.intellij.openapi.components.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import kotlin.io.path.Path
 
 @State(name = "HarpoonerState", storages = [Storage(XML_HARPOONER_FILE_NAME)])
 @Service(Service.Level.PROJECT)
@@ -14,20 +15,16 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
     private val virtualFiles = mutableMapOf<String, VirtualFile?>()
     private var state = State()
 
-    fun getPaths(): List<String> {
-        return state.data.toList()
-    }
+    fun getPaths(): List<String> = state.data.toList()
 
-    override fun getState(): State {
-        return state
-    }
+    override fun getState(): State = state
 
     override fun loadState(state: State) {
         this.state = state
     }
 
     fun addFile(file: VirtualFile) {
-        val path = file.path
+        val path = Path(file.path).toRealPath().toString()
         if (state.data.any { it == path }) return
         state.data += path
         virtualFiles[path] = file

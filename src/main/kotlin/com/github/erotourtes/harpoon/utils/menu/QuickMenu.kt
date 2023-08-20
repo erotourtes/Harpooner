@@ -19,6 +19,7 @@ import java.io.File
 import kotlin.io.path.Path
 
 
+// TODO: store a snapshot of the settings in the quick menu (now it is stored in processor and fold manager separately); + maybe implement a snapshot class
 class QuickMenu(private val project: Project) {
     private lateinit var menuFile: File
     private lateinit var virtualFile: VirtualFile
