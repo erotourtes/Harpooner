@@ -27,8 +27,6 @@ class SettingsComponent {
     private val numberOfSlashesLabelUI = JBLabel("Number of visible words: ")
     private val showProjectPathUI = JBCheckBox("Show project path")
     private val showNotificationsUI = JBCheckBox("Show notifications")
-    private val noteLabel =
-        JBLabel("Note: The settings will be applied dynamically, so you should be able see to the changes immediately after applying it. ")
 
     val state = UIState()
 
@@ -54,7 +52,6 @@ class SettingsComponent {
             )
             .addComponent(showProjectPathUI, 1)
             .addComponent(showNotificationsUI, 1)
-            .addComponent(noteLabel, 1)
             .addComponentFillVertically(JPanel(), 0)
             .panel
     }
