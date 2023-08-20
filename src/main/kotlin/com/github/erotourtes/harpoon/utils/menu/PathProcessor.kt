@@ -3,7 +3,7 @@ package com.github.erotourtes.harpoon.utils.menu
 import com.github.erotourtes.harpoon.services.settings.SettingsState
 
 class PathsProcessor(private val menu: QuickMenu) {
-    private val settings = SettingsState.getInstance()
+    private var settings = SettingsState.getInstance()
 
     fun process(paths: List<String>): List<String> = paths.map { process(it) }
 
@@ -24,5 +24,9 @@ class PathsProcessor(private val menu: QuickMenu) {
             updatedPath = "${menu.projectInfo.pathWithSlashAtEnd}${updatedPath}"
 
         return updatedPath
+    }
+
+    fun updateSettings(newState: SettingsState) {
+        settings = newState
     }
 }
