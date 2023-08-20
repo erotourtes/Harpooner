@@ -21,16 +21,20 @@ import kotlin.io.path.Path
 
 // TODO: think about settings encapsulation
 class QuickMenu(private val project: Project) {
+    val projectInfo: ProjectInfo
     private lateinit var menuFile: File
     private lateinit var virtualFile: VirtualFile
     private var connection: MessageBusConnection? = null
-    val projectInfo = ProjectInfo.from(project.projectFilePath)
-    private val foldManager = FoldManager(this, project)
-    private var processor = PathsProcessor(this)
+    private val foldManager: FoldManager
+    private var processor: PathsProcessor
 
     init {
         initMenuFile()
+        projectInfo = ProjectInfo.from(virtualFile.path)
         SettingsState.getInstance().addObserver { updateSettings(it) }
+
+        foldManager = FoldManager(this, project)
+        processor = PathsProcessor(this)
     }
 
     fun readLines(): List<String> {
@@ -40,9 +44,7 @@ class QuickMenu(private val project: Project) {
         return document.text.split("\n").map { processor.unprocess(it) }
     }
 
-    fun isMenuFile(path: String): Boolean {
-        return path == menuFile.path
-    }
+    fun isMenuFile(path: String): Boolean = path == menuFile.path
 
     fun connectListener(): QuickMenu {
         if (connection != null) return this
@@ -101,25 +103,6 @@ class QuickMenu(private val project: Project) {
         updateFile(harpoonService.getPaths())
     }
 
-//    private fun addToFile(str: String) {
-//        ApplicationManager.getApplication().runWriteAction {
-//            val docManager = FileDocumentManager.getInstance()
-//            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
-//            try {
-//                val endLine = document.getLineEndOffset(document.lineCount - 1)
-//                CommandProcessor.getInstance().executeCommand(
-//                    project, {
-//                        WriteCommandAction.runWriteCommandAction(project) {
-//                            document.insertString(endLine, "\n" + str)
-//                        }
-//                    }, PLUGIN_NAME, null
-//                )
-//            } catch (e: Exception) {
-//                updateFile(listOf(str))
-//            }
-//        }
-//    }
-
     private fun setCursorToEnd() {
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
         val caretModel = editor.caretModel
@@ -145,16 +128,15 @@ class QuickMenu(private val project: Project) {
     }
 
     private fun getMenuFile(): File {
-        if (projectInfo.pathWithSlashAtEnd.isEmpty()) return File.createTempFile(MENU_NAME, null)
+        val tmpProjectInfo = ProjectInfo.from(project.projectFilePath)
+        if (tmpProjectInfo.pathWithSlashAtEnd.isEmpty()) return File.createTempFile(MENU_NAME, null)
 
-        val projectPath = projectInfo.pathWithSlashAtEnd + IDEA_PROJECT_FOLDER
+        val projectPath = tmpProjectInfo.pathWithSlashAtEnd + IDEA_PROJECT_FOLDER
         val menuPath = projectPath.plus("/$MENU_NAME")
 
         val menu = File(menuPath)
         return if (menu.exists()) menu else createMenuFile(menuPath)
     }
 
-    private fun createMenuFile(path: String): File {
-        return Path(path).createFile().toFile()
-    }
+    private fun createMenuFile(path: String): File = Path(path).createFile().toFile()
 }

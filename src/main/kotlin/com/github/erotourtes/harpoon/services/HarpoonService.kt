@@ -6,7 +6,6 @@ import com.intellij.openapi.components.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
-import kotlin.io.path.Path
 
 @State(name = "HarpoonerState", storages = [Storage(XML_HARPOONER_FILE_NAME)])
 @Service(Service.Level.PROJECT)
@@ -24,7 +23,7 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
     }
 
     fun addFile(file: VirtualFile) {
-        val path = Path(file.path).toRealPath().toString()
+        val path = file.path
         if (state.data.any { it == path }) return
         state.data += path
         virtualFiles[path] = file

@@ -1,15 +1,15 @@
 package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import kotlin.io.path.Path
 
 data class ProjectInfo(val name: String, val pathWithSlashAtEnd: String) {
     companion object {
         fun from(path: String?): ProjectInfo {
             val projectPath = path?.substring(0, path.lastIndexOf(IDEA_PROJECT_FOLDER)) ?: ""
-            val realPath = Path(projectPath).toRealPath().toString() + "/"
             val name = projectPath.substring(projectNameIndex(projectPath))
-            return ProjectInfo(name, realPath)
+            return ProjectInfo(name, projectPath)
         }
 
         private fun projectNameIndex(projectPath: String): Int {
