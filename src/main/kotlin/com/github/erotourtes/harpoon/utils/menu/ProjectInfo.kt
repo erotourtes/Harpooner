@@ -1,8 +1,6 @@
 package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import kotlin.io.path.Path
 
 data class ProjectInfo(val name: String, val pathWithSlashAtEnd: String) {
     companion object {

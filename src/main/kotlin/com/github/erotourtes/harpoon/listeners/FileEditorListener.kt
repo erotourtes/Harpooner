@@ -1,7 +1,6 @@
 package com.github.erotourtes.harpoon.listeners
 
 import com.github.erotourtes.harpoon.services.HarpoonService
-import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.vfs.VirtualFile
