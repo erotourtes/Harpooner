@@ -1,11 +1,8 @@
 package com.github.erotourtes.harpoon.services
 
-import com.github.erotourtes.harpoon.utils.QuickMenu
+import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.github.erotourtes.harpoon.utils.XML_HARPOONER_FILE_NAME
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
+import com.intellij.openapi.components.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -17,13 +14,9 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
     private val virtualFiles = mutableMapOf<String, VirtualFile?>()
     private var state = State()
 
-    fun getPaths(): List<String> {
-        return state.data.toList()
-    }
+    fun getPaths(): List<String> = state.data.toList()
 
-    override fun getState(): State {
-        return state
-    }
+    override fun getState(): State = state
 
     override fun loadState(state: State) {
         this.state = state
@@ -34,7 +27,7 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
         if (state.data.any { it == path }) return
         state.data += path
         virtualFiles[path] = file
-        menu.addToFile(path)
+//        menu.addToFile(path)
     }
 
     fun getFile(index: Int): VirtualFile? {
@@ -54,5 +47,12 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
 
     class State {
         var data: ArrayList<String> = ArrayList()
+    }
+
+    companion object {
+        fun getInstance(project: Project): HarpoonService {
+//            return project.getService(HarpoonService::class.java)
+            return project.service<HarpoonService>()
+        }
     }
 }

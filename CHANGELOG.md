@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [1.0.5] - 2023-08-19
+
+### Added
+
+- Dynamic settings for the Harpooner menu
+
+### Fixed
+
+- Symbolic links now resolve correctly
+
+### Changed
+
+- View of the menu
+
 ## [1.0.4] - 2023-08-04
 
 ### Added

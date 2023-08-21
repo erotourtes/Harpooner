@@ -1,7 +1,6 @@
 package com.github.erotourtes.harpoon.listeners
 
 import com.github.erotourtes.harpoon.services.HarpoonService
-import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.vfs.VirtualFile
@@ -10,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 class FileEditorListener : FileEditorManagerListener {
     override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
         val project = source.project
-        val harpoonService = project.service<HarpoonService>()
+        val harpoonService = HarpoonService.getInstance(project)
         val menu = harpoonService.menu
 
         if (menu == null || !menu.isMenuFile(file.path)) return
