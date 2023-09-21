@@ -34,7 +34,7 @@ class QuickMenu(private val project: Project) {
         SettingsState.getInstance().addObserver { updateSettings(it) }
 
         foldManager = FoldManager(this, project)
-        processor = PathsProcessor(this)
+        processor = PathsProcessor(projectInfo)
     }
 
     fun readLines(): List<String> {

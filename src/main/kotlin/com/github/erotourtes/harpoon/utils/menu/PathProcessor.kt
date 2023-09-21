@@ -2,7 +2,7 @@ package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.services.settings.SettingsState
 
-class PathsProcessor(private val menu: QuickMenu) {
+class PathsProcessor(private val projectInfo: ProjectInfo) {
     private var settings = SettingsState.getInstance()
 
     fun process(paths: List<String>): List<String> = paths.map { process(it) }
@@ -11,17 +11,17 @@ class PathsProcessor(private val menu: QuickMenu) {
         var updatedPath = path
 
         if (!settings.showProjectPath)
-            updatedPath = updatedPath.removePrefix(menu.projectInfo.pathWithSlashAtEnd)
+            updatedPath = updatedPath.removePrefix(projectInfo.pathWithSlashAtEnd)
 
         return updatedPath
     }
 
     fun unprocess(path: String): String {
         val settings = SettingsState.getInstance()
-        var updatedPath = path
+        var updatedPath = path.trim()
 
         if (!settings.showProjectPath && updatedPath.isNotEmpty())
-            updatedPath = "${menu.projectInfo.pathWithSlashAtEnd}${updatedPath}"
+            updatedPath = "${projectInfo.pathWithSlashAtEnd}${updatedPath}"
 
         return updatedPath
     }
