@@ -42,6 +42,10 @@ nmap <leader>hm :action HarpoonerQuickMenu<cr>
 nmap <leader>ha :action HarpoonerAddFile<cr>
 ```
 
+### Settings
+You can change the settings:
+<kbd>Settings/Preferences</kbd> > <kbd>Tools</kbd> > <kbd>Harpooner Settings</kbd>
+
 ### Installation
 
 - Using IDE built-in plugin system:
