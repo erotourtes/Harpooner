@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.0.6] - 2023-10-03
+
+### Fixed
+
+- Dynamic settings for the Harpooner menu (fixes #1)
+
 ## [1.0.5] - 2023-08-19
 
 ### Added
