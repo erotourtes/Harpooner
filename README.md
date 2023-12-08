@@ -46,6 +46,14 @@ nmap <leader>ha :action HarpoonerAddFile<cr>
 You can change the settings:
 <kbd>Settings/Preferences</kbd> > <kbd>Tools</kbd> > <kbd>Harpooner Settings</kbd>
 
+![settings1](https://github.com/erotourtes/Harpooner/assets/67370189/3073101f-d004-4321-b3ae-375c94496d9f)
+> With show project path `on`
+> ![settings2](https://github.com/erotourtes/Harpooner/assets/67370189/77949989-9a8c-4f04-9fbc-93afe163dd06)
+
+> With the number of visible words: 1  
+> ![settings3](https://github.com/erotourtes/Harpooner/assets/67370189/09dbde64-4d2f-4fe9-9cd4-2d46ddf3b890)
+
+
 ### Installation
 
 - Using IDE built-in plugin system:
