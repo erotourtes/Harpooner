@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.0.7] - 2023-12-17
+
+### Changed
+
+- Updated the Gradle `pluginUntilBuild` property
+
 ## [1.0.6] - 2023-10-03
 
 ### Fixed
