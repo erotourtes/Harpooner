@@ -135,8 +135,7 @@ class QuickMenu(private val project: Project) {
         val menuPath = projectPath.plus("/$MENU_NAME")
 
         val menu = File(menuPath)
-        return if (menu.exists()) menu else createMenuFile(menuPath)
+        menu.createNewFile() // create file if it doesn't exist
+        return menu
     }
-
-    private fun createMenuFile(path: String): File = Path(path).createFile().toFile()
 }
