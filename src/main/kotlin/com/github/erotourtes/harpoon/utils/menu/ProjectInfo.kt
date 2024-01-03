@@ -5,7 +5,10 @@ import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 data class ProjectInfo(val name: String, val pathWithSlashAtEnd: String) {
     companion object {
         fun from(path: String?): ProjectInfo {
-            val projectPath = path?.substring(0, path.lastIndexOf(IDEA_PROJECT_FOLDER)) ?: ""
+            val endIndex = path?.lastIndexOf(IDEA_PROJECT_FOLDER)
+            if (endIndex == null || endIndex < 0) return ProjectInfo("", "")
+
+            val projectPath = path.substring(0, endIndex)
             val name = projectPath.substring(projectNameIndex(projectPath))
             return ProjectInfo(name, projectPath)
         }

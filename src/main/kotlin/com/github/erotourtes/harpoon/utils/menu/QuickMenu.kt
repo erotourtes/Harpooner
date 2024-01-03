@@ -23,7 +23,8 @@ import kotlin.io.path.Path
 class QuickMenu(private val project: Project) {
     val projectInfo: ProjectInfo
     private lateinit var menuFile: File
-    private lateinit var virtualFile: VirtualFile
+    lateinit var virtualFile: VirtualFile
+        private set
     private var connection: MessageBusConnection? = null
     private val foldManager: FoldManager
     private var processor: PathsProcessor
