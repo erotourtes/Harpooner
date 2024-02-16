@@ -21,5 +21,7 @@ class ActionTest : HarpoonTestCase() {
         fixture.performEditorAction("HarpoonerAddFile")
 
         assertEquals(2, harpoonService.getPaths().size)
+        assertEquals("/src/dummy0.txt", harpoonService.getPaths()[0])
+        assertEquals("/src/dummy1.txt", harpoonService.getPaths()[1])
     }
 }

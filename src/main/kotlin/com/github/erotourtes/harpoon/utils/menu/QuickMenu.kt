@@ -122,17 +122,22 @@ class QuickMenu(private val project: Project) {
         return editorFilePath == virtualFile.path
     }
 
-    private fun initMenuFile() {
-        menuFile = getMenuFile()
+    fun reInitMenuFile(path: String) {
+        menuFile.delete()
+        initMenuFile(path)
+    }
+
+     private fun initMenuFile(customPath: String? = null) {
+        menuFile = getMenuFile(customPath)
         virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(menuFile)
             ?: throw Exception("File is not found, this should not happen")
     }
 
-    private fun getMenuFile(): File {
+    private fun getMenuFile(customPath: String?): File {
         val tmpProjectInfo = ProjectInfo.from(project.projectFilePath)
-        if (tmpProjectInfo.pathWithSlashAtEnd.isEmpty()) return File.createTempFile(MENU_NAME, null)
+        if (tmpProjectInfo.pathWithSlashAtEnd.isEmpty() && customPath == null) return File.createTempFile(MENU_NAME, null)
 
-        val projectPath = tmpProjectInfo.pathWithSlashAtEnd + IDEA_PROJECT_FOLDER
+        val projectPath = customPath ?: (tmpProjectInfo.pathWithSlashAtEnd + IDEA_PROJECT_FOLDER)
         val menuPath = projectPath.plus("/$MENU_NAME")
 
         val menu = File(menuPath)
