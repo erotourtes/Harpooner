@@ -38,8 +38,6 @@ class QuickMenuTest : HarpoonTestCase() {
         performOpenFileAction(1)
         assertEquals(dummy1Filename, curOpenedFilename)
 
-        println(harpoonService.getPaths())
-
         performOpenFileAction(2) // should not open anything new
         assertEquals(dummy1Filename, curOpenedFilename)
     }

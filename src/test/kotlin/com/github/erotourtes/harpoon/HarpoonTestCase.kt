@@ -29,7 +29,6 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
     val curOpenedFilename: String
         get() {
             val fileEditorManager = FileEditorManager.getInstance(project)
-            println(fileEditorManager.selectedEditor?.file)
             return fileEditorManager.selectedEditor?.file?.name ?: ""
         }
 
