@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class SettingsTest : HarpoonTestCase() {
     @Test
-    fun `Test change of settings on the fly`() {
+    fun `change settings on the fly`() {
         performQuickMenuAction()
 
         app.invokeAndWait {
