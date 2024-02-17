@@ -2,6 +2,7 @@ package com.github.erotourtes.harpoon.action
 
 import com.github.erotourtes.harpoon.HarpoonTestCase
 import com.github.erotourtes.harpoon.services.HarpoonService
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class ActionTest : HarpoonTestCase() {
@@ -12,7 +13,7 @@ class ActionTest : HarpoonTestCase() {
         fixture.configureByFile("dummy0.txt")
         fixture.performEditorAction("HarpoonerAddFile")
 
-        assertEquals(1, harpoonService.getPaths().size)
+        Assertions.assertEquals(1, harpoonService.getPaths().size)
 
         fixture.configureByFile("dummy1.txt")
         fixture.performEditorAction("HarpoonerAddFile")
@@ -20,8 +21,8 @@ class ActionTest : HarpoonTestCase() {
         fixture.configureByFile("dummy0.txt")
         fixture.performEditorAction("HarpoonerAddFile")
 
-        assertEquals(2, harpoonService.getPaths().size)
-        assertEquals("/src/dummy0.txt", harpoonService.getPaths()[0])
-        assertEquals("/src/dummy1.txt", harpoonService.getPaths()[1])
+        Assertions.assertEquals(2, harpoonService.getPaths().size)
+        Assertions.assertEquals("/src/dummy0.txt", harpoonService.getPaths()[0])
+        Assertions.assertEquals("/src/dummy1.txt", harpoonService.getPaths()[1])
     }
 }
