@@ -10,11 +10,8 @@ class FileEditorListener : FileEditorManagerListener {
     override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
         val project = source.project
         val harpoonService = HarpoonService.getInstance(project)
-        val menu = harpoonService.menu
 
-        if (menu == null || !menu.isMenuFile(file.path)) return
-
-        harpoonService.setPaths(menu.readLines())
-        menu.disconnectListener()
+        if (!harpoonService.isMenuFile(file.path)) return
+        harpoonService.closeMenu()
     }
 }

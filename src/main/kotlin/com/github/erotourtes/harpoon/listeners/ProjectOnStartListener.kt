@@ -34,7 +34,9 @@ class ProjectOnStartListener : StartupActivity {
 
     private fun getGitignorePath(project: Project): String? {
         val path = project.projectFilePath ?: return null
-        val ideaPath = path.substring(0, path.lastIndexOf(IDEA_PROJECT_FOLDER) - 1)
+        val lastIndex = path.lastIndexOf(IDEA_PROJECT_FOLDER) - 1
+        if (lastIndex < 0) return null
+        val ideaPath = path.substring(0, lastIndex)
         if (ideaPath.isEmpty()) return null
         return "$ideaPath/$IDEA_PROJECT_FOLDER/$GITIGNORE"
     }

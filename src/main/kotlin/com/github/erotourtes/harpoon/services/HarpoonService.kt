@@ -10,9 +10,20 @@ import com.intellij.openapi.vfs.VirtualFile
 @State(name = "HarpoonerState", storages = [Storage(XML_HARPOONER_FILE_NAME)])
 @Service(Service.Level.PROJECT)
 class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService.State> {
-    var menu = QuickMenu(project)
+    private val menu = QuickMenu(project)
     private val virtualFiles = mutableMapOf<String, VirtualFile?>()
     private var state = State()
+
+    fun openMenu() {
+        menu.open().connectListener()
+    }
+
+    fun closeMenu() {
+        setPaths(menu.readLines())
+        menu.disconnectListener()
+    }
+
+    fun isMenuFile(path: String): Boolean = menu.isMenuFile(path)
 
     fun getPaths(): List<String> = state.data.toList()
 
@@ -27,7 +38,6 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
         if (state.data.any { it == path }) return
         state.data += path
         virtualFiles[path] = file
-//        menu.addToFile(path)
     }
 
     fun getFile(index: Int): VirtualFile? {
@@ -45,13 +55,18 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
             state.data = ArrayList(filtered)
     }
 
+    fun configureMenuToRunInTestMode(path: String) {
+        menu.reInitMenuFile(path)
+    }
+
+    val menuVF: VirtualFile get() = menu.virtualFile
+
     class State {
         var data: ArrayList<String> = ArrayList()
     }
 
     companion object {
         fun getInstance(project: Project): HarpoonService {
-//            return project.getService(HarpoonService::class.java)
             return project.service<HarpoonService>()
         }
     }
