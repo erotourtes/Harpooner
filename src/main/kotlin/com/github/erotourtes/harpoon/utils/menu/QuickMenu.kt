@@ -35,8 +35,9 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         initMenuFile()
         projectInfo = ProjectInfo.from(virtualFile.path)
 
-        listenToSettingsChange()
-        listenToMenuTypingChange()
+        val settings = SettingsState.getInstance()
+        listenToSettingsChange(settings)
+        listenToMenuTypingChange(settings)
 
         foldManager = FoldManager(this, project)
         processor = PathsProcessor(projectInfo)
@@ -92,20 +93,32 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         return this
     }
 
-    private fun listenToMenuTypingChange() {
+    private fun listenToMenuTypingChange(settings: SettingsState) {
         val documentListener = MenuChangeListener(harpoonService)
-        val menuDocument = FileDocumentManager.getInstance().getDocument(virtualFile)
-            ?: throw Error("Can't get document of the ${virtualFile.path} file")
-        menuDocument.addDocumentListener(documentListener)
+        val menuDocument =
+            FileDocumentManager.getInstance().getDocument(virtualFile)
+                ?: throw Error("Can't get document of the ${virtualFile.path} file")
+        var isSaving = settings.isSavingOnTyping
+
+        val updateTypingListener = { newSettings: SettingsState ->
+            if (newSettings.isSavingOnTyping) menuDocument.addDocumentListener(documentListener)
+            else menuDocument.removeDocumentListener(documentListener)
+
+            isSaving = newSettings.isSavingOnTyping
+        }
+
+        updateTypingListener(settings)
+
+        val settingsDisposable = settings.addObserver { updateTypingListener(it) }
 
         listenerManager.addDisposable {
-            menuDocument.removeDocumentListener(documentListener)
+            if (isSaving) menuDocument.removeDocumentListener(documentListener)
             documentListener.dispose()
+            settingsDisposable()
         }
     }
 
-    private fun listenToSettingsChange() {
-        val settings = SettingsState.getInstance()
+    private fun listenToSettingsChange(settings: SettingsState) {
         val disposable = settings.addObserver { updateSettings(it) }
         listenerManager.addDisposable(disposable)
     }

@@ -9,7 +9,10 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 
 
 data class HarpoonSettings(
-    var showProjectPath: Boolean = false, var numberOfSlashes: Int = 3, var showNotifications: Boolean = true
+    var showProjectPath: Boolean = false,
+    var numberOfSlashes: Int = 3,
+    var showNotifications: Boolean = true,
+    var isSavingOnTyping: Boolean = false
 )
 
 @State(
@@ -26,6 +29,9 @@ class SettingsState : PersistentStateComponent<SettingsState>, Observable<Settin
 
     val showNotifications: Boolean
         get() = settings.showNotifications
+
+    val isSavingOnTyping: Boolean
+        get() = settings.isSavingOnTyping
 
     override fun getState(): SettingsState = this
     override fun loadState(state: SettingsState) = XmlSerializerUtil.copyBean(state, this)

@@ -26,6 +26,7 @@ class SettingsComponent {
     private val numberOfSlashesUI = JBSlider(1, 10, SettingsState.getInstance().settings.numberOfSlashes)
     private val numberOfSlashesLabelUI = JBLabel("Number of visible words: ")
     private val showProjectPathUI = JBCheckBox("Show project path")
+    private val saveOnType = JBCheckBox("Save on type")
     private val showNotificationsUI = JBCheckBox("Show notifications")
 
     val state = UIState()
@@ -51,6 +52,7 @@ class SettingsComponent {
                 false
             )
             .addComponent(showProjectPathUI, 1)
+            .addComponent(saveOnType, 1)
             .addComponent(showNotificationsUI, 1)
             .addComponentFillVertically(JPanel(), 0)
             .panel
@@ -62,17 +64,20 @@ class SettingsComponent {
         private var numberOfSlashes: Int by SliderDelegate(numberOfSlashesUI)
         private var showProjectPath: Boolean by CheckBoxDelegate(showProjectPathUI)
         private var showNotifications: Boolean by CheckBoxDelegate(showNotificationsUI)
+        private var isSavingOnType: Boolean by CheckBoxDelegate(saveOnType)
 
         private var uiSettings: HarpoonSettings
             get() = HarpoonSettings(
                 numberOfSlashes = numberOfSlashes,
                 showProjectPath = showProjectPath,
-                showNotifications = showNotifications
+                showNotifications = showNotifications,
+                isSavingOnTyping = isSavingOnType
             )
             set(value) {
                 numberOfSlashes = value.numberOfSlashes
                 showProjectPath = value.showProjectPath
                 showNotifications = value.showNotifications
+                isSavingOnType = value.isSavingOnTyping
             }
 
         fun reset(settings: SettingsState) {
