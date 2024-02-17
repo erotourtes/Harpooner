@@ -80,6 +80,7 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
     }
 
     override fun dispose() {
+        // TODO: it is not called by the platform!!!
         menu.dispose()
     }
 }
