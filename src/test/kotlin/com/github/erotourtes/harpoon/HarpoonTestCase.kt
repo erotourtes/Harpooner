@@ -96,11 +96,12 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
     @AfterEach
     override fun tearDown() {
-        val harpoonService = HarpoonService.getInstance(fixture.project)
-        harpoonService.setPaths(emptyList())
         WriteCommandAction.runWriteCommandAction(fixture.project) {
+            menuCloseInEditor()
             harpoonService.menuVF.delete(this)
         }
+
+        harpoonService.setPaths(emptyList())
 
         super.tearDown()
     }
