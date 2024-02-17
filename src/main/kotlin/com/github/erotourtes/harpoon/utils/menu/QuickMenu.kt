@@ -13,10 +13,8 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.io.createFile
 import com.intellij.util.messages.MessageBusConnection
 import java.io.File
-import kotlin.io.path.Path
 
 
 // TODO: think about settings encapsulation
@@ -122,22 +120,17 @@ class QuickMenu(private val project: Project) {
         return editorFilePath == virtualFile.path
     }
 
-    fun reInitMenuFile(path: String) {
-        menuFile.delete()
-        initMenuFile(path)
-    }
-
-     private fun initMenuFile(customPath: String? = null) {
-        menuFile = getMenuFile(customPath)
+    private fun initMenuFile() {
+        menuFile = getMenuFile()
         virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(menuFile)
             ?: throw Exception("File is not found, this should not happen")
     }
 
-    private fun getMenuFile(customPath: String?): File {
+    private fun getMenuFile(): File {
         val tmpProjectInfo = ProjectInfo.from(project.projectFilePath)
-        if (tmpProjectInfo.pathWithSlashAtEnd.isEmpty() && customPath == null) return File.createTempFile(MENU_NAME, null)
+        if (tmpProjectInfo.pathWithSlashAtEnd.isEmpty()) return File.createTempFile(MENU_NAME, null)
 
-        val projectPath = customPath ?: (tmpProjectInfo.pathWithSlashAtEnd + IDEA_PROJECT_FOLDER)
+        val projectPath = tmpProjectInfo.pathWithSlashAtEnd + IDEA_PROJECT_FOLDER
         val menuPath = projectPath.plus("/$MENU_NAME")
 
         val menu = File(menuPath)

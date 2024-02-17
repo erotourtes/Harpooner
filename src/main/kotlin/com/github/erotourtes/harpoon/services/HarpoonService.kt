@@ -55,10 +55,6 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
             state.data = ArrayList(filtered)
     }
 
-    fun configureMenuToRunInTestMode(path: String) {
-        menu.reInitMenuFile(path)
-    }
-
     val menuVF: VirtualFile get() = menu.virtualFile
 
     class State {

@@ -88,7 +88,6 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
         fixture = myFixture
 
-        harpoonService.configureMenuToRunInTestMode(testDataPath.plus("MENU"))
         fixture.configureByFile("dummy0.txt")
     }
 
