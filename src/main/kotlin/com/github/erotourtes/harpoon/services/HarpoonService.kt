@@ -20,7 +20,7 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
         menu.open().connectListener()
     }
 
-    fun closeMenu() {
+    fun onMenuClose() {
         syncWithMenu()
         menu.disconnectListener()
     }

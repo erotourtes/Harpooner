@@ -12,6 +12,6 @@ class FileEditorListener : FileEditorManagerListener {
         val harpoonService = HarpoonService.getInstance(project)
 
         if (!harpoonService.isMenuFile(file.path)) return
-        harpoonService.closeMenu()
+        harpoonService.onMenuClose()
     }
 }
