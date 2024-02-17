@@ -67,24 +67,4 @@ class SettingsTest : HarpoonTestCase() {
 
         }
     }
-
-    @Test
-    fun `saving on typing`() {
-        // TODO: implement this test
-//        app.invokeAndWait {
-//            changeSettings {
-//                settings.isSavingOnTyping = true
-//            }
-//
-//            performQuickMenuAction()
-//
-//            WriteCommandAction.runWriteCommandAction(fixture.project) {
-//                menuDc.insertString(0, "/some/large/path/to/file/1.txt")
-//                println("in write action ${harpoonService.getPaths()}")
-//            }
-//
-//            println("outside write action ${harpoonService.getPaths()}")
-////            Assertions.assertEquals(1, harpoonService.getPaths().size)
-//        }
-    }
 }
