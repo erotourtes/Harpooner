@@ -26,32 +26,20 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
         private set
-    private var connection: MessageBusConnection? = null
     private val foldManager: FoldManager
     private var processor: PathsProcessor
+    private val dbusListener = DbusListener()
     private val listenerManager = ListenerManager()
 
     init {
         initMenuFile()
         projectInfo = ProjectInfo.from(virtualFile.path)
 
-        val settingsDisposable = SettingsState.getInstance().addObserver { updateSettings(it) }
-        listenerManager.addDisposable(settingsDisposable)
+        listenToSettingsChange()
+        listenToMenuTypingChange()
 
         foldManager = FoldManager(this, project)
         processor = PathsProcessor(projectInfo)
-    }
-
-    init {
-        val documentListener = MenuChangeListener(harpoonService)
-        val menuDocument = FileDocumentManager.getInstance().getDocument(virtualFile)
-            ?: throw Error("Can't get document of the ${virtualFile.path} file")
-        menuDocument.addDocumentListener(documentListener)
-
-        listenerManager.addDisposable {
-            menuDocument.removeDocumentListener(documentListener)
-            documentListener.dispose()
-        }
     }
 
     fun readLines(): List<String> {
@@ -64,18 +52,12 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     fun isMenuFile(path: String): Boolean = path == menuFile.path
 
     fun connectListener(): QuickMenu {
-        if (connection != null) return this
-        connection = ApplicationManager.getApplication().messageBus.connect()
-        connection!!.subscribe(
-            FileEditorManagerListener.FILE_EDITOR_MANAGER, FileEditorListener()
-        )
-
+        dbusListener.connect()
         return this
     }
 
     fun disconnectListener(): QuickMenu {
-        connection?.disconnect()
-        connection = null
+        dbusListener.disconnect()
 
         return this
     }
@@ -83,8 +65,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     fun open(): QuickMenu {
         val fileManager = FileEditorManager.getInstance(project)
 
-        if (!virtualFile.isValid)
-            initMenuFile()
+        if (!virtualFile.isValid) initMenuFile()
 
         fileManager.openFile(virtualFile, true)
         updateFile(harpoonService.getPaths())
@@ -109,6 +90,24 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         }
 
         return this
+    }
+
+    private fun listenToMenuTypingChange() {
+        val documentListener = MenuChangeListener(harpoonService)
+        val menuDocument = FileDocumentManager.getInstance().getDocument(virtualFile)
+            ?: throw Error("Can't get document of the ${virtualFile.path} file")
+        menuDocument.addDocumentListener(documentListener)
+
+        listenerManager.addDisposable {
+            menuDocument.removeDocumentListener(documentListener)
+            documentListener.dispose()
+        }
+    }
+
+    private fun listenToSettingsChange() {
+        val settings = SettingsState.getInstance()
+        val disposable = settings.addObserver { updateSettings(it) }
+        listenerManager.addDisposable(disposable)
     }
 
     private fun updateSettings(settings: SettingsState) {
@@ -157,5 +156,23 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     override fun dispose() {
         disconnectListener()
         listenerManager.disposeAllListeners()
+    }
+
+    private class DbusListener {
+        private var connection: MessageBusConnection? = null
+        private val listener by lazy { FileEditorListener() }
+
+        fun connect() {
+            if (connection != null) return
+            connection = ApplicationManager.getApplication().messageBus.connect()
+            connection!!.subscribe(
+                FileEditorManagerListener.FILE_EDITOR_MANAGER, listener
+            )
+        }
+
+        fun disconnect() {
+            connection?.disconnect()
+            connection = null
+        }
     }
 }

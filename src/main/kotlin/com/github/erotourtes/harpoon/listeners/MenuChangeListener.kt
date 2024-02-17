@@ -1,6 +1,7 @@
 package com.github.erotourtes.harpoon.listeners
 
 import com.github.erotourtes.harpoon.services.HarpoonService
+import com.github.erotourtes.harpoon.utils.TYPING_DEBOUNCE_MS
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
@@ -27,7 +28,7 @@ class Debouncer(
 class MenuChangeListener(
     private val harpoonService: HarpoonService,
 ) : DocumentListener, Disposable {
-    private val debouncer = Debouncer(300)
+    private val debouncer = Debouncer(TYPING_DEBOUNCE_MS)
 
     override fun documentChanged(event: DocumentEvent) {
         debouncer.debounce {

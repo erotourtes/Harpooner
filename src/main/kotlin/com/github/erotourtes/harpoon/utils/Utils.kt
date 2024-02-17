@@ -12,10 +12,7 @@ fun notify(message: String, type: NotificationType = NotificationType.ERROR, pro
     if (!settings.showNotifications) return
 
     val notification = Notification(
-        PLUGIN_NAME,
-        PLUGIN_NAME,
-        message,
-        type
+        PLUGIN_NAME, PLUGIN_NAME, message, type
     )
     notification.notify(project)
 }
