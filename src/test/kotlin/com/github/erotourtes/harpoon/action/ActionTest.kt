@@ -1,15 +1,12 @@
 package com.github.erotourtes.harpoon.action
 
 import com.github.erotourtes.harpoon.HarpoonTestCase
-import com.github.erotourtes.harpoon.services.HarpoonService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class ActionTest : HarpoonTestCase() {
     @Test
     fun `add file action`() {
-        val harpoonService = HarpoonService.getInstance(fixture.project)
-
         fixture.configureByFile("dummy0.txt")
         fixture.performEditorAction("HarpoonerAddFile")
 
