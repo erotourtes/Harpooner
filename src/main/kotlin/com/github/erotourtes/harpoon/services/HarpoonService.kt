@@ -2,6 +2,8 @@ package com.github.erotourtes.harpoon.services
 
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.github.erotourtes.harpoon.utils.XML_HARPOONER_FILE_NAME
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -9,8 +11,8 @@ import com.intellij.openapi.vfs.VirtualFile
 
 @State(name = "HarpoonerState", storages = [Storage(XML_HARPOONER_FILE_NAME)])
 @Service(Service.Level.PROJECT)
-class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService.State> {
-    private val menu = QuickMenu(project)
+class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService.State>, Disposable {
+    private val menu = QuickMenu(project, this)
     private val virtualFiles = mutableMapOf<String, VirtualFile?>()
     private var state = State()
 
@@ -19,8 +21,18 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
     }
 
     fun closeMenu() {
-        setPaths(menu.readLines())
+        syncWithMenu()
         menu.disconnectListener()
+    }
+
+    fun syncWithMenuSafe() {
+        ApplicationManager.getApplication().invokeLater {
+            syncWithMenu()
+        }
+    }
+
+    fun syncWithMenu() {
+        setPaths(menu.readLines())
     }
 
     fun isMenuFile(path: String): Boolean = menu.isMenuFile(path)
@@ -65,5 +77,9 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
         fun getInstance(project: Project): HarpoonService {
             return project.service<HarpoonService>()
         }
+    }
+
+    override fun dispose() {
+        menu.dispose()
     }
 }

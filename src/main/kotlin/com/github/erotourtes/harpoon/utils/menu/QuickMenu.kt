@@ -1,10 +1,13 @@
 package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.listeners.FileEditorListener
+import com.github.erotourtes.harpoon.listeners.MenuChangeListener
 import com.github.erotourtes.harpoon.services.HarpoonService
 import com.github.erotourtes.harpoon.services.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
+import com.github.erotourtes.harpoon.utils.ListenerManager
 import com.github.erotourtes.harpoon.utils.MENU_NAME
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -18,7 +21,7 @@ import java.io.File
 
 
 // TODO: think about settings encapsulation
-class QuickMenu(private val project: Project) {
+class QuickMenu(private val project: Project, private val harpoonService: HarpoonService) : Disposable {
     val projectInfo: ProjectInfo
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
@@ -26,14 +29,29 @@ class QuickMenu(private val project: Project) {
     private var connection: MessageBusConnection? = null
     private val foldManager: FoldManager
     private var processor: PathsProcessor
+    private val listenerManager = ListenerManager()
 
     init {
         initMenuFile()
         projectInfo = ProjectInfo.from(virtualFile.path)
-        SettingsState.getInstance().addObserver { updateSettings(it) }
+
+        val settingsDisposable = SettingsState.getInstance().addObserver { updateSettings(it) }
+        listenerManager.addDisposable(settingsDisposable)
 
         foldManager = FoldManager(this, project)
         processor = PathsProcessor(projectInfo)
+    }
+
+    init {
+        val documentListener = MenuChangeListener(harpoonService)
+        val menuDocument = FileDocumentManager.getInstance().getDocument(virtualFile)
+            ?: throw Error("Can't get document of the ${virtualFile.path} file")
+        menuDocument.addDocumentListener(documentListener)
+
+        listenerManager.addDisposable {
+            menuDocument.removeDocumentListener(documentListener)
+            documentListener.dispose()
+        }
     }
 
     fun readLines(): List<String> {
@@ -64,7 +82,6 @@ class QuickMenu(private val project: Project) {
 
     fun open(): QuickMenu {
         val fileManager = FileEditorManager.getInstance(project)
-        val harpoonService = HarpoonService.getInstance(project)
 
         if (!virtualFile.isValid)
             initMenuFile()
@@ -98,7 +115,6 @@ class QuickMenu(private val project: Project) {
         foldManager.updateSettings(settings)
 
         processor.updateSettings(settings)
-        val harpoonService = HarpoonService.getInstance(project)
         updateFile(harpoonService.getPaths())
     }
 
@@ -136,5 +152,10 @@ class QuickMenu(private val project: Project) {
         val menu = File(menuPath)
         menu.createNewFile() // create file if it doesn't exist
         return menu
+    }
+
+    override fun dispose() {
+        disconnectListener()
+        listenerManager.disposeAllListeners()
     }
 }
