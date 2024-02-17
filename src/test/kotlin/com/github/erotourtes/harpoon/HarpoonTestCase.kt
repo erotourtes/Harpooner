@@ -25,7 +25,7 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
     val menuDc: Document
         get() {
-            val menu = harpoonService.menu.virtualFile
+            val menu = harpoonService.menuVF
             return FileDocumentManager.getInstance().getDocument(menu) ?: throw Error("Can't read file")
         }
 
@@ -46,7 +46,7 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
     fun menuCloseInEditor() {
         val fileEditorManager = FileEditorManager.getInstance(project)
-        fileEditorManager.closeFile(harpoonService.menu.virtualFile)
+        fileEditorManager.closeFile(harpoonService.menuVF)
     }
 
     fun performAddFileAction() {
@@ -88,7 +88,7 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
         fixture = myFixture
 
-        harpoonService.menu.reInitMenuFile(testDataPath.plus("MENU"))
+        harpoonService.configureMenuToRunInTestMode(testDataPath.plus("MENU"))
         fixture.configureByFile("dummy0.txt")
     }
 
@@ -97,7 +97,7 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
         val harpoonService = HarpoonService.getInstance(fixture.project)
         harpoonService.setPaths(emptyList())
         WriteCommandAction.runWriteCommandAction(fixture.project) {
-            harpoonService.menu.virtualFile.delete(this)
+            harpoonService.menuVF.delete(this)
         }
 
         super.tearDown()
