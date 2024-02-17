@@ -94,17 +94,13 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     }
 
     private fun listenToMenuTypingChange(settings: SettingsState) {
-        val documentListener = MenuChangeListener(harpoonService)
-        val menuDocument =
-            FileDocumentManager.getInstance().getDocument(virtualFile)
-                ?: throw Error("Can't get document of the ${virtualFile.path} file")
-        var isSaving = settings.isSavingOnTyping
+        val menuDocument = FileDocumentManager.getInstance().getDocument(virtualFile)
+            ?: throw Error("Can't get document of the ${virtualFile.path} file")
+        val documentListener = MenuChangeListener(harpoonService, menuDocument)
 
         val updateTypingListener = { newSettings: SettingsState ->
-            if (newSettings.isSavingOnTyping) menuDocument.addDocumentListener(documentListener)
-            else menuDocument.removeDocumentListener(documentListener)
-
-            isSaving = newSettings.isSavingOnTyping
+            if (newSettings.isSavingOnTyping) documentListener.attach()
+            else documentListener.detach()
         }
 
         updateTypingListener(settings)
@@ -112,7 +108,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         val settingsDisposable = settings.addObserver { updateTypingListener(it) }
 
         listenerManager.addDisposable {
-            if (isSaving) menuDocument.removeDocumentListener(documentListener)
             documentListener.dispose()
             settingsDisposable()
         }
