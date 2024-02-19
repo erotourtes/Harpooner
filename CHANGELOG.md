@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+## [1.0.8] - 2027-02-19
+
+### Added
+
+- Auto save menu on typing (might be disabled in settings) PR #5
+- Auto close menu on editor focus lost
+- IdeaVIM as an optional dependency
+
+### Fixed
+
+- Removed deprecated methods
+- Use github actions to run integration tests
+
 ## [1.0.7] - 2023-12-17
 
 ### Changed

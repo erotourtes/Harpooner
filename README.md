@@ -23,7 +23,7 @@ keyboard shortcuts.
 > Note: you need to configure the keyboard shortcuts yourself. See
 > the [example](https://github.com/erotourtes/Harpooner#example) section.
 
-The harpooner menu is a file. All changes to a file are saved after **closing the IDE tab**.  
+The harpooner menu is a file. All changes to a file are saved on the fly (you can turn this behavior off in the settings)
 
 This plugin is inspired by [Harpoon](https://github.com/ThePrimeagen/harpoon)
 <!-- Plugin description end -->
@@ -52,6 +52,9 @@ You can change the settings:
 
 > With the number of visible words: 1  
 > ![settings3](https://github.com/erotourtes/Harpooner/assets/67370189/09dbde64-4d2f-4fe9-9cd4-2d46ddf3b890)
+
+> With save on type `off`  
+> Changes are saved after and only after closing the file
 
 
 ### Installation

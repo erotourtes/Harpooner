@@ -1,16 +1,23 @@
 package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.listeners.FileEditorListener
+import com.github.erotourtes.harpoon.listeners.MenuChangeListener
 import com.github.erotourtes.harpoon.services.HarpoonService
 import com.github.erotourtes.harpoon.services.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
+import com.github.erotourtes.harpoon.utils.ListenerManager
 import com.github.erotourtes.harpoon.utils.MENU_NAME
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.ex.EditorEventMulticasterEx
+import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.messages.MessageBusConnection
@@ -18,19 +25,28 @@ import java.io.File
 
 
 // TODO: think about settings encapsulation
-class QuickMenu(private val project: Project) {
+class QuickMenu(private val project: Project, private val harpoonService: HarpoonService) : Disposable {
     val projectInfo: ProjectInfo
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
         private set
-    private var connection: MessageBusConnection? = null
     private val foldManager: FoldManager
     private var processor: PathsProcessor
+    private val dbusListener = DbusListener()
+    private val listenerManager = ListenerManager()
+
+    init {
+        Disposer.register(harpoonService, this)
+    }
 
     init {
         initMenuFile()
         projectInfo = ProjectInfo.from(virtualFile.path)
-        SettingsState.getInstance().addObserver { updateSettings(it) }
+
+        val settings = SettingsState.getInstance()
+        listenToSettingsChange(settings)
+        listenToMenuTypingChange(settings)
+        listenToEditorFocus()
 
         foldManager = FoldManager(this, project)
         processor = PathsProcessor(projectInfo)
@@ -46,28 +62,20 @@ class QuickMenu(private val project: Project) {
     fun isMenuFile(path: String): Boolean = path == menuFile.path
 
     fun connectListener(): QuickMenu {
-        if (connection != null) return this
-        connection = ApplicationManager.getApplication().messageBus.connect()
-        connection!!.subscribe(
-            FileEditorManagerListener.FILE_EDITOR_MANAGER, FileEditorListener()
-        )
-
+        dbusListener.connect()
         return this
     }
 
     fun disconnectListener(): QuickMenu {
-        connection?.disconnect()
-        connection = null
+        dbusListener.disconnect()
 
         return this
     }
 
     fun open(): QuickMenu {
         val fileManager = FileEditorManager.getInstance(project)
-        val harpoonService = HarpoonService.getInstance(project)
 
-        if (!virtualFile.isValid)
-            initMenuFile()
+        if (!virtualFile.isValid) initMenuFile()
 
         fileManager.openFile(virtualFile, true)
         updateFile(harpoonService.getPaths())
@@ -94,11 +102,46 @@ class QuickMenu(private val project: Project) {
         return this
     }
 
+    private fun listenToEditorFocus() {
+        val multicaster = EditorFactory.getInstance().eventMulticaster
+        val listener = FocusListener()
+        if (multicaster !is EditorEventMulticasterEx) {
+            println("EditorEventMulticasterEx is not supported")
+            return
+        }
+
+        multicaster.addFocusChangeListener(listener, this)
+    }
+
+    private fun listenToMenuTypingChange(settings: SettingsState) {
+        val menuDocument = FileDocumentManager.getInstance().getDocument(virtualFile)
+            ?: throw Error("Can't get document of the ${virtualFile.path} file")
+        val documentListener = MenuChangeListener(harpoonService, menuDocument)
+
+        val updateTypingListener = { newSettings: SettingsState ->
+            if (newSettings.isSavingOnTyping) documentListener.attach()
+            else documentListener.detach()
+        }
+
+        updateTypingListener(settings)
+
+        val settingsDisposable = settings.addObserver { updateTypingListener(it) }
+
+        listenerManager.addDisposable {
+            documentListener.dispose()
+            settingsDisposable()
+        }
+    }
+
+    private fun listenToSettingsChange(settings: SettingsState) {
+        val disposable = settings.addObserver { updateSettings(it) }
+        listenerManager.addDisposable(disposable)
+    }
+
     private fun updateSettings(settings: SettingsState) {
         foldManager.updateSettings(settings)
 
         processor.updateSettings(settings)
-        val harpoonService = HarpoonService.getInstance(project)
         updateFile(harpoonService.getPaths())
     }
 
@@ -136,5 +179,56 @@ class QuickMenu(private val project: Project) {
         val menu = File(menuPath)
         menu.createNewFile() // create file if it doesn't exist
         return menu
+    }
+
+    override fun dispose() {
+        disconnectListener()
+        listenerManager.disposeAllListeners()
+    }
+
+    private class DbusListener {
+        private var connection: MessageBusConnection? = null
+        private val listener by lazy { FileEditorListener() }
+
+        fun connect() {
+            if (connection != null) return
+            connection = ApplicationManager.getApplication().messageBus.connect()
+            connection!!.subscribe(
+                FileEditorManagerListener.FILE_EDITOR_MANAGER, listener
+            )
+        }
+
+        fun disconnect() {
+            connection?.disconnect()
+            connection = null
+        }
+    }
+
+    private inner class FocusListener : FocusChangeListener {
+        private var isHarpoonerPrevFocused = false
+        private val fileEditorManager = FileEditorManager.getInstance(project)
+
+        private fun closeMenuInEditor() {
+            fileEditorManager.closeFile(virtualFile)
+        }
+
+        override fun focusGained(editor: Editor) {
+            super.focusGained(editor)
+
+            val isRefocusOnMenu = isHarpoonerPrevFocused && isMenuFileOpenedWith(editor)
+            if (!isHarpoonerPrevFocused || isRefocusOnMenu) return
+
+            harpoonService.syncWithMenu()
+            foldManager.collapseAllFolds()
+            closeMenuInEditor()
+            isHarpoonerPrevFocused = false
+        }
+
+
+        override fun focusLost(editor: Editor) {
+            // can't directly call, because it's fired on every focus lost (even if I didn't switch the editor e.x. focused the tree view)
+            super.focusLost(editor)
+            isHarpoonerPrevFocused = isMenuFileOpenedWith(editor)
+        }
     }
 }

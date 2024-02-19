@@ -17,11 +17,14 @@ import org.junit.jupiter.api.BeforeEach
 abstract class HarpoonTestCase : BasePlatformTestCase() {
     protected lateinit var fixture: CodeInsightTestFixture
 
-    val harpoonService: HarpoonService
-        get() = HarpoonService.getInstance(fixture.project)
-
     val app: Application
         get() = ApplicationManager.getApplication()
+
+    val harpoonService: HarpoonService by lazy {
+        var harpoonService: HarpoonService? = null
+        app.runReadAction { harpoonService = HarpoonService.getInstance(fixture.project) }
+        return@lazy harpoonService ?: throw Error("Can't get HarpoonService")
+    }
 
     val menuDc: Document
         get() {
@@ -93,11 +96,12 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
     @AfterEach
     override fun tearDown() {
-        val harpoonService = HarpoonService.getInstance(fixture.project)
-        harpoonService.setPaths(emptyList())
         WriteCommandAction.runWriteCommandAction(fixture.project) {
+            menuCloseInEditor()
             harpoonService.menuVF.delete(this)
         }
+
+        harpoonService.setPaths(emptyList())
 
         super.tearDown()
     }

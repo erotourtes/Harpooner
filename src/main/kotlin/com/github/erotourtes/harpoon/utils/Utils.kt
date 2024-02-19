@@ -12,10 +12,7 @@ fun notify(message: String, type: NotificationType = NotificationType.ERROR, pro
     if (!settings.showNotifications) return
 
     val notification = Notification(
-        PLUGIN_NAME,
-        PLUGIN_NAME,
-        message,
-        type
+        PLUGIN_NAME, PLUGIN_NAME, message, type
     )
     notification.notify(project)
 }
@@ -36,11 +33,28 @@ open class Observable<T> {
     @Transient
     private val observers = mutableListOf<(T) -> Unit>()
 
-    fun addObserver(observer: (T) -> Unit) {
+    /**
+     * Adds an observer to the list of observers.
+     * @return a function that removes the observer from the list.
+     */
+    fun addObserver(observer: (T) -> Unit): () -> Unit {
         observers.add(observer)
+        return { observers.remove(observer) }
     }
 
     fun notifyObservers(value: T) {
         observers.forEach { it(value) }
+    }
+}
+
+class ListenerManager {
+    private val listeners = mutableListOf<() -> Unit>()
+
+    fun addDisposable(disposable: () -> Unit) {
+        listeners.add(disposable)
+    }
+
+    fun disposeAllListeners() {
+        listeners.forEach { it() }
     }
 }
