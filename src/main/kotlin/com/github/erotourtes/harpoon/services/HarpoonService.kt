@@ -9,6 +9,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 
+// TODO: listen to file renames
+// TODO: optimise live save of the meny
+// TODO: optimise live save + editor focus close trigger 2 saves
+
 @State(name = "HarpoonerState", storages = [Storage(XML_HARPOONER_FILE_NAME)])
 @Service(Service.Level.PROJECT)
 class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService.State>, Disposable {
