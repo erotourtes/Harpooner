@@ -205,12 +205,30 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     }
 
     private inner class FocusListener : FocusChangeListener {
-        override fun focusLost(editor: Editor) {
-            super.focusLost(editor)
-            if (!isMenuFileOpenedWith(editor)) return
+        private var isHarpoonerPrevFocused = false
+        private val fileEditorManager = FileEditorManager.getInstance(project)
+
+        private fun closeMenuInEditor() {
+            fileEditorManager.closeFile(virtualFile)
+        }
+
+        override fun focusGained(editor: Editor) {
+            super.focusGained(editor)
+
+            val isRefocusOnMenu = isHarpoonerPrevFocused && isMenuFileOpenedWith(editor)
+            if (!isHarpoonerPrevFocused || isRefocusOnMenu) return
 
             harpoonService.syncWithMenu()
             foldManager.collapseAllFolds()
+            closeMenuInEditor()
+            isHarpoonerPrevFocused = false
+        }
+
+
+        override fun focusLost(editor: Editor) {
+            // can't directly call, because it's fired on every focus lost (even if I didn't switch the editor e.x. focused the tree view)
+            super.focusLost(editor)
+            isHarpoonerPrevFocused = isMenuFileOpenedWith(editor)
         }
     }
 }
