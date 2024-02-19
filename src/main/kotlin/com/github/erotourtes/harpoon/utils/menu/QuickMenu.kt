@@ -10,10 +10,14 @@ import com.github.erotourtes.harpoon.utils.MENU_NAME
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.ex.EditorEventMulticasterEx
+import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.messages.MessageBusConnection
@@ -32,12 +36,17 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     private val listenerManager = ListenerManager()
 
     init {
+        Disposer.register(harpoonService, this)
+    }
+
+    init {
         initMenuFile()
         projectInfo = ProjectInfo.from(virtualFile.path)
 
         val settings = SettingsState.getInstance()
         listenToSettingsChange(settings)
         listenToMenuTypingChange(settings)
+        listenToEditorFocus()
 
         foldManager = FoldManager(this, project)
         processor = PathsProcessor(projectInfo)
@@ -91,6 +100,17 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         }
 
         return this
+    }
+
+    private fun listenToEditorFocus() {
+        val multicaster = EditorFactory.getInstance().eventMulticaster
+        val listener = FocusListener()
+        if (multicaster !is EditorEventMulticasterEx) {
+            println("EditorEventMulticasterEx is not supported")
+            return
+        }
+
+        multicaster.addFocusChangeListener(listener, this)
     }
 
     private fun listenToMenuTypingChange(settings: SettingsState) {
@@ -181,6 +201,16 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         fun disconnect() {
             connection?.disconnect()
             connection = null
+        }
+    }
+
+    private inner class FocusListener : FocusChangeListener {
+        override fun focusLost(editor: Editor) {
+            super.focusLost(editor)
+            if (!isMenuFileOpenedWith(editor)) return
+
+            harpoonService.syncWithMenu()
+            foldManager.collapseAllFolds()
         }
     }
 }
