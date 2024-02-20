@@ -1,5 +1,6 @@
 package com.github.erotourtes.harpoon.services
 
+import com.github.erotourtes.harpoon.listeners.FileRenameListener
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.github.erotourtes.harpoon.utils.XML_HARPOONER_FILE_NAME
 import com.intellij.openapi.Disposable
@@ -62,7 +63,15 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
         if (virtualFiles[path] == null)
             virtualFiles[path] = LocalFileSystem.getInstance().findFileByPath(path)
 
+        attachListenerToVF(virtualFiles[path]!!)
+
         return virtualFiles.getOrDefault(path, null)
+    }
+
+    private fun attachListenerToVF(vf: VirtualFile) {
+        val listener = FileRenameListener(vf, this, { o, n ->
+            println("File renamed from $o to $n")
+        })
     }
 
     fun setPaths(paths: List<String>) {
