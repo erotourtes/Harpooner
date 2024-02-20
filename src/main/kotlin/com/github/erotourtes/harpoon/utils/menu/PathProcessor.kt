@@ -17,7 +17,6 @@ class PathsProcessor(private val projectInfo: ProjectInfo) {
     }
 
     fun unprocess(path: String): String {
-        val settings = SettingsState.getInstance()
         var updatedPath = path.trim()
 
         if (!settings.showProjectPath && updatedPath.isNotEmpty())
