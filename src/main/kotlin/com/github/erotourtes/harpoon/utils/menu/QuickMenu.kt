@@ -219,7 +219,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
             if (!isHarpoonerPrevFocused || isRefocusOnMenu) return
 
             harpoonService.syncWithMenu()
-            foldManager.collapseAllFolds()
             closeMenuInEditor()
             isHarpoonerPrevFocused = false
         }
