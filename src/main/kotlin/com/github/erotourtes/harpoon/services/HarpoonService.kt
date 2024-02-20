@@ -1,6 +1,6 @@
 package com.github.erotourtes.harpoon.services
 
-import com.github.erotourtes.harpoon.listeners.FileRenameListener
+import com.github.erotourtes.harpoon.listeners.FilesRenameListener
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.github.erotourtes.harpoon.utils.XML_HARPOONER_FILE_NAME
 import com.intellij.openapi.Disposable
@@ -10,7 +10,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 
-// TODO: listen to file renames
 // TODO: optimise live save of the meny
 // TODO: optimise live save + editor focus close trigger 2 saves
 
@@ -20,6 +19,10 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
     private val menu = QuickMenu(project, this)
     private val virtualFiles = mutableMapOf<String, VirtualFile?>()
     private var state = State()
+
+    init {
+        FilesRenameListener(::onRenameFile, this)
+    }
 
     fun openMenu() {
         menu.open().connectListener()
@@ -63,15 +66,24 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
         if (virtualFiles[path] == null)
             virtualFiles[path] = LocalFileSystem.getInstance().findFileByPath(path)
 
-        attachListenerToVF(virtualFiles[path]!!)
-
         return virtualFiles.getOrDefault(path, null)
     }
 
-    private fun attachListenerToVF(vf: VirtualFile) {
-        val listener = FileRenameListener(vf, this, { o, n ->
-            println("File renamed from $o to $n")
-        })
+    private fun onRenameFile(oldPath: String, newPath: String?) {
+        val index = state.data.indexOf(oldPath)
+        if (index == -1) return
+
+        val isDeleteEvent = newPath == null
+        if (isDeleteEvent) {
+            state.data.removeAt(index)
+            virtualFiles.remove(oldPath)
+            menu.syncWithService()
+            return
+        }
+
+        state.data[index] = newPath!!
+        virtualFiles[newPath] = virtualFiles.remove(oldPath)
+        menu.syncWithService()
     }
 
     fun setPaths(paths: List<String>) {
