@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [1.0.9] - 2027-02-20
+
+### Fixed
+
+- Folds on a wrong editor
+- Auto closing menu on editor startup
+
 ## [1.0.8] - 2027-02-19
 
 ### Added

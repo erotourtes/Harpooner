@@ -1,15 +1,34 @@
 package com.github.erotourtes.harpoon.listeners
 
+import com.github.erotourtes.harpoon.services.HarpoonService
 import com.github.erotourtes.harpoon.utils.*
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.startup.StartupActivity
 
 class ProjectOnStartListener : StartupActivity {
     override fun runActivity(project: Project) {
+        gitIgnoreMenuFiles(project)
+        closeMenuIfOpened(project)
+    }
+
+    /*
+    * If menu file is opened on startup, the needed listener will not be attached
+    * TODO: close file on the project close or idea close
+    * */
+    private fun closeMenuIfOpened(project: Project) {
+        val hs = HarpoonService.getInstance(project)
+        val fm = FileEditorManager.getInstance(project)
+        if (fm.isFileOpen(hs.menuVF)) {
+            fm.closeFile(hs.menuVF)
+        }
+    }
+
+    private fun gitIgnoreMenuFiles(project: Project) {
         val path = getGitignorePath(project) ?: return
 
         val gitignoreVF = LocalFileSystem.getInstance().findFileByPath(path) ?: return
