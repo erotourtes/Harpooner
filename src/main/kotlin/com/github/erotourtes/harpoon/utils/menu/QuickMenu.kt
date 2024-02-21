@@ -99,7 +99,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
 
             processedContent.forEachIndexed { index, it ->
                 val line = document.getLineStartOffset(index)
-                foldsManager.addFoldsToLine(line, it)
+                foldsManager.updateFoldsAt(line, it)
             }
         }
 

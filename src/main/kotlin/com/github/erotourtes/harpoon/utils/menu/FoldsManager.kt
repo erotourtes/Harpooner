@@ -9,21 +9,9 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
     private val projectInfo = menu.projectInfo
     private var settings = SettingsState.getInstance()
 
-    fun addFoldsToLine(line: Int, str: String) {
-        if (!menu.isMenuFileOpenedWithCurEditor()) return
-
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        val foldingModel = editor.foldingModel
-        val folds = getFoldsFrom(line, str)
-
-        foldingModel.runBatchFoldingOperation {
-            for ((start, end, placeHolder) in folds) {
-                if (start == end) continue
-                val foldRegion =
-                    foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
-                foldRegion.isExpanded = false
-            }
-        }
+    fun updateFoldsAt(line: Int, str: String) {
+        removeFoldsFromLine(line)
+        addFoldsToLine(line, str)
     }
 
     fun updateSettings(newState: SettingsState) {
@@ -37,6 +25,36 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
 
         foldingModel.runBatchFoldingOperation {
             foldingModel.allFoldRegions.forEach { it.isExpanded = false }
+        }
+    }
+
+
+    private fun removeFoldsFromLine(line: Int) {
+        if (!menu.isMenuFileOpenedWithCurEditor()) return
+
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val foldingModel = editor.foldingModel
+
+        foldingModel.runBatchFoldingOperation {
+            val foldRegions = foldingModel.allFoldRegions.filter { it.startOffset == line }
+            foldRegions.forEach { foldingModel.removeFoldRegion(it) }
+        }
+    }
+
+    private fun addFoldsToLine(line: Int, str: String) {
+        if (!menu.isMenuFileOpenedWithCurEditor()) return
+
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val foldingModel = editor.foldingModel
+        val folds = getFoldsFrom(line, str)
+
+        foldingModel.runBatchFoldingOperation {
+            for ((start, end, placeHolder) in folds) {
+                if (start == end) continue
+                val foldRegion =
+                    foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
+                foldRegion.isExpanded = false
+            }
         }
     }
 
