@@ -19,7 +19,9 @@ fun notify(message: String, type: NotificationType = NotificationType.ERROR, pro
 
 class CheckBoxDelegate(private val checkBox: JBCheckBox) {
     operator fun getValue(thisRef: Any?, property: Any?): Boolean = checkBox.isSelected
-    operator fun setValue(thisRef: Any?, property: Any?, value: Boolean) = checkBox.setSelected(value)
+    operator fun setValue(thisRef: Any?, property: Any?, value: Boolean) {
+        checkBox.isSelected = value
+    }
 }
 
 class SliderDelegate(private val slider: JBSlider) {
