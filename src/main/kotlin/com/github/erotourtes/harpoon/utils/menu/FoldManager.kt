@@ -18,6 +18,7 @@ class FoldManager(private val menu: QuickMenu, private val project: Project) {
 
         foldingModel.runBatchFoldingOperation {
             for ((start, end, placeHolder) in folds) {
+                if (start == end) continue
                 val foldRegion =
                     foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
                 foldRegion.isExpanded = false
@@ -62,8 +63,9 @@ class FoldManager(private val menu: QuickMenu, private val project: Project) {
         var count = 0
         for (index in str.length - 1 downTo lastFoldIndex) {
             if (str[index] == '/') count++
-            if (count == settings.numberOfSlashes) {
-                folds.push(Triple(line + lastFoldIndex, line + index + 1, ".../"))
+            if (count == settings.numberOfSlashes && index != lastFoldIndex) {
+                val placeholder = if (str[0] == '/') "/../" else ".../"
+                folds.push(Triple(line + lastFoldIndex, line + index + 1, placeholder))
                 break
             }
         }
