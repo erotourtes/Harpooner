@@ -6,6 +6,7 @@ import com.github.erotourtes.harpoon.utils.XML_HARPOONER_FILE_NAME
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -19,6 +20,7 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
     private val menu = QuickMenu(project, this)
     private val virtualFiles = mutableMapOf<String, VirtualFile?>()
     private var state = State()
+    private val fileEditorManager = FileEditorManager.getInstance(project)
 
     init {
         FilesRenameListener(::onRenameFile, this)
@@ -60,11 +62,29 @@ class HarpoonService(project: Project) : PersistentStateComponent<HarpoonService
         virtualFiles[path] = file
     }
 
-    fun getFile(index: Int): VirtualFile? {
+    /**
+     * @throws Error if file is not found or can't be opened
+     */
+    fun openFile(index: Int) {
+        val file = getFile(index) ?: throw Error("Can't find file")
+        runCatching {
+            fileEditorManager.openFile(file, true)
+        }.mapCatching {
+            throw Error("Can't find file. It might be deleted")
+        }
+    }
+
+    fun setPaths(paths: List<String>) {
+        val filtered = paths.filter { it.isNotEmpty() }.distinct()
+        if (filtered != state.data) state.data = ArrayList(filtered)
+    }
+
+    val menuVF: VirtualFile get() = menu.virtualFile
+
+    private fun getFile(index: Int): VirtualFile? {
         val path = state.data.getOrNull(index) ?: return null
         if (path.isEmpty()) return null
-        if (virtualFiles[path] == null)
-            virtualFiles[path] = LocalFileSystem.getInstance().findFileByPath(path)
+        if (virtualFiles[path] == null) virtualFiles[path] = LocalFileSystem.getInstance().findFileByPath(path)
 
         return virtualFiles.getOrDefault(path, null)
     }
