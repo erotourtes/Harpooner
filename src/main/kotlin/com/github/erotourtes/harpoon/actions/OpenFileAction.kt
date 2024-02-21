@@ -5,20 +5,17 @@ import com.github.erotourtes.harpoon.services.HarpoonService
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
-import com.intellij.openapi.fileEditor.FileEditorManager
 
 abstract class OpenFileAction : AnAction() {
     abstract fun index(): Int
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val harpoonService = project.service<HarpoonService>()
-        val file = harpoonService.getFile(index()) ?: return notify("Can't find file")
 
         try {
-            val fileManager = FileEditorManager.getInstance(project)
-            fileManager.openFile(file, true)
+            harpoonService.openFile(index())
         } catch (e: Exception) {
-            notify("Can't find file. It might be deleted")
+            notify(e.message ?: "Error opening file")
         }
     }
 }

@@ -13,19 +13,17 @@ import com.intellij.openapi.startup.StartupActivity
 class ProjectOnStartListener : StartupActivity {
     override fun runActivity(project: Project) {
         gitIgnoreMenuFiles(project)
-        closeMenuIfOpened(project)
+        initServiceIfMenuIsOpened(project)
     }
 
-    /*
-    * If menu file is opened on startup, the needed listener will not be attached
-    * TODO: close file on the project close or idea close
-    * */
-    private fun closeMenuIfOpened(project: Project) {
-        val hs = HarpoonService.getInstance(project)
-        val fm = FileEditorManager.getInstance(project)
-        if (fm.isFileOpen(hs.menuVF)) {
-            fm.closeFile(hs.menuVF)
+    private fun initServiceIfMenuIsOpened(project: Project) {
+        val editors = FileEditorManager.getInstance(project).allEditors.filter {
+            it.file.name == MENU_NAME
         }
+
+        if (editors.isEmpty()) return
+        // Idea services are loaded lazily, so we need to call getInstance to init the service
+        HarpoonService.getInstance(project)
     }
 
     private fun gitIgnoreMenuFiles(project: Project) {
@@ -41,7 +39,10 @@ class ProjectOnStartListener : StartupActivity {
             CommandProcessor.getInstance().executeCommand(
                 project, {
                     WriteCommandAction.runWriteCommandAction(project) {
-                        val message = "\n# $PLUGIN_NAME\n$XML_HARPOONER_FILE_NAME\n$MENU_NAME"
+                        val message = """
+                            # $PLUGIN_NAME
+                            $MENU_NAME
+                        """.trimIndent()
                         gitignoreDocument.insertString(endLine, message)
                     }
                 }, PLUGIN_NAME, null

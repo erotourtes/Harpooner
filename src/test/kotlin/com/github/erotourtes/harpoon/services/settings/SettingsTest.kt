@@ -1,7 +1,6 @@
 package com.github.erotourtes.harpoon.services.settings
 
 import com.github.erotourtes.harpoon.HarpoonTestCase
-import com.intellij.openapi.command.WriteCommandAction
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -11,7 +10,7 @@ class SettingsTest : HarpoonTestCase() {
         performQuickMenuAction()
 
         app.invokeAndWait {
-            WriteCommandAction.runWriteCommandAction(fixture.project) {
+            runSyncWriteOperation {
                 menuDc.setText(
                     """
                         /some/large/path/to/file/1.txt
@@ -64,7 +63,6 @@ class SettingsTest : HarpoonTestCase() {
                 Assertions.assertEquals(56, endOffset)
                 Assertions.assertEquals(false, isExpanded)
             }
-
         }
     }
 }
