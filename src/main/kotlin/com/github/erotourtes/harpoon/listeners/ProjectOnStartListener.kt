@@ -1,11 +1,9 @@
 package com.github.erotourtes.harpoon.listeners
 
-import com.github.erotourtes.harpoon.services.HarpoonService
 import com.github.erotourtes.harpoon.utils.*
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.startup.StartupActivity
