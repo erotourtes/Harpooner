@@ -4,14 +4,26 @@
 
 ## [Unreleased]
 
-## [1.0.9] - 2027-02-20
+## [1.0.10] - 2024-02-21
+
+### Added
+
+- Auto changing paths on rename/move/delete files
+
+### Fixed
+
+- Folds with a non project files
+- Absolute file paths
+- Dispatcher thread called ui changes
+
+## [1.0.9] - 2024-02-20
 
 ### Fixed
 
 - Folds on a wrong editor
 - Auto closing menu on editor startup
 
-## [1.0.8] - 2027-02-19
+## [1.0.8] - 2024-02-19
 
 ### Added
 
