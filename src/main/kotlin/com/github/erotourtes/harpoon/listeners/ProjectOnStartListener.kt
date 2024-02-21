@@ -1,9 +1,11 @@
 package com.github.erotourtes.harpoon.listeners
 
+import com.github.erotourtes.harpoon.services.HarpoonService
 import com.github.erotourtes.harpoon.utils.*
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.startup.StartupActivity
@@ -11,6 +13,17 @@ import com.intellij.openapi.startup.StartupActivity
 class ProjectOnStartListener : StartupActivity {
     override fun runActivity(project: Project) {
         gitIgnoreMenuFiles(project)
+        initServiceIfMenuIsOpened(project)
+    }
+
+    private fun initServiceIfMenuIsOpened(project: Project) {
+        val editors = FileEditorManager.getInstance(project).allEditors.filter {
+            it.file.name == MENU_NAME
+        }
+
+        if (editors.isEmpty()) return
+        // Idea services are loaded lazily, so we need to call getInstance to init the service
+        HarpoonService.getInstance(project)
     }
 
     private fun gitIgnoreMenuFiles(project: Project) {
