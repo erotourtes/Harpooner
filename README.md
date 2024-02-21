@@ -23,7 +23,11 @@ keyboard shortcuts.
 > Note: you need to configure the keyboard shortcuts yourself. See
 > the [example](https://github.com/erotourtes/Harpooner#example) section.
 
-The harpooner menu is a file. All changes to a file are saved on the fly (you can turn this behavior off in the settings)
+#### Features
+- The Harpooner menu is represented as a file within the IDE, thus seamlessly integrates with the [IdeaVim](https://github.com/JetBrains/ideavim) plugin.
+- All changes made to the menu are automatically saved in real-time (configurable in settings).
+- Automatic renaming of files is supported when they are moved, renamed, or deleted.
+- Users have control over the length of visible paths displayed in the menu
 
 This plugin is inspired by [Harpoon](https://github.com/ThePrimeagen/harpoon)
 <!-- Plugin description end -->
