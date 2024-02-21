@@ -39,7 +39,10 @@ class ProjectOnStartListener : StartupActivity {
             CommandProcessor.getInstance().executeCommand(
                 project, {
                     WriteCommandAction.runWriteCommandAction(project) {
-                        val message = "\n# $PLUGIN_NAME\n$XML_HARPOONER_FILE_NAME\n$MENU_NAME"
+                        val message = """
+                            # $PLUGIN_NAME
+                            $MENU_NAME
+                        """.trimIndent()
                         gitignoreDocument.insertString(endLine, message)
                     }
                 }, PLUGIN_NAME, null
