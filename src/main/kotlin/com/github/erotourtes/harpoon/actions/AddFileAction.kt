@@ -10,10 +10,7 @@ class AddFileAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val harpoonService = HarpoonService.getInstance(project)
-        val file = event.dataContext.getData(CommonDataKeys.PSI_FILE)
-
-        if (harpoonService == null || file == null)
-            return notify("File or project is not defined")
+        val file = event.dataContext.getData(CommonDataKeys.PSI_FILE) ?: return notify("File or project is not defined")
 
         harpoonService.addFile(file.virtualFile)
     }
