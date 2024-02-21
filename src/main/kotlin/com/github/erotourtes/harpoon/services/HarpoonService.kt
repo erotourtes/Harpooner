@@ -22,6 +22,8 @@ class HarpoonService(project: Project) : Disposable {
 
     init {
         FilesRenameListener(::onRenameFile, this)
+        connectListenersIfMenuIsOpened()
+        syncWithMenu()
     }
 
     fun openMenu() {
@@ -55,14 +57,14 @@ class HarpoonService(project: Project) : Disposable {
     }
 
     /**
-     * @throws Error if file is not found or can't be opened
+     * @throws Exception if file is not found or can't be opened
      */
     fun openFile(index: Int) {
-        val file = getFile(index) ?: throw Error("Can't find file")
-        runCatching {
+        val file = getFile(index) ?: throw Exception("Can't find file")
+        try {
             fileEditorManager.openFile(file, true)
-        }.mapCatching {
-            throw Error("Can't find file. It might be deleted")
+        } catch (e: Exception) {
+            throw Exception("Can't find file. It might be deleted")
         }
     }
 
@@ -96,6 +98,13 @@ class HarpoonService(project: Project) : Disposable {
         state.data[index] = newPath!!
         virtualFiles[newPath] = virtualFiles.remove(oldPath)
         menu.syncWithService()
+    }
+
+    private fun connectListenersIfMenuIsOpened() {
+        if (fileEditorManager.isFileOpen(menu.virtualFile)) {
+            fileEditorManager.closeFile(menu.virtualFile)
+            menu.connectListener()
+        }
     }
 
     class State {

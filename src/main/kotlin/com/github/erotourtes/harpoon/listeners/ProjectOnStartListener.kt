@@ -13,19 +13,6 @@ import com.intellij.openapi.startup.StartupActivity
 class ProjectOnStartListener : StartupActivity {
     override fun runActivity(project: Project) {
         gitIgnoreMenuFiles(project)
-        closeMenuIfOpened(project)
-    }
-
-    /*
-    * If menu file is opened on startup, the needed listener will not be attached
-    * TODO: close file on the project close or idea close
-    * */
-    private fun closeMenuIfOpened(project: Project) {
-        val hs = HarpoonService.getInstance(project)
-        val fm = FileEditorManager.getInstance(project)
-        if (fm.isFileOpen(hs.menuVF)) {
-            fm.closeFile(hs.menuVF)
-        }
     }
 
     private fun gitIgnoreMenuFiles(project: Project) {
