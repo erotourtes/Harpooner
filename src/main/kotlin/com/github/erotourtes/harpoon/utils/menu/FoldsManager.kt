@@ -15,7 +15,6 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
     }
 
     fun updateSettings(newState: SettingsState) {
-        removeAllFolds()
         settings = newState
     }
 
@@ -54,17 +53,6 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
                 val foldRegion =
                     foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
                 foldRegion.isExpanded = false
-            }
-        }
-    }
-
-    private fun removeAllFolds() {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        val foldingModel = editor.foldingModel
-
-        foldingModel.runBatchFoldingOperation {
-            foldingModel.allFoldRegions.forEach {
-                foldingModel.removeFoldRegion(it)
             }
         }
     }

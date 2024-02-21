@@ -1,6 +1,7 @@
 package com.github.erotourtes.harpoon.services.settings
 
 import com.github.erotourtes.harpoon.HarpoonTestCase
+import junit.framework.TestCase
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -21,14 +22,20 @@ class SettingsTest : HarpoonTestCase() {
             menuCloseInEditor()
             performQuickMenuAction()
 
-            // First part of changeSettings
+            TestCase.assertEquals(2, harpoonService.getPaths().size)
 
+            // First part of changeSettings
             changeSettings {
                 settings.numberOfSlashes = 1
             }
 
             performQuickMenuAction()
+        }
 
+        Thread.sleep(100)
+
+        app.invokeAndWait {
+            Assertions.assertEquals(1, SettingsState.getInstance().numberOfSlashes)
             Assertions.assertEquals(2, foldingModel.allFoldRegions.size)
 
             with(foldingModel.allFoldRegions[0]) {
@@ -42,14 +49,20 @@ class SettingsTest : HarpoonTestCase() {
                 Assertions.assertEquals(64, endOffset)
                 Assertions.assertEquals(false, isExpanded)
             }
+        }
 
-            // Second part of changeSettings
-
+        // Second part of changeSettings
+        app.invokeAndWait {
             changeSettings {
                 settings.numberOfSlashes = 3
             }
             performQuickMenuAction()
+        }
 
+        Thread.sleep(100)
+
+        app.invokeAndWait {
+            Assertions.assertEquals(3, SettingsState.getInstance().numberOfSlashes)
             Assertions.assertEquals(2, foldingModel.allFoldRegions.size)
 
             with(foldingModel.allFoldRegions[0]) {
