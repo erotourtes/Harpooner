@@ -13,6 +13,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import java.util.concurrent.CountDownLatch
 
 abstract class HarpoonTestCase : BasePlatformTestCase() {
     protected lateinit var fixture: CodeInsightTestFixture
@@ -96,10 +97,14 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
     @AfterEach
     override fun tearDown() {
+        val latch = CountDownLatch(1)
+
         WriteCommandAction.runWriteCommandAction(fixture.project) {
             menuCloseInEditor()
-            harpoonService.menuVF.delete(this)
+            menuDc.setText("")
+            latch.countDown()
         }
+        latch.await()
 
         harpoonService.setPaths(emptyList())
 
