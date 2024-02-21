@@ -5,7 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import org.intellij.markdown.lexer.push
 
-class FoldManager(private val menu: QuickMenu, private val project: Project) {
+class FoldsManager(private val menu: QuickMenu, private val project: Project) {
     private val projectInfo = menu.projectInfo
     private var settings = SettingsState.getInstance()
 

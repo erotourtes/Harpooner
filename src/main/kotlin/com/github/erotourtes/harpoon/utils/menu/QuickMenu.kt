@@ -30,7 +30,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
         private set
-    private val foldManager: FoldManager
+    private val foldsManager: FoldsManager
     private var processor: PathsProcessor
     private val dbusListener = DbusListener()
     private val listenerManager = ListenerManager()
@@ -48,7 +48,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         listenToMenuTypingChange(settings)
         listenToEditorFocus()
 
-        foldManager = FoldManager(this, project)
+        foldsManager = FoldsManager(this, project)
         processor = PathsProcessor(projectInfo)
     }
 
@@ -83,7 +83,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
 
         fileManager.openFile(virtualFile, true)
         syncWithService()
-        foldManager.collapseAllFolds()
+        foldsManager.collapseAllFolds()
         setCursorToEnd()
 
         return this
@@ -99,7 +99,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
 
             processedContent.forEachIndexed { index, it ->
                 val line = document.getLineStartOffset(index)
-                foldManager.addFoldsToLine(line, it)
+                foldsManager.addFoldsToLine(line, it)
             }
         }
 
@@ -143,7 +143,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     }
 
     private fun updateSettings(settings: SettingsState) {
-        foldManager.updateSettings(settings)
+        foldsManager.updateSettings(settings)
 
         processor.updateSettings(settings)
         updateFile(harpoonService.getPaths())
