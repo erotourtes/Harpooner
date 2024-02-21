@@ -90,16 +90,19 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     }
 
     private fun updateFile(content: List<String>): QuickMenu {
-        ApplicationManager.getApplication().runWriteAction {
-            val docManager = FileDocumentManager.getInstance()
-            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+        val processedContent = processor.process(content)
 
-            val processedContent = processor.process(content)
-            processedContent.joinToString("\n").let { document.setText(it) }
+        val app = ApplicationManager.getApplication()
+        app.invokeLater {
+            app.runWriteAction {
+                val docManager = FileDocumentManager.getInstance()
+                val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
 
-            processedContent.forEachIndexed { index, it ->
-                val line = document.getLineStartOffset(index)
-                foldsManager.updateFoldsAt(line, it)
+                processedContent.joinToString("\n").let { document.setText(it) }
+                processedContent.forEachIndexed { index, it ->
+                    val line = document.getLineStartOffset(index)
+                    foldsManager.updateFoldsAt(line, it)
+                }
             }
         }
 
