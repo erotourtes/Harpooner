@@ -1,6 +1,7 @@
 package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.services.settings.SettingsState
+import kotlin.io.path.Path
 
 class PathsProcessor(private val projectInfo: ProjectInfo) {
     private var settings = SettingsState.getInstance()
@@ -19,7 +20,8 @@ class PathsProcessor(private val projectInfo: ProjectInfo) {
     fun unprocess(path: String): String {
         var updatedPath = path.trim()
 
-        if (!settings.showProjectPath && updatedPath.isNotEmpty())
+        val isAbsolute = Path(path).isAbsolute
+        if (!settings.showProjectPath && updatedPath.isNotEmpty() && !isAbsolute)
             updatedPath = "${projectInfo.pathWithSlashAtEnd}${updatedPath}"
 
         return updatedPath
