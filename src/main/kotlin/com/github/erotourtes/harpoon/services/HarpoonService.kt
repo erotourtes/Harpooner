@@ -78,7 +78,6 @@ class HarpoonService(project: Project) : Disposable {
 
     private fun connectListenersIfMenuIsOpened() {
         if (fileEditorManager.isFileOpen(menu.virtualFile)) {
-            fileEditorManager.closeFile(menu.virtualFile)
             menu.connectListener()
         }
     }
