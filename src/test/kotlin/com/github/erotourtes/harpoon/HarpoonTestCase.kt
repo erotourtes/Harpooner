@@ -86,6 +86,16 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
         settingsState.notifyObservers(newSettings)
     }
 
+    fun runSyncWriteOperation(action: () -> Unit) {
+        val latch = CountDownLatch(1)
+
+        WriteCommandAction.runWriteCommandAction(fixture.project) {
+            action()
+            latch.countDown()
+        }
+        latch.await()
+    }
+
     @BeforeEach
     override fun setUp() {
         super.setUp()
@@ -97,14 +107,10 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
     @AfterEach
     override fun tearDown() {
-        val latch = CountDownLatch(1)
-
-        WriteCommandAction.runWriteCommandAction(fixture.project) {
+        runSyncWriteOperation {
             menuCloseInEditor()
             menuDc.setText("")
-            latch.countDown()
         }
-        latch.await()
 
         harpoonService.setPaths(emptyList())
 

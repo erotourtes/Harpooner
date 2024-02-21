@@ -51,16 +51,13 @@ class QuickMenuTest : HarpoonTestCase() {
         Assertions.assertEquals(2, harpoonService.getPaths().size)
 
         performQuickMenuAction()
-        WriteCommandAction.runWriteCommandAction(fixture.project) {
-            menuDc.setText("")
-        }
-        app.invokeAndWait {
-            menuCloseInEditor()
-        }
+        runSyncWriteOperation { menuDc.setText("") }
+
+        app.invokeAndWait { menuCloseInEditor() }
 
         Assertions.assertEquals(0, harpoonService.getPaths().size)
     }
-    // TODO: make it work with other tests!
+
 //    @Test
 //    fun `should update harpooner on request lost`() {
 //        fixtureAddDummyFile0()
@@ -71,7 +68,7 @@ class QuickMenuTest : HarpoonTestCase() {
 //
 //        app.invokeAndWait {
 //            performQuickMenuAction()
-//            WriteCommandAction.runWriteCommandAction(fixture.project) {
+//            runSyncWriteOperation {
 //                menuDc.setText(
 //                    """
 //                $dummy1FullPath
@@ -79,10 +76,8 @@ class QuickMenuTest : HarpoonTestCase() {
 //                """.trimIndent()
 //                )
 //            }
-//        }
 //
-//        // change focus to another editor
-//        app.invokeAndWait {
+//            // change focus to another editor
 //            val fileEditorManager = FileEditorManager.getInstance(project)
 //            val editor = fileEditorManager.allEditors.filter { it.file.name == dummy1Filename }[0]
 //            fileEditorManager.openFile(editor.file, false)
