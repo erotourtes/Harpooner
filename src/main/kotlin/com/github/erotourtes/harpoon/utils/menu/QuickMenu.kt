@@ -8,6 +8,7 @@ import com.github.erotourtes.harpoon.utils.ListenerManager
 import com.github.erotourtes.harpoon.utils.MENU_NAME
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.ex.EditorEventMulticasterEx
@@ -80,9 +81,9 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
 
         val app = ApplicationManager.getApplication()
         app.invokeLater {
-            app.runWriteAction {
+            WriteCommandAction.runWriteCommandAction(project) {
                 val docManager = FileDocumentManager.getInstance()
-                val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+                val document = docManager.getDocument(virtualFile) ?: return@runWriteCommandAction
 
                 processedContent.joinToString("\n").let { document.setText(it) }
                 processedContent.forEachIndexed { index, it ->
