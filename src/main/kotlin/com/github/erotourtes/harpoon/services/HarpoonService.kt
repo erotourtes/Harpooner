@@ -21,17 +21,15 @@ class HarpoonService(project: Project) : Disposable {
 
     init {
         FilesRenameListener(::onRenameFile, this)
-        connectListenersIfMenuIsOpened()
         syncWithMenu()
     }
 
     fun openMenu() {
-        menu.open().connectListener()
+        menu.open()
     }
 
     fun onMenuClose() {
         syncWithMenu()
-        menu.disconnectListener()
     }
 
     fun syncWithMenuSafe() {
@@ -74,12 +72,6 @@ class HarpoonService(project: Project) : Disposable {
         else state.update(oldPath, newPath)
 
         menu.syncWithService()
-    }
-
-    private fun connectListenersIfMenuIsOpened() {
-        if (fileEditorManager.isFileOpen(menu.virtualFile)) {
-            menu.connectListener()
-        }
     }
 
     class State {

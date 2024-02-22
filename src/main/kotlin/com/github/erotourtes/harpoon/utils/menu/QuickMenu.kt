@@ -1,6 +1,5 @@
 package com.github.erotourtes.harpoon.utils.menu
 
-import com.github.erotourtes.harpoon.listeners.FileEditorListener
 import com.github.erotourtes.harpoon.listeners.MenuChangeListener
 import com.github.erotourtes.harpoon.services.HarpoonService
 import com.github.erotourtes.harpoon.services.settings.SettingsState
@@ -15,12 +14,10 @@ import com.intellij.openapi.editor.ex.EditorEventMulticasterEx
 import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.messages.MessageBusConnection
 import java.io.File
 
 
@@ -32,7 +29,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         private set
     private val foldsManager: FoldsManager
     private var processor: PathsProcessor
-    private val dbusListener = DbusListener()
     private val listenerManager = ListenerManager()
 
     init {
@@ -60,17 +56,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     }
 
     fun isMenuFile(path: String): Boolean = path == menuFile.path
-
-    fun connectListener(): QuickMenu {
-        dbusListener.connect()
-        return this
-    }
-
-    fun disconnectListener(): QuickMenu {
-        dbusListener.disconnect()
-
-        return this
-    }
 
     fun syncWithService() {
         updateFile(harpoonService.getPaths())
@@ -189,26 +174,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     }
 
     override fun dispose() {
-        disconnectListener()
         listenerManager.disposeAllListeners()
-    }
-
-    private class DbusListener {
-        private var connection: MessageBusConnection? = null
-        private val listener by lazy { FileEditorListener() }
-
-        fun connect() {
-            if (connection != null) return
-            connection = ApplicationManager.getApplication().messageBus.connect()
-            connection!!.subscribe(
-                FileEditorManagerListener.FILE_EDITOR_MANAGER, listener
-            )
-        }
-
-        fun disconnect() {
-            connection?.disconnect()
-            connection = null
-        }
     }
 
     private inner class FocusListener : FocusChangeListener {
