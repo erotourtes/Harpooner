@@ -2,9 +2,12 @@ package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.HarpoonTestCase
 import com.intellij.openapi.command.WriteCommandAction
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class QuickMenuTest : HarpoonTestCase() {
-    fun `test filter empty lines`() {
+    @Test
+    fun `filter empty lines`() {
         performQuickMenuAction()
 
         app.invokeAndWait {
@@ -25,33 +28,34 @@ class QuickMenuTest : HarpoonTestCase() {
             menuCloseInEditor()
         }
 
-        assertEquals(listOf(dummy0FullPath, dummy1FullPath), harpoonService.getPaths())
+        Assertions.assertEquals(listOf(dummy0FullPath, dummy1FullPath), harpoonService.getPaths())
 
         performOpenFileAction(0)
-        assertEquals(dummy0Filename, curOpenedFilename)
+        Assertions.assertEquals(dummy0Filename, curOpenedFilename)
 
         performOpenFileAction(1)
-        assertEquals(dummy1Filename, curOpenedFilename)
+        Assertions.assertEquals(dummy1Filename, curOpenedFilename)
 
         performOpenFileAction(2) // should not open anything new
-        assertEquals(dummy1Filename, curOpenedFilename)
+        Assertions.assertEquals(dummy1Filename, curOpenedFilename)
     }
 
 
-    fun `test remove file action`() {
+    @Test
+    fun `remove file action`() {
         fixtureAddDummyFile0()
         performAddFileAction()
         fixtureAddDummyFile1()
         performAddFileAction()
 
-        assertEquals(2, harpoonService.getPaths().size)
+        Assertions.assertEquals(2, harpoonService.getPaths().size)
 
         performQuickMenuAction()
         runSyncWriteOperation { menuDc.setText("") }
 
         app.invokeAndWait { menuCloseInEditor() }
 
-        assertEquals(0, harpoonService.getPaths().size)
+        Assertions.assertEquals(0, harpoonService.getPaths().size)
     }
 
 //    @Test
@@ -60,7 +64,7 @@ class QuickMenuTest : HarpoonTestCase() {
 //        performAddFileAction()
 //        fixtureAddDummyFile1()
 //        performAddFileAction()
-//        assertEquals(2, harpoonService.getPaths().size)
+//        Assertions.assertEquals(2, harpoonService.getPaths().size)
 //
 //        app.invokeAndWait {
 //            performQuickMenuAction()
@@ -83,7 +87,7 @@ class QuickMenuTest : HarpoonTestCase() {
 //        Thread.sleep(TYPING_DEBOUNCE_MS * 2)
 //
 //        val paths = harpoonService.getPaths()
-//        assertEquals(dummy1FullPath, paths[0])
-//        assertEquals(dummy0FullPath, paths[1])
+//        Assertions.assertEquals(dummy1FullPath, paths[0])
+//        Assertions.assertEquals(dummy0FullPath, paths[1])
 //    }
 }

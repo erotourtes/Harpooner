@@ -1,9 +1,13 @@
 package com.github.erotourtes.harpoon.services.settings
 
 import com.github.erotourtes.harpoon.HarpoonTestCase
+import junit.framework.TestCase
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class SettingsTest : HarpoonTestCase() {
-    fun `test change settings on the fly`() {
+    @Test
+    fun `change settings on the fly`() {
         performQuickMenuAction()
 
         app.invokeAndWait {
@@ -18,7 +22,7 @@ class SettingsTest : HarpoonTestCase() {
             menuCloseInEditor()
             performQuickMenuAction()
 
-            assertEquals(2, harpoonService.getPaths().size)
+            TestCase.assertEquals(2, harpoonService.getPaths().size)
 
             // First part of changeSettings
             changeSettings {
@@ -31,19 +35,19 @@ class SettingsTest : HarpoonTestCase() {
         Thread.sleep(100)
 
         app.invokeAndWait {
-            assertEquals(1, SettingsState.getInstance().numberOfSlashes)
-            assertEquals(2, foldingModel.allFoldRegions.size)
+            Assertions.assertEquals(1, SettingsState.getInstance().numberOfSlashes)
+            Assertions.assertEquals(2, foldingModel.allFoldRegions.size)
 
             with(foldingModel.allFoldRegions[0]) {
-                assertEquals(0, startOffset)
-                assertEquals(25, endOffset) // 25 is  "/some/large/path/to/file/".length
-                assertEquals(false, isExpanded)
+                Assertions.assertEquals(0, startOffset)
+                Assertions.assertEquals(25, endOffset) // 25 is  "/some/large/path/to/file/".length
+                Assertions.assertEquals(false, isExpanded)
             }
 
             with(foldingModel.allFoldRegions[1]) {
-                assertEquals(31, startOffset)
-                assertEquals(64, endOffset)
-                assertEquals(false, isExpanded)
+                Assertions.assertEquals(31, startOffset)
+                Assertions.assertEquals(64, endOffset)
+                Assertions.assertEquals(false, isExpanded)
             }
         }
 
@@ -58,19 +62,19 @@ class SettingsTest : HarpoonTestCase() {
         Thread.sleep(100)
 
         app.invokeAndWait {
-            assertEquals(3, SettingsState.getInstance().numberOfSlashes)
-            assertEquals(2, foldingModel.allFoldRegions.size)
+            Assertions.assertEquals(3, SettingsState.getInstance().numberOfSlashes)
+            Assertions.assertEquals(2, foldingModel.allFoldRegions.size)
 
             with(foldingModel.allFoldRegions[0]) {
-                assertEquals(0, startOffset)
-                assertEquals(17, endOffset) // "/some/large/path/".length
-                assertEquals(false, isExpanded)
+                Assertions.assertEquals(0, startOffset)
+                Assertions.assertEquals(17, endOffset) // "/some/large/path/".length
+                Assertions.assertEquals(false, isExpanded)
             }
 
             with(foldingModel.allFoldRegions[1]) {
-                assertEquals(31, startOffset)
-                assertEquals(56, endOffset)
-                assertEquals(false, isExpanded)
+                Assertions.assertEquals(31, startOffset)
+                Assertions.assertEquals(56, endOffset)
+                Assertions.assertEquals(false, isExpanded)
             }
         }
     }
