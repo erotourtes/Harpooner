@@ -76,7 +76,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     }
 
     private fun updateFile(content: List<String>): QuickMenu {
-        if (content == readLines()) return this
         val processedContent = processor.process(content)
 
         val app = ApplicationManager.getApplication()
