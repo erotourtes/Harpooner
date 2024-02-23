@@ -29,10 +29,6 @@ class HarpoonService(project: Project) : Disposable {
         menu.open()
     }
 
-    fun onMenuClose() {
-        syncWithMenu()
-    }
-
     fun syncWithMenuSafe() {
         ApplicationManager.getApplication().invokeLater {
             syncWithMenu()
@@ -42,8 +38,6 @@ class HarpoonService(project: Project) : Disposable {
     fun syncWithMenu() {
         setPaths(menu.readLines())
     }
-
-    fun isMenuFile(path: String): Boolean = menu.isMenuFile(path)
 
     fun getPaths(): List<String> = state.paths
 
@@ -61,9 +55,7 @@ class HarpoonService(project: Project) : Disposable {
         }
     }
 
-    fun setPaths(paths: List<String>): Unit = state.set(paths)
-
-    val menuVF: VirtualFile get() = menu.virtualFile
+    private fun setPaths(paths: List<String>): Unit = state.set(paths)
 
     private fun getFile(index: Int): VirtualFile? = state.getFile(index)
 
