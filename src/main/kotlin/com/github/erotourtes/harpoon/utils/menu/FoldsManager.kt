@@ -27,10 +27,13 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
                 val foldAlreadyInLine = curLineFolds.find { it.startOffset == start && it.endOffset == end }
                 if (foldAlreadyInLine != null) {
                     curLineFolds.remove(foldAlreadyInLine)
+                    foldAlreadyInLine.isExpanded = false
                     continue
                 }
 
-                foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
+                val foldRegion =
+                    foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
+                foldRegion.isExpanded = false
             }
 
             // remove all folds that are not in the newFolds
