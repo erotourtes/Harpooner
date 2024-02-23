@@ -56,8 +56,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         return document.text.split("\n").map { processor.unprocess(it) }
     }
 
-    fun isMenuFile(path: String): Boolean = path == menuFile.path
-
     fun syncWithService() {
         updateFile(harpoonService.getPaths())
     }

@@ -10,7 +10,7 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
     private var settings = SettingsState.getInstance()
 
     fun updateFoldsAt(line: Int, str: String) {
-        removeFoldsFromLine(line)
+        removeFoldsFrom(line, line + str.length)
         addFoldsToLine(line, str)
     }
 
@@ -28,14 +28,16 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
     }
 
 
-    private fun removeFoldsFromLine(line: Int) {
+    private fun removeFoldsFrom(start: Int, end: Int) {
         if (!menu.isMenuFileOpenedWithCurEditor()) return
 
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
         val foldingModel = editor.foldingModel
 
         foldingModel.runBatchFoldingOperation {
-            val foldRegions = foldingModel.allFoldRegions.filter { it.startOffset == line }
+            val foldRegions = foldingModel.allFoldRegions.filter {
+                it.startOffset >= start && it.endOffset <= end
+            }
             foldRegions.forEach { foldingModel.removeFoldRegion(it) }
         }
     }
