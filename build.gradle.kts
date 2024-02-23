@@ -70,9 +70,9 @@ koverReport {
 }
 
 tasks {
-    withType<Test> {
-        useJUnitPlatform()
-    }
+//    withType<Test> {
+//        useJUnitPlatform()
+//    }
 
     register<Test>("harpoonerTests") {
         group = "verification"

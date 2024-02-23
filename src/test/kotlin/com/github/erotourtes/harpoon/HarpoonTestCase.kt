@@ -11,8 +11,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import java.util.concurrent.CountDownLatch
 
 abstract class HarpoonTestCase : BasePlatformTestCase() {
@@ -49,8 +47,10 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
     private val settingsState by lazy { SettingsState.getInstance() }
 
     fun menuCloseInEditor() {
+        harpoonService.openMenu()
         val fileEditorManager = FileEditorManager.getInstance(project)
         fileEditorManager.closeFile(harpoonService.menuVF)
+        harpoonService.onMenuClose()
     }
 
     fun performAddFileAction() {
@@ -96,7 +96,6 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
         latch.await()
     }
 
-    @BeforeEach
     override fun setUp() {
         super.setUp()
 
@@ -105,7 +104,6 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
         fixture.configureByFile("dummy0.txt")
     }
 
-    @AfterEach
     override fun tearDown() {
         runSyncWriteOperation {
             menuCloseInEditor()
