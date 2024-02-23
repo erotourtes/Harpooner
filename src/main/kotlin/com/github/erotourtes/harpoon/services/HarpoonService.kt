@@ -49,7 +49,8 @@ class HarpoonService(project: Project) : Disposable {
     fun openFile(index: Int) {
         val file = getFile(index) ?: throw Exception("Can't find file")
         try {
-            fileEditorManager.openFile(file, true)
+            if (file.path == menu.virtualFile.path) menu.open()
+            else fileEditorManager.openFile(file, true)
         } catch (e: Exception) {
             throw Exception("Can't find file. It might be deleted")
         }
