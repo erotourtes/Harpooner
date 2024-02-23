@@ -73,7 +73,7 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
         for (index in str.length - 1 downTo lastFoldIndex) {
             if (str[index] == '/') count++
             if (count == settings.numberOfSlashes && index != lastFoldIndex) {
-                val placeholder = if (str[0] == '/') "/../" else ".../"
+                val placeholder = if (str[lastFoldIndex] == '/') "/../" else ".../"
                 folds.push(Triple(line + lastFoldIndex, line + index + 1, placeholder))
                 break
             }
