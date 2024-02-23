@@ -80,6 +80,8 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
 
         val app = ApplicationManager.getApplication()
         app.invokeLater {
+            if (project.isDisposed) return@invokeLater
+
             WriteCommandAction.runWriteCommandAction(project) {
                 val docManager = FileDocumentManager.getInstance()
                 val document = docManager.getDocument(virtualFile) ?: return@runWriteCommandAction
