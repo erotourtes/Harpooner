@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 
 // TODO: optimise live save of the menu
+// TODO: folding builder
 // TODO: optimise live save + editor focus close trigger 2 saves
 
 @Service(Service.Level.PROJECT)
