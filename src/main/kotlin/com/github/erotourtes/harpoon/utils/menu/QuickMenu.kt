@@ -67,7 +67,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
 
         fileManager.openFile(virtualFile, true)
         syncWithService()
-        foldsManager.collapseAllFolds()
+//        foldsManager.collapseAllFolds()
         setCursorToEnd()
 
         return this

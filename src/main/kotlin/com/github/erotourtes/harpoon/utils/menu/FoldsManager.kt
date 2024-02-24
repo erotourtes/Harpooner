@@ -27,7 +27,7 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
                 val foldAlreadyInLine = curLineFolds.find { it.startOffset == start && it.endOffset == end }
                 if (foldAlreadyInLine != null) {
                     curLineFolds.remove(foldAlreadyInLine)
-                    foldAlreadyInLine.isExpanded = false
+//                    foldAlreadyInLine.isExpanded = false
                     continue
                 }
 
