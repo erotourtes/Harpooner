@@ -1,6 +1,8 @@
 package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.services.settings.SettingsState
+import com.intellij.openapi.editor.FoldRegion
+import com.intellij.openapi.editor.FoldingModel
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import org.intellij.markdown.lexer.push
@@ -10,8 +12,33 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
     private var settings = SettingsState.getInstance()
 
     fun updateFoldsAt(line: Int, str: String) {
-        removeFoldsFromLine(line)
-        addFoldsToLine(line, str)
+        if (!menu.isMenuFileOpenedWithCurEditor()) return
+
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val foldingModel = editor.foldingModel
+        val newFolds = getFoldsFrom(line, str)
+
+        foldingModel.runBatchFoldingOperation {
+            val curLineFolds = getCurrentLineFolds(foldingModel, line, line + str.length)
+
+            for ((start, end, placeHolder) in newFolds) {
+                if (start == end) continue
+
+                val foldAlreadyInLine = curLineFolds.find { it.startOffset == start && it.endOffset == end }
+                if (foldAlreadyInLine != null) {
+                    curLineFolds.remove(foldAlreadyInLine)
+//                    foldAlreadyInLine.isExpanded = false
+                    continue
+                }
+
+                val foldRegion =
+                    foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
+                foldRegion.isExpanded = false
+            }
+
+            // remove all folds that are not in the newFolds
+            curLineFolds.forEach(foldingModel::removeFoldRegion)
+        }
     }
 
     fun updateSettings(newState: SettingsState) {
@@ -27,34 +54,10 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
         }
     }
 
-
-    private fun removeFoldsFromLine(line: Int) {
-        if (!menu.isMenuFileOpenedWithCurEditor()) return
-
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        val foldingModel = editor.foldingModel
-
-        foldingModel.runBatchFoldingOperation {
-            val foldRegions = foldingModel.allFoldRegions.filter { it.startOffset == line }
-            foldRegions.forEach { foldingModel.removeFoldRegion(it) }
-        }
-    }
-
-    private fun addFoldsToLine(line: Int, str: String) {
-        if (!menu.isMenuFileOpenedWithCurEditor()) return
-
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        val foldingModel = editor.foldingModel
-        val folds = getFoldsFrom(line, str)
-
-        foldingModel.runBatchFoldingOperation {
-            for ((start, end, placeHolder) in folds) {
-                if (start == end) continue
-                val foldRegion =
-                    foldingModel.addFoldRegion(start, end, placeHolder) ?: return@runBatchFoldingOperation
-                foldRegion.isExpanded = false
-            }
-        }
+    private fun getCurrentLineFolds(foldingModel: FoldingModel, start: Int, end: Int): MutableList<FoldRegion> {
+        return foldingModel.allFoldRegions.filter {
+            it.startOffset >= start && it.endOffset <= end
+        }.toMutableList()
     }
 
     private fun getFoldsFrom(line: Int, str: String): List<Triple<Int, Int, String>> {
@@ -70,7 +73,7 @@ class FoldsManager(private val menu: QuickMenu, private val project: Project) {
         for (index in str.length - 1 downTo lastFoldIndex) {
             if (str[index] == '/') count++
             if (count == settings.numberOfSlashes && index != lastFoldIndex) {
-                val placeholder = if (str[0] == '/') "/../" else ".../"
+                val placeholder = if (str[lastFoldIndex] == '/') "/../" else ".../"
                 folds.push(Triple(line + lastFoldIndex, line + index + 1, placeholder))
                 break
             }

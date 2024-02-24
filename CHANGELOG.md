@@ -4,6 +4,15 @@
 
 ## [Unreleased]
 
+## [1.0.11] - 2024-02-23
+
+### Fixed
+
+- opening the menu with a open file action
+- preserving the menu state (to be able to undo)
+- fixed updating folds on the fly
+- fixed listening to changes might have cause an infinite update
+
 ## [1.0.10] - 2024-02-21
 
 ### Added

@@ -11,7 +11,11 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 
 // TODO: optimise live save of the menu
+// TODO: folding builder
 // TODO: optimise live save + editor focus close trigger 2 saves
+// TODO: fix rare bug with menu is overwriting itself
+// TODO: fix bug with folds not closing after opening a file
+
 
 @Service(Service.Level.PROJECT)
 class HarpoonService(project: Project) : Disposable {
@@ -21,17 +25,11 @@ class HarpoonService(project: Project) : Disposable {
 
     init {
         FilesRenameListener(::onRenameFile, this)
-        connectListenersIfMenuIsOpened()
         syncWithMenu()
     }
 
     fun openMenu() {
-        menu.open().connectListener()
-    }
-
-    fun onMenuClose() {
-        syncWithMenu()
-        menu.disconnectListener()
+        menu.open()
     }
 
     fun syncWithMenuSafe() {
@@ -44,8 +42,6 @@ class HarpoonService(project: Project) : Disposable {
         setPaths(menu.readLines())
     }
 
-    fun isMenuFile(path: String): Boolean = menu.isMenuFile(path)
-
     fun getPaths(): List<String> = state.paths
 
     fun addFile(file: VirtualFile): Unit = state.add(file.path)
@@ -56,15 +52,14 @@ class HarpoonService(project: Project) : Disposable {
     fun openFile(index: Int) {
         val file = getFile(index) ?: throw Exception("Can't find file")
         try {
-            fileEditorManager.openFile(file, true)
+            if (file.path == menu.virtualFile.path) menu.open()
+            else fileEditorManager.openFile(file, true)
         } catch (e: Exception) {
             throw Exception("Can't find file. It might be deleted")
         }
     }
 
-    fun setPaths(paths: List<String>): Unit = state.set(paths)
-
-    val menuVF: VirtualFile get() = menu.virtualFile
+    private fun setPaths(paths: List<String>): Unit = state.set(paths)
 
     private fun getFile(index: Int): VirtualFile? = state.getFile(index)
 
@@ -74,12 +69,6 @@ class HarpoonService(project: Project) : Disposable {
         else state.update(oldPath, newPath)
 
         menu.syncWithService()
-    }
-
-    private fun connectListenersIfMenuIsOpened() {
-        if (fileEditorManager.isFileOpen(menu.virtualFile)) {
-            menu.connectListener()
-        }
     }
 
     class State {
