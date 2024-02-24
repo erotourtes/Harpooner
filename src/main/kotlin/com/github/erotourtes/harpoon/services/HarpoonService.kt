@@ -13,6 +13,9 @@ import com.intellij.openapi.vfs.VirtualFile
 // TODO: optimise live save of the menu
 // TODO: folding builder
 // TODO: optimise live save + editor focus close trigger 2 saves
+// TODO: fix rare bug with menu is overwriting itself
+// TODO: fix bug with folds not closing after opening a file
+
 
 @Service(Service.Level.PROJECT)
 class HarpoonService(project: Project) : Disposable {
