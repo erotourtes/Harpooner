@@ -21,25 +21,41 @@ abstract class OpenFileAction : AnAction() {
 }
 
 class OpenFileAction0 : OpenFileAction() {
-    override fun index(): Int {
-        return 0
-    }
+    override fun index(): Int = 0
 }
 
 class OpenFileAction1 : OpenFileAction() {
-    override fun index(): Int {
-        return 1
-    }
+    override fun index(): Int = 1
 }
 
 class OpenFileAction2 : OpenFileAction() {
-    override fun index(): Int {
-        return 2
-    }
+    override fun index(): Int = 2
 }
 
 class OpenFileAction3 : OpenFileAction() {
-    override fun index(): Int {
-        return 3
-    }
+    override fun index(): Int = 3
+}
+
+class OpenFileAction4 : OpenFileAction() {
+    override fun index(): Int = 4
+}
+
+class OpenFileAction5 : OpenFileAction() {
+    override fun index(): Int = 5
+}
+
+class OpenFileAction6 : OpenFileAction() {
+    override fun index(): Int = 6
+}
+
+class OpenFileAction7 : OpenFileAction() {
+    override fun index(): Int = 7
+}
+
+class OpenFileAction8 : OpenFileAction() {
+    override fun index(): Int = 8
+}
+
+class OpenFileAction9 : OpenFileAction() {
+    override fun index(): Int = 9
 }
