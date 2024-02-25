@@ -4,11 +4,18 @@
 
 ## [Unreleased]
 
+
+## [1.0.12] - 2024-02-25
+
+### Added
+
+- up to 10 open file actions
+
 ## [1.0.11] - 2024-02-23
 
 ### Fixed
 
-- opening the menu with a open file action
+- opening the menu with an open file action
 - preserving the menu state (to be able to undo)
 - fixed updating folds on the fly
 - fixed listening to changes might have cause an infinite update
