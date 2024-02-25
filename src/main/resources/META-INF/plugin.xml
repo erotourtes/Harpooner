@@ -81,5 +81,59 @@
         >
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
+
+        <action id="HarpoonerOpenFile4"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction4"
+                text="Harpooner Open File 5"
+                description="Open the fourth file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
+        <action id="HarpoonerOpenFile5"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction5"
+                text="Harpooner Open File 6"
+                description="Open the fourth file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
+        <action id="HarpoonerOpenFile6"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction6"
+                text="Harpooner Open File 7"
+                description="Open the fourth file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
+        <action id="HarpoonerOpenFile7"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction7"
+                text="Harpooner Open File 8"
+                description="Open the fourth file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
+        <action id="HarpoonerOpenFile8"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction8"
+                text="Harpooner Open File 9"
+                description="Open the fourth file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
+        <action id="HarpoonerOpenFile9"
+                class="com.github.erotourtes.harpoon.actions.OpenFileAction9"
+                text="Harpooner Open File 10"
+                description="Open the fourth file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
     </actions>
 </idea-plugin>

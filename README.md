@@ -44,6 +44,13 @@ nmap <M-;> :action HarpoonerOpenFile3<cr>
 
 nmap <leader>hm :action HarpoonerQuickMenu<cr>
 nmap <leader>ha :action HarpoonerAddFile<cr>
+
+" nmap <M-4> :action HarpoonerOpenFile4<cr>
+" nmap <M-5> :action HarpoonerOpenFile5<cr>
+" nmap <M-6> :action HarpoonerOpenFile6<cr>
+" nmap <M-7> :action HarpoonerOpenFile7<cr>
+" nmap <M-8> :action HarpoonerOpenFile8<cr>
+" nmap <M-9> :action HarpoonerOpenFile9<cr>
 ```
 
 ### Settings
