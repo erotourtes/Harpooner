@@ -66,9 +66,8 @@ class HarpoonService(project: Project) : Disposable {
     private fun onRenameFile(oldPath: String, newPath: String?) {
         val isDeleteEvent = newPath == null
         if (isDeleteEvent) state.remove(oldPath)
-        else state.update(oldPath, newPath)
-
-        menu.syncWithService()
+        else if (state.update(oldPath, newPath)) // TODO: somehow rename listener can go crazy and spam file change events
+            menu.syncWithService()
     }
 
     class State {
@@ -100,12 +99,13 @@ class HarpoonService(project: Project) : Disposable {
             virtualFiles.remove(path)
         }
 
-        fun update(oldPath: String, newPath: String?) {
+        fun update(oldPath: String, newPath: String?): Boolean {
             val index = data.indexOf(oldPath)
-            if (index == -1) return
+            if (index == -1) return false
 
             data[index] = newPath!!
             virtualFiles[newPath] = virtualFiles.remove(oldPath)
+            return true
         }
     }
 
