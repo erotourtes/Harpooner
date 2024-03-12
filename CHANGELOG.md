@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+## [1.0.13] - 2024-03-12
+
+### Fixed
+
+- infinite loop via rename change listener with git
 
 ## [1.0.12] - 2024-02-25
 
