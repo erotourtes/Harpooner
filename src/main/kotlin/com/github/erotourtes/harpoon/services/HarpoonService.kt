@@ -59,6 +59,29 @@ class HarpoonService(project: Project) : Disposable {
         }
     }
 
+    fun nextFile() {
+        val currentIndex = currentIndex()
+        if (currentIndex != -1 && state.size() > 0) {
+            val nextIndex = (currentIndex + 1) % state.size()
+            openFile(nextIndex)
+        }
+    }
+
+    fun previousFile() {
+        val currentIndex = currentIndex()
+        if (currentIndex != -1 && state.size() > 0) {
+            val prevIndex = (currentIndex - 1 + state.size()) % state.size()
+            openFile(prevIndex)
+        }
+    }
+
+    private fun currentIndex(): Int {
+        val currentFile = fileEditorManager.selectedEditor?.file
+        val currentFilePath = currentFile?.path
+        val currentIndex = state.paths.indexOf(currentFilePath)
+        return currentIndex
+    }
+
     private fun setPaths(paths: List<String>): Unit = state.set(paths)
 
     private fun getFile(index: Int): VirtualFile? = state.getFile(index)
@@ -107,6 +130,9 @@ class HarpoonService(project: Project) : Disposable {
             virtualFiles[newPath] = virtualFiles.remove(oldPath)
             return true
         }
+
+        fun size(): Int = data.size
+
     }
 
     companion object {

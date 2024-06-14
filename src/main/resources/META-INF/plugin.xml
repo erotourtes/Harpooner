@@ -135,5 +135,23 @@
         >
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
+
+        <action id="HarpoonerNextFileAction"
+                class="com.github.erotourtes.harpoon.actions.NextFileAction"
+                text="Harpooner Open Next File"
+                description="Open the next file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+        <action id="HarpoonerPreviousFileAction"
+                class="com.github.erotourtes.harpoon.actions.PreviousFileAction"
+                text="Harpooner Open Previous File"
+                description="Open the Previous file"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
     </actions>
 </idea-plugin>

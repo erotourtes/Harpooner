@@ -45,6 +45,9 @@ nmap <M-;> :action HarpoonerOpenFile3<cr>
 nmap <leader>hm :action HarpoonerQuickMenu<cr>
 nmap <leader>ha :action HarpoonerAddFile<cr>
 
+nmap <leader>hn :action HarpoonerNextFileAction<cr>
+nmap <leader>hp :action HarpoonerPreviousFileAction<cr>
+
 " nmap <M-4> :action HarpoonerOpenFile4<cr>
 " nmap <M-5> :action HarpoonerOpenFile5<cr>
 " nmap <M-6> :action HarpoonerOpenFile6<cr>
