@@ -37,24 +37,32 @@ You need to use [IdeaVim](https://plugins.jetbrains.com/plugin/164-ideavim) plug
 
 ```Vim
 " Harpoon
-nmap <M-j> :action HarpoonerOpenFile0<cr>
-nmap <M-k> :action HarpoonerOpenFile1<cr>
-nmap <M-l> :action HarpoonerOpenFile2<cr>
-nmap <M-;> :action HarpoonerOpenFile3<cr>
+nmap <M-j> <action>(HarpoonerOpenFile0)
+nmap <M-k> <action>(HarpoonerOpenFile1)
+nmap <M-l> <action>(HarpoonerOpenFile2)
+nmap <M-;> <action>(HarpoonerOpenFile3)
 
-nmap <leader>hm :action HarpoonerQuickMenu<cr>
-nmap <leader>ha :action HarpoonerAddFile<cr>
+nmap <leader>hm <action>(HarpoonerQuickMenu)
+nmap <leader>ha <action>(HarpoonerAddFile)
 
-nmap <leader>hn :action HarpoonerNextFileAction<cr>
-nmap <leader>hp :action HarpoonerPreviousFileAction<cr>
+nmap <leader>hn <action>(HarpoonerNextFileAction)
+nmap <leader>hp <action>(HarpoonerPreviousFileAction)
 
-" nmap <M-4> :action HarpoonerOpenFile4<cr>
-" nmap <M-5> :action HarpoonerOpenFile5<cr>
-" nmap <M-6> :action HarpoonerOpenFile6<cr>
-" nmap <M-7> :action HarpoonerOpenFile7<cr>
-" nmap <M-8> :action HarpoonerOpenFile8<cr>
-" nmap <M-9> :action HarpoonerOpenFile9<cr>
+" nmap <M-4> <action>(HarpoonerOpenFile4)
+" nmap <M-5> <action>(HarpoonerOpenFile5)
+" nmap <M-6> <action>(HarpoonerOpenFile6)
+" nmap <M-7> <action>(HarpoonerOpenFile7)
+" nmap <M-8> <action>(HarpoonerOpenFile8)
+" nmap <M-9> <action>(HarpoonerOpenFile9)
 ```
+> [!TIP]
+> You can move code with 
+> ```vim
+> vmap J <action>(MoveLineDown)
+> vmap K <action>(MoveLineUp)
+> nmap <C-j> <action>(MoveLineDown)
+> nmap <C-k> <action>(MoveLineUp)
+> ```
 
 ### Settings
 You can change the settings:
