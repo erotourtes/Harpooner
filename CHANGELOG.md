@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.0.15] - 2024-06-17
+
+### Added
+
+- support for move next and previous files in harpooner list (#21)
+
 ## [1.0.14] - 2024-03-18
 
 ### Fixed
