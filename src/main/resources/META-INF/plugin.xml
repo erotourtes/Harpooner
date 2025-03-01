@@ -46,6 +46,15 @@
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
 
+        <action id="HarpoonerToggleQuickMenu"
+                class="com.github.erotourtes.harpoon.actions.ToggleQuickMenuAction"
+                text="Harpooner Toggle Menu"
+                description="Toggle quick menu of harpoon"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
         <action id="HarpoonerOpenFile0"
                 class="com.github.erotourtes.harpoon.actions.OpenFileAction0"
                 text="Harpooner Open File 1"

@@ -43,6 +43,7 @@ nmap <M-l> <action>(HarpoonerOpenFile2)
 nmap <M-;> <action>(HarpoonerOpenFile3)
 
 nmap <leader>hm <action>(HarpoonerQuickMenu)
+nmap <leader>ht <action>(HarpoonerToggleQuickMenu)
 nmap <leader>ha <action>(HarpoonerAddFile)
 
 nmap <leader>hn <action>(HarpoonerNextFileAction)

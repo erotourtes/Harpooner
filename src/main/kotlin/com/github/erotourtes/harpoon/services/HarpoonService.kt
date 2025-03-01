@@ -32,6 +32,14 @@ class HarpoonService(project: Project) : Disposable {
         menu.open()
     }
 
+    fun toggleMenu() {
+       if (menu.isOpen()) {
+           menu.close()
+       } else {
+           menu.open()
+       }
+    }
+
     fun syncWithMenuSafe() {
         ApplicationManager.getApplication().invokeLater {
             syncWithMenu()
