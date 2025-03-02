@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-03-02
+
+### Added
+
+- `HarpoonerToggleQuickMenu` - Toggle the Harpoon menu
+- `HarpoonerToggleFile` - Toggle the current file in Harpoon - adds it if it's not already in the list, removes it if it is.
+- `HarpoonerRemoveFile` - Remove the current file from Harpoon’s menu.
+ 
+### Changed
+
+- Recommended `ideavimrc` configuration in Readme
+
 ## [1.0.15] - 2024-06-17
 
 ### Added
