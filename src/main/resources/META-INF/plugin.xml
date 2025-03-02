@@ -28,9 +28,14 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
 
+
+        <!--
+        #### File actions ####
+        -->
+
         <action id="HarpoonerAddFile"
-                class="com.github.erotourtes.harpoon.actions.AddFileAction"
-                text="Harpooner Add File"
+                class="com.github.erotourtes.harpoon.actions.file.AddFileAction"
+                text="Add File"
                 description="Add File to the Harpoon"
                 popup="true"
         >
@@ -39,7 +44,7 @@
 
         <action id="HarpoonerRemoveFile"
                 class="com.github.erotourtes.harpoon.actions.file.RemoveFileAction"
-                text="Harpooner Remove File"
+                text="Remove File"
                 description="Remove File from the Harpoon"
                 popup="true"
         >
@@ -48,16 +53,20 @@
 
         <action id="HarpoonerToggleFile"
                 class="com.github.erotourtes.harpoon.actions.file.ToggleFileAction"
-                text="Harpooner Toggle File"
+                text="Toggle File"
                 description="Remove File from the Harpoon"
                 popup="true"
         >
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
 
+
+        <!--
+        #### Menu actions ####
+        -->
         <action id="HarpoonerQuickMenu"
-                class="com.github.erotourtes.harpoon.actions.QuickMenuAction"
-                text="Harpooner Show Menu"
+                class="com.github.erotourtes.harpoon.actions.menu.QuickMenuAction"
+                text="Show Menu"
                 description="Show quick menu of harpoon"
                 popup="true"
         >
@@ -65,17 +74,21 @@
         </action>
 
         <action id="HarpoonerToggleQuickMenu"
-                class="com.github.erotourtes.harpoon.actions.ToggleQuickMenuAction"
-                text="Harpooner Toggle Menu"
+                class="com.github.erotourtes.harpoon.actions.menu.ToggleQuickMenuAction"
+                text="Toggle Menu"
                 description="Toggle quick menu of harpoon"
                 popup="true"
         >
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
 
+        <!--
+        #### Navigation actions ####
+        -->
+
         <action id="HarpoonerOpenFile0"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction0"
-                text="Harpooner Open File 1"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction0"
+                text="Open File 1"
                 description="Open the first file"
                 popup="true"
         >
@@ -83,8 +96,8 @@
         </action>
 
         <action id="HarpoonerOpenFile1"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction1"
-                text="Harpooner Open File 2"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction1"
+                text="Open File 2"
                 description="Open the second file"
                 popup="true"
         >
@@ -92,8 +105,8 @@
         </action>
 
         <action id="HarpoonerOpenFile2"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction2"
-                text="Harpooner Open File 3"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction2"
+                text="Open File 3"
                 description="Open the third file"
                 popup="true"
         >
@@ -101,8 +114,8 @@
         </action>
 
         <action id="HarpoonerOpenFile3"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction3"
-                text="Harpooner Open File 4"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction3"
+                text="Open File 4"
                 description="Open the fourth file"
                 popup="true"
         >
@@ -110,75 +123,53 @@
         </action>
 
         <action id="HarpoonerOpenFile4"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction4"
-                text="Harpooner Open File 5"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction4"
+                text="Open File 5"
                 description="Open the fourth file"
-                popup="true"
-        >
-            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
-        </action>
+        />
 
         <action id="HarpoonerOpenFile5"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction5"
-                text="Harpooner Open File 6"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction5"
+                text="Open File 6"
                 description="Open the fourth file"
-                popup="true"
-        >
-            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
-        </action>
+        />
 
         <action id="HarpoonerOpenFile6"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction6"
-                text="Harpooner Open File 7"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction6"
+                text="Open File 7"
                 description="Open the fourth file"
-                popup="true"
-        >
-            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
-        </action>
+        />
 
         <action id="HarpoonerOpenFile7"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction7"
-                text="Harpooner Open File 8"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction7"
+                text="Open File 8"
                 description="Open the fourth file"
-                popup="true"
-        >
-            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
-        </action>
+        />
 
         <action id="HarpoonerOpenFile8"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction8"
-                text="Harpooner Open File 9"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction8"
+                text="Open File 9"
                 description="Open the fourth file"
-                popup="true"
-        >
-            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
-        </action>
+        />
 
         <action id="HarpoonerOpenFile9"
-                class="com.github.erotourtes.harpoon.actions.OpenFileAction9"
-                text="Harpooner Open File 10"
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenFileAction9"
+                text="Open File 10"
                 description="Open the fourth file"
-                popup="true"
-        >
-            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
-        </action>
+        />
 
         <action id="HarpoonerNextFileAction"
-                class="com.github.erotourtes.harpoon.actions.NextFileAction"
-                text="Harpooner Open Next File"
+                class="com.github.erotourtes.harpoon.actions.navigate.NextFileAction"
+                text="Open Next File"
                 description="Open the next file"
-                popup="true"
-        >
-            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
-        </action>
+        />
+
         <action id="HarpoonerPreviousFileAction"
-                class="com.github.erotourtes.harpoon.actions.PreviousFileAction"
-                text="Harpooner Open Previous File"
+                class="com.github.erotourtes.harpoon.actions.navigate.PreviousFileAction"
+                text="Open Previous File"
                 description="Open the Previous file"
                 popup="true"
-        >
-            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
-        </action>
+        />
 
     </actions>
 </idea-plugin>

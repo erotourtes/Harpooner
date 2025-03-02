@@ -37,36 +37,44 @@ You need to use [IdeaVim](https://plugins.jetbrains.com/plugin/164-ideavim) plug
 
 ```Vim
 " Harpoon
+
+nmap <leader>hm <action>(HarpoonerToggleQuickMenu)
+
+nmap <leader>ha <action>(HarpoonerToggleFile)
+
 nmap <M-j> <action>(HarpoonerOpenFile0)
 nmap <M-k> <action>(HarpoonerOpenFile1)
 nmap <M-l> <action>(HarpoonerOpenFile2)
 nmap <M-;> <action>(HarpoonerOpenFile3)
 
-nmap <leader>hm <action>(HarpoonerQuickMenu)
-nmap <leader>ht <action>(HarpoonerToggleQuickMenu)
-
-nmap <leader>ha <action>(HarpoonerAddFile)
-" nmap <leader>hr <action>(HarpoonerRemoveFile)
-" nmap <leader>htf <action>(HarpoonerToggleFile)
-
 nmap <leader>hn <action>(HarpoonerNextFileAction)
 nmap <leader>hp <action>(HarpoonerPreviousFileAction)
-
-" nmap <M-4> <action>(HarpoonerOpenFile4)
-" nmap <M-5> <action>(HarpoonerOpenFile5)
-" nmap <M-6> <action>(HarpoonerOpenFile6)
-" nmap <M-7> <action>(HarpoonerOpenFile7)
-" nmap <M-8> <action>(HarpoonerOpenFile8)
-" nmap <M-9> <action>(HarpoonerOpenFile9)
 ```
 > [!TIP]
-> You can move code with 
+> You can move code with
 > ```vim
 > vmap J <action>(MoveLineDown)
 > vmap K <action>(MoveLineUp)
 > nmap <C-j> <action>(MoveLineDown)
 > nmap <C-k> <action>(MoveLineUp)
 > ```
+
+
+### All actions
+#### **File Management**
+- `HarpoonerAddFile` → Add the current file to Harpoon’s menu.
+- `HarpoonerRemoveFile` → Remove the current file from Harpoon’s menu.
+- `HarpoonerToggleFile` → Toggle the current file in Harpoon - adds it if it's not already in the list, removes it if it is.
+
+#### **File Navigation**
+- `HarpoonerOpenFile0` - `HarpoonerOpenFile9` → Open a specific file from the menu (indexed 0-9)
+- `HarpoonerNextFileAction` → Open the next file in the Harpoon list.
+- `HarpoonerPreviousFileAction` → Open the previous file in the Harpoon list.
+
+#### **Menu Management**
+- `HarpoonerQuickMenu` → Open the Harpoon menu.
+- `HarpoonerToggleQuickMenu` → Toggle the Harpoon menu.
+ 
 
 ### Settings
 You can change the settings:

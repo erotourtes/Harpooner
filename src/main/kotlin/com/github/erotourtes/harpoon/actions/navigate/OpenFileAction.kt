@@ -1,4 +1,4 @@
-package com.github.erotourtes.harpoon.actions
+package com.github.erotourtes.harpoon.actions.navigate
 
 import com.github.erotourtes.harpoon.utils.notify
 import com.github.erotourtes.harpoon.services.HarpoonService

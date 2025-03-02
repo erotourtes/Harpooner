@@ -1,4 +1,4 @@
-package com.github.erotourtes.harpoon.actions
+package com.github.erotourtes.harpoon.actions.menu
 
 import com.github.erotourtes.harpoon.services.HarpoonService
 import com.intellij.openapi.actionSystem.AnAction
