@@ -30,6 +30,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         private set
     private val foldsManager: FoldsManager
     private var processor: PathsProcessor
+    private val fileEditorManager: FileEditorManager
     private val listenerManager = ListenerManager()
 
     init {
@@ -47,6 +48,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
 
         foldsManager = FoldsManager(this, project)
         processor = PathsProcessor(projectInfo)
+        fileEditorManager = FileEditorManager.getInstance(project)
     }
 
     fun readLines(): List<String> {
@@ -71,6 +73,14 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         setCursorToEnd()
 
         return this
+    }
+
+    fun isOpen(): Boolean {
+        return fileEditorManager.isFileOpen(virtualFile)
+    }
+
+    fun close() {
+        fileEditorManager.closeFile(virtualFile)
     }
 
     private fun updateFile(content: List<String>): QuickMenu {
@@ -182,10 +192,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         private var isHarpoonerPrevFocused = false
         private val fileEditorManager = FileEditorManager.getInstance(project)
 
-        private fun closeMenuInEditor() {
-            fileEditorManager.closeFile(virtualFile)
-        }
-
         override fun focusGained(editor: Editor) {
             super.focusGained(editor)
 
@@ -193,7 +199,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
             if (!isHarpoonerPrevFocused || isRefocusOnMenu) return
 
             harpoonService.syncWithMenu()
-            closeMenuInEditor()
+            close()
             isHarpoonerPrevFocused = false
         }
 
