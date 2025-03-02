@@ -33,11 +33,11 @@ class HarpoonService(project: Project) : Disposable {
     }
 
     fun toggleMenu() {
-       if (menu.isOpen()) {
-           menu.close()
-       } else {
-           menu.open()
-       }
+        if (menu.isOpen()) {
+            menu.close()
+        } else {
+            menu.open()
+        }
     }
 
     fun syncWithMenuSafe() {
@@ -55,6 +55,15 @@ class HarpoonService(project: Project) : Disposable {
     fun addFile(file: VirtualFile): Unit = state.add(file.path)
 
     fun removeFile(file: VirtualFile): Unit = state.remove(file.path)
+
+    fun toggleFile(file: VirtualFile) {
+        val path = file.path
+        if (state.includes(path)) {
+            state.remove(path)
+        } else {
+            state.add(path)
+        }
+    }
 
     /**
      * @throws Exception if file is not found or can't be opened
@@ -131,6 +140,8 @@ class HarpoonService(project: Project) : Disposable {
             data.removeAt(index)
             virtualFiles.remove(path)
         }
+
+        fun includes(path: String): Boolean = data.indexOf(path) != -1
 
         fun update(oldPath: String, newPath: String?): Boolean {
             val index = data.indexOf(oldPath)
