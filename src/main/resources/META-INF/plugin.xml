@@ -37,6 +37,24 @@
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
         </action>
 
+        <action id="HarpoonerRemoveFile"
+                class="com.github.erotourtes.harpoon.actions.file.RemoveFileAction"
+                text="Harpooner Remove File"
+                description="Remove File from the Harpoon"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
+        <action id="HarpoonerToggleFile"
+                class="com.github.erotourtes.harpoon.actions.file.ToggleFileAction"
+                text="Harpooner Toggle File"
+                description="Remove File from the Harpoon"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+
         <action id="HarpoonerQuickMenu"
                 class="com.github.erotourtes.harpoon.actions.QuickMenuAction"
                 text="Harpooner Show Menu"
