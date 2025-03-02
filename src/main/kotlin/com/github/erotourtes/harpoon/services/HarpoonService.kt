@@ -54,6 +54,8 @@ class HarpoonService(project: Project) : Disposable {
 
     fun addFile(file: VirtualFile): Unit = state.add(file.path)
 
+    fun removeFile(file: VirtualFile): Unit = state.remove(file.path)
+
     /**
      * @throws Exception if file is not found or can't be opened
      */
