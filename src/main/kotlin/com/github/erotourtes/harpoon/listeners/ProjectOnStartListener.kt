@@ -7,11 +7,11 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.ProjectActivity
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.startup.StartupActivity
 
-class ProjectOnStartListener : StartupActivity {
-    override fun runActivity(project: Project) {
+class ProjectOnStartListener : ProjectActivity {
+    override suspend fun execute(project: Project) {
         gitIgnoreMenuFiles(project)
         initServiceIfMenuIsOpened(project)
     }
