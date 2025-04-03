@@ -17,14 +17,13 @@
                 serviceImplementation="com.github.erotourtes.harpoon.services.settings.SettingsState"/>
         <applicationConfigurable
                 parentId="tools"
-                instance="com.github.erotourtes.harpoon.services.settings.SettingsConfigurable"/>
-        id="com.github.erotourtes.harpoon.services.settings.SettingsConfigurable"
-        displayName="Harpooner Settings"/>
+                instance="com.github.erotourtes.harpoon.services.settings.SettingsConfigurable"
+                displayName="Harpooner Settings"/>
     </extensions>
 
     <actions>
         <group id="com.github.erotourtes.harpoon.pluginsGroup" text="Harpooner"
-               description="Harpooner is a navigation plugin" popup="true" icon="/META-INF/pluginIcon.svg">
+               description="Harpooner is a navigation plugin" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
 
