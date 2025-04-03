@@ -24,7 +24,7 @@
 
     <actions>
         <group id="com.github.erotourtes.harpoon.pluginsGroup" text="Harpooner"
-               description="Harpooner is a navigation plugin" popup="true" icon="/META-INF/pluginIcon.svg">
+               description="Harpooner is a navigation plugin" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
 
