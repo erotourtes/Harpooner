@@ -5,7 +5,7 @@
     <vendor email="erotourtes@gmail.com" url="https://github.com/erotourtes">erotourtes</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends optional="true" config-file="ideavim.xml">IdeaVIM</depends>
+    <depends optional="true" config-file="com.github.erotourtes.harpoon-ideavim.xml">IdeaVIM</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- The service is now light-weight and does not require defining it in the plugin.xml -->
