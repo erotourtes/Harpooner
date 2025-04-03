@@ -17,9 +17,8 @@
                 serviceImplementation="com.github.erotourtes.harpoon.services.settings.SettingsState"/>
         <applicationConfigurable
                 parentId="tools"
-                instance="com.github.erotourtes.harpoon.services.settings.SettingsConfigurable"/>
-        id="com.github.erotourtes.harpoon.services.settings.SettingsConfigurable"
-        displayName="Harpooner Settings"/>
+                instance="com.github.erotourtes.harpoon.services.settings.SettingsConfigurable"
+                displayName="Harpooner Settings"/>
     </extensions>
 
     <actions>
