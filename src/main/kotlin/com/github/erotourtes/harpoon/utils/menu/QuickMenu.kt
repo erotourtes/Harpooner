@@ -43,7 +43,9 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
 
         val settings = SettingsState.getInstance()
         listenToSettingsChange(settings)
-        listenToMenuTypingChange(settings)
+        ApplicationManager.getApplication().runReadAction {
+            listenToMenuTypingChange(settings)
+        }
         listenToEditorFocus()
 
         foldsManager = FoldsManager(this, project)
