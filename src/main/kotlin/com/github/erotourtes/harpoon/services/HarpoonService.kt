@@ -41,8 +41,11 @@ class HarpoonService(project: Project) : Disposable {
     }
 
     fun syncWithMenuSafe() {
-        ApplicationManager.getApplication().invokeLater {
-            syncWithMenu()
+        val application = ApplicationManager.getApplication()
+        application.invokeLater {
+            application.runReadAction {
+                syncWithMenu()
+            }
         }
     }
 
@@ -108,7 +111,11 @@ class HarpoonService(project: Project) : Disposable {
     private fun onRenameFile(oldPath: String, newPath: String?) {
         val isDeleteEvent = newPath == null
         if (isDeleteEvent) state.remove(oldPath)
-        else if (state.update(oldPath, newPath)) // TODO: somehow rename listener can go crazy and spam file change events
+        else if (state.update(
+                oldPath,
+                newPath
+            )
+        ) // TODO: somehow rename listener can go crazy and spam file change events
             menu.syncWithService()
     }
 
