@@ -9,9 +9,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.ex.EditorEventMulticasterEx
-import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
@@ -22,7 +19,7 @@ import java.io.File
 
 
 // TODO: think about settings encapsulation
-class QuickMenu(private val project: Project, private val harpoonService: HarpoonService) : Disposable {
+class QuickMenu(private val project: Project, disposable: Disposable, private val harpoonService: HarpoonService) : Disposable {
     val projectInfo: ProjectInfo
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
@@ -32,7 +29,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     private val fileEditorManager: FileEditorManager
 
     init {
-        Disposer.register(harpoonService, this)
+        Disposer.register(disposable, this)
     }
 
     init {
@@ -44,7 +41,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         ApplicationManager.getApplication().runReadAction {
             listenToMenuTypingChange(settings)
         }
-        listenToEditorFocus()
 
         foldsManager = FoldsManager(this, project)
         processor = PathsProcessor(projectInfo)
@@ -101,17 +97,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         return this
     }
 
-    private fun listenToEditorFocus() {
-        val multicaster = EditorFactory.getInstance().eventMulticaster
-        val listener = FocusListener()
-        if (multicaster !is EditorEventMulticasterEx) {
-            println("EditorEventMulticasterEx is not supported")
-            return
-        }
-
-        multicaster.addFocusChangeListener(listener, this)
-    }
-
     private fun listenToMenuTypingChange(settings: SettingsState) {
         val menuDocument = FileDocumentManager.getInstance().getDocument(virtualFile)
             ?: throw Error("Can't get document of the ${virtualFile.path} file")
@@ -151,10 +136,10 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
 
     fun isMenuFileOpenedWithCurEditor(): Boolean {
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return false
-        return isMenuFileOpenedWith(editor)
+        return isMenuEditor(editor)
     }
 
-    private fun isMenuFileOpenedWith(editor: Editor): Boolean {
+    fun isMenuEditor(editor: Editor): Boolean {
         val editorFilePath = FileDocumentManager.getInstance().getFile(editor.document)?.path ?: return false
         return editorFilePath == virtualFile.path
     }
@@ -175,28 +160,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         val menu = File(menuPath)
         menu.createNewFile() // create file if it doesn't exist
         return menu
-    }
-
-    private inner class FocusListener : FocusChangeListener {
-        private var isHarpoonerPrevFocused = false
-
-        override fun focusGained(editor: Editor) {
-            super.focusGained(editor)
-
-            val isRefocusOnMenu = isHarpoonerPrevFocused && isMenuFileOpenedWith(editor)
-            if (!isHarpoonerPrevFocused || isRefocusOnMenu) return
-
-            harpoonService.syncWithMenu()
-            close()
-            isHarpoonerPrevFocused = false
-        }
-
-
-        override fun focusLost(editor: Editor) {
-            // can't directly call, because it's fired on every focus lost (even if I didn't switch the editor e.x. focused the tree view)
-            super.focusLost(editor)
-            isHarpoonerPrevFocused = isMenuFileOpenedWith(editor)
-        }
     }
 
     override fun dispose() {}
