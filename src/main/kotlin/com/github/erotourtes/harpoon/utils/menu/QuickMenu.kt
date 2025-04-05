@@ -4,7 +4,6 @@ import com.github.erotourtes.harpoon.listeners.MenuChangeListener
 import com.github.erotourtes.harpoon.services.HarpoonService
 import com.github.erotourtes.harpoon.services.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
-import com.github.erotourtes.harpoon.utils.ListenerManager
 import com.github.erotourtes.harpoon.utils.MENU_NAME
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -31,7 +30,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
     private val foldsManager: FoldsManager
     private var processor: PathsProcessor
     private val fileEditorManager: FileEditorManager
-    private val listenerManager = ListenerManager()
 
     init {
         Disposer.register(harpoonService, this)
@@ -122,6 +120,7 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         val menuDocument = FileDocumentManager.getInstance().getDocument(virtualFile)
             ?: throw Error("Can't get document of the ${virtualFile.path} file")
         val documentListener = MenuChangeListener(harpoonService, menuDocument)
+        Disposer.register(this, documentListener)
 
         val updateTypingListener = { newSettings: SettingsState ->
             if (newSettings.isSavingOnTyping) documentListener.attach()
@@ -131,16 +130,12 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         updateTypingListener(settings)
 
         val settingsDisposable = settings.addObserver { updateTypingListener(it) }
-
-        listenerManager.addDisposable {
-            documentListener.dispose()
-            settingsDisposable()
-        }
+        Disposer.register(this) { settingsDisposable() }
     }
 
     private fun listenToSettingsChange(settings: SettingsState) {
         val disposable = settings.addObserver { updateSettings(it) }
-        listenerManager.addDisposable(disposable)
+        Disposer.register(this, disposable)
     }
 
     private fun updateSettings(settings: SettingsState) {
@@ -186,13 +181,8 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         return menu
     }
 
-    override fun dispose() {
-        listenerManager.disposeAllListeners()
-    }
-
     private inner class FocusListener : FocusChangeListener {
         private var isHarpoonerPrevFocused = false
-        private val fileEditorManager = FileEditorManager.getInstance(project)
 
         override fun focusGained(editor: Editor) {
             super.focusGained(editor)
@@ -212,4 +202,6 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
             isHarpoonerPrevFocused = isMenuFileOpenedWith(editor)
         }
     }
+
+    override fun dispose() {}
 }

@@ -48,15 +48,3 @@ open class Observable<T> {
         observers.forEach { it(value) }
     }
 }
-
-class ListenerManager {
-    private val listeners = mutableListOf<() -> Unit>()
-
-    fun addDisposable(disposable: () -> Unit) {
-        listeners.add(disposable)
-    }
-
-    fun disposeAllListeners() {
-        listeners.forEach { it() }
-    }
-}
