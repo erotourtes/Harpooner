@@ -2,4 +2,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="com.github.erotourtes.harpoon.vim.VimVariableInitializer"/>
     </extensions>
+    <!--    <extensions defaultExtensionNs="IdeaVIM">-->
+    <!--        <vimExtension implementation="com.github.erotourtes.harpoon.vim.VimVariableInitializer"/>-->
+    <!--    </extensions>-->
 </idea-plugin>
