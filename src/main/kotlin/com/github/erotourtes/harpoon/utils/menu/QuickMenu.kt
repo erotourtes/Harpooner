@@ -58,18 +58,14 @@ class QuickMenu(private val project: Project, private val harpoonService: Harpoo
         return document.text.split("\n").map { processor.unprocess(it) }
     }
 
-    fun syncWithService() {
-        updateFile(harpoonService.getPaths())
-    }
-
-    fun open(): QuickMenu {
+    fun open(paths: List<String>): QuickMenu {
         val fileManager = FileEditorManager.getInstance(project)
 
         if (!virtualFile.isValid) initMenuFile()
 
         fileManager.openFile(virtualFile, true)
-        syncWithService()
-//        foldsManager.collapseAllFolds()
+        updateFile(paths)
+        //        foldsManager.collapseAllFolds()
         setCursorToEnd()
 
         return this

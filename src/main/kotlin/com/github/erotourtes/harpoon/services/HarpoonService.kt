@@ -29,14 +29,14 @@ class HarpoonService(project: Project) : Disposable {
     }
 
     fun openMenu() {
-        menu.open()
+        menu.open(getPaths())
     }
 
     fun toggleMenu() {
         if (menu.isOpen()) {
             menu.close()
         } else {
-            menu.open()
+            openMenu()
         }
     }
 
@@ -74,7 +74,7 @@ class HarpoonService(project: Project) : Disposable {
     fun openFile(index: Int) {
         val file = getFile(index) ?: throw Exception("Can't find file")
         try {
-            if (file.path == menu.virtualFile.path) menu.open()
+            if (file.path == menu.virtualFile.path) openMenu()
             else fileEditorManager.openFile(file, true)
         } catch (e: Exception) {
             throw Exception("Can't find file. It might be deleted")
@@ -112,11 +112,10 @@ class HarpoonService(project: Project) : Disposable {
         val isDeleteEvent = newPath == null
         if (isDeleteEvent) state.remove(oldPath)
         else if (state.update(
-                oldPath,
-                newPath
+                oldPath, newPath
             )
         ) // TODO: somehow rename listener can go crazy and spam file change events
-            menu.syncWithService()
+            openMenu()
     }
 
     class State {
