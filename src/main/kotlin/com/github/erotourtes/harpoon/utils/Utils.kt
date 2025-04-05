@@ -1,6 +1,6 @@
 package com.github.erotourtes.harpoon.utils
 
-import com.github.erotourtes.harpoon.services.settings.SettingsState
+import com.github.erotourtes.harpoon.settings.SettingsState
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBSlider
 import com.intellij.notification.Notification
@@ -46,17 +46,5 @@ open class Observable<T> {
 
     fun notifyObservers(value: T) {
         observers.forEach { it(value) }
-    }
-}
-
-class ListenerManager {
-    private val listeners = mutableListOf<() -> Unit>()
-
-    fun addDisposable(disposable: () -> Unit) {
-        listeners.add(disposable)
-    }
-
-    fun disposeAllListeners() {
-        listeners.forEach { it() }
     }
 }

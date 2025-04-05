@@ -1,6 +1,6 @@
 package com.github.erotourtes.harpoon.utils.menu
 
-import com.github.erotourtes.harpoon.services.settings.SettingsState
+import com.github.erotourtes.harpoon.settings.SettingsState
 import kotlin.io.path.Path
 
 class PathsProcessor(private val projectInfo: ProjectInfo) {

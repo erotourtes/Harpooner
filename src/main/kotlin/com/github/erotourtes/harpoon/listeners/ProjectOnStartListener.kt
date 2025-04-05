@@ -1,12 +1,15 @@
 package com.github.erotourtes.harpoon.listeners
 
 import com.github.erotourtes.harpoon.services.HarpoonService
-import com.github.erotourtes.harpoon.utils.*
-import com.intellij.openapi.application.ApplicationManager
+import com.github.erotourtes.harpoon.utils.GITIGNORE
+import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
+import com.github.erotourtes.harpoon.utils.MENU_NAME
+import com.github.erotourtes.harpoon.utils.PLUGIN_NAME
+import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
@@ -17,8 +20,10 @@ class ProjectOnStartListener : ProjectActivity {
     private val log = Logger.getInstance(ProjectOnStartListener::class.java)
 
     override suspend fun execute(project: Project) {
-        gitIgnoreMenuFiles(project)
-        initServiceIfMenuIsOpened(project)
+        invokeLater {
+            gitIgnoreMenuFiles(project)
+            initServiceIfMenuIsOpened(project)
+        }
     }
 
     private fun initServiceIfMenuIsOpened(project: Project) {
@@ -35,30 +40,27 @@ class ProjectOnStartListener : ProjectActivity {
         val path = getGitignorePath(project) ?: return
 
         val gitignoreVF = LocalFileSystem.getInstance().findFileByPath(path) ?: return
-        val gitignoreDocument =
-            ApplicationManager.getApplication().runReadAction<Document> {
-                FileDocumentManager.getInstance().getDocument(gitignoreVF)
-            } ?: return
+        val gitignoreDocument = runReadAction {
+            return@runReadAction FileDocumentManager.getInstance().getDocument(gitignoreVF)
+        } ?: return
 
         if (gitignoreDocument.text.contains(MENU_NAME)) return
 
-        ApplicationManager.getApplication().invokeLater {
-            try {
-                val endLine = gitignoreDocument.getLineEndOffset(gitignoreDocument.lineCount - 1)
-                CommandProcessor.getInstance().executeCommand(
-                    project, {
-                        WriteCommandAction.runWriteCommandAction(project) {
-                            val message = """
+        try {
+            val endLine = gitignoreDocument.getLineEndOffset(gitignoreDocument.lineCount - 1)
+            CommandProcessor.getInstance().executeCommand(
+                project, {
+                    WriteCommandAction.runWriteCommandAction(project) {
+                        val message = """
                             # $PLUGIN_NAME
                             $MENU_NAME
                         """.trimIndent()
-                            gitignoreDocument.insertString(endLine, message)
-                        }
-                    }, PLUGIN_NAME, null
-                )
-            } catch (e: Exception) {
-                log.error(e.toString())
-            }
+                        gitignoreDocument.insertString(endLine, message)
+                    }
+                }, PLUGIN_NAME, null
+            )
+        } catch (e: Exception) {
+            log.error(e.toString())
         }
     }
 

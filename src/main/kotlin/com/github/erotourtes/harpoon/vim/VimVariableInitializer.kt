@@ -1,7 +1,7 @@
 package com.github.erotourtes.harpoon.vim
 
 import com.github.erotourtes.harpoon.utils.PLUGIN_NAME
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
@@ -16,7 +16,7 @@ class VimVariableInitializer : ProjectActivity {
     private val log = Logger.getInstance(VimVariableInitializer::class.java)
 
     override suspend fun execute(project: Project) {
-        ApplicationManager.getApplication().invokeLater {
+        invokeLater {
             try {
                 setGlobalVariable()
                 reloadVimRc()
