@@ -49,6 +49,8 @@ nmap <M-;> <action>(HarpoonerOpenFile3)
 
 nmap <leader>hn <action>(HarpoonerNextFileAction)
 nmap <leader>hp <action>(HarpoonerPreviousFileAction)
+
+nmap <leader>hc <action>(HarpoonerClearMenu)
 ```
 > [!TIP]
 > You can move code with
@@ -74,6 +76,7 @@ nmap <leader>hp <action>(HarpoonerPreviousFileAction)
 #### **Menu Management**
 - `HarpoonerQuickMenu` → Open the Harpoon menu.
 - `HarpoonerToggleQuickMenu` → Toggle the Harpoon menu.
+- `HarpoonerClearMenu` → Clear all saved paths.
  
 
 ### Settings
