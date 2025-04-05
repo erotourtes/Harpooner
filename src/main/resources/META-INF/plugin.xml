@@ -14,10 +14,10 @@
         <postStartupActivity
                 implementation="com.github.erotourtes.harpoon.listeners.ProjectOnStartListener"/>
         <applicationService
-                serviceImplementation="com.github.erotourtes.harpoon.services.settings.SettingsState"/>
+                serviceImplementation="com.github.erotourtes.harpoon.settings.SettingsState"/>
         <applicationConfigurable
                 parentId="tools"
-                instance="com.github.erotourtes.harpoon.services.settings.SettingsConfigurable"
+                instance="com.github.erotourtes.harpoon.settings.SettingsConfigurable"
                 displayName="Harpooner Settings"/>
     </extensions>
 

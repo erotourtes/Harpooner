@@ -1,6 +1,6 @@
 package com.github.erotourtes.harpoon.utils
 
-import com.github.erotourtes.harpoon.services.settings.SettingsState
+import com.github.erotourtes.harpoon.settings.SettingsState
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBSlider
 import com.intellij.notification.Notification

@@ -1,8 +1,10 @@
 package com.github.erotourtes.harpoon.services
 
 import com.github.erotourtes.harpoon.listeners.FilesRenameListener
-import com.github.erotourtes.harpoon.utils.menu.FocusListener
+import com.github.erotourtes.harpoon.utils.FocusListener
+import com.github.erotourtes.harpoon.utils.FileTypingChangeHandler
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
+import com.github.erotourtes.harpoon.settings.SettingsChangeListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
@@ -20,13 +22,15 @@ import com.intellij.openapi.vfs.VirtualFile
 
 @Service(Service.Level.PROJECT)
 class HarpoonService(project: Project) : Disposable {
-    private val menu = QuickMenu(project, this, this)
+    private val menu = QuickMenu(project)
     private var state = State()
     private val fileEditorManager = FileEditorManager.getInstance(project)
 
     init {
         FilesRenameListener(::onRenameFile, this)
         FocusListener(this, menu::isMenuEditor)
+        SettingsChangeListener(this) { menu.updateSettings(it, getPaths()) }
+        FileTypingChangeHandler(this) { menu.virtualFile }
         syncWithMenu()
     }
 

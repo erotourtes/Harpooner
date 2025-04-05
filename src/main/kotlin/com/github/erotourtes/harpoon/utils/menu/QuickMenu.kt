@@ -1,50 +1,32 @@
 package com.github.erotourtes.harpoon.utils.menu
 
-import com.github.erotourtes.harpoon.listeners.MenuChangeListener
-import com.github.erotourtes.harpoon.services.HarpoonService
-import com.github.erotourtes.harpoon.services.settings.SettingsState
+import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import java.io.File
 
 
-// TODO: think about settings encapsulation
-class QuickMenu(private val project: Project, disposable: Disposable, private val harpoonService: HarpoonService) : Disposable {
+class QuickMenu(private val project: Project) {
     val projectInfo: ProjectInfo
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
         private set
-    private val foldsManager: FoldsManager
+    private val foldsManager: FoldsManager = FoldsManager(this, project)
     private var processor: PathsProcessor
-    private val fileEditorManager: FileEditorManager
-
-    init {
-        Disposer.register(disposable, this)
-    }
+    private val fileEditorManager: FileEditorManager get() = FileEditorManager.getInstance(project)
 
     init {
         initMenuFile()
         projectInfo = ProjectInfo.from(virtualFile.path)
-
-        val settings = SettingsState.getInstance()
-        listenToSettingsChange(settings)
-        ApplicationManager.getApplication().runReadAction {
-            listenToMenuTypingChange(settings)
-        }
-
-        foldsManager = FoldsManager(this, project)
         processor = PathsProcessor(projectInfo)
-        fileEditorManager = FileEditorManager.getInstance(project)
     }
 
     fun readLines(): List<String> {
@@ -75,6 +57,12 @@ class QuickMenu(private val project: Project, disposable: Disposable, private va
         fileEditorManager.closeFile(virtualFile)
     }
 
+    fun updateSettings(settings: SettingsState, paths: List<String>) {
+        foldsManager.updateSettings(settings)
+        processor.updateSettings(settings)
+        updateFile(paths);
+    }
+
     private fun updateFile(content: List<String>): QuickMenu {
         val processedContent = processor.process(content)
 
@@ -95,35 +83,6 @@ class QuickMenu(private val project: Project, disposable: Disposable, private va
         }
 
         return this
-    }
-
-    private fun listenToMenuTypingChange(settings: SettingsState) {
-        val menuDocument = FileDocumentManager.getInstance().getDocument(virtualFile)
-            ?: throw Error("Can't get document of the ${virtualFile.path} file")
-        val documentListener = MenuChangeListener(harpoonService, menuDocument)
-        Disposer.register(this, documentListener)
-
-        val updateTypingListener = { newSettings: SettingsState ->
-            if (newSettings.isSavingOnTyping) documentListener.attach()
-            else documentListener.detach()
-        }
-
-        updateTypingListener(settings)
-
-        val settingsDisposable = settings.addObserver { updateTypingListener(it) }
-        Disposer.register(this) { settingsDisposable() }
-    }
-
-    private fun listenToSettingsChange(settings: SettingsState) {
-        val disposable = settings.addObserver { updateSettings(it) }
-        Disposer.register(this, disposable)
-    }
-
-    private fun updateSettings(settings: SettingsState) {
-        foldsManager.updateSettings(settings)
-
-        processor.updateSettings(settings)
-        updateFile(harpoonService.getPaths())
     }
 
     private fun setCursorToEnd() {
@@ -161,6 +120,4 @@ class QuickMenu(private val project: Project, disposable: Disposable, private va
         menu.createNewFile() // create file if it doesn't exist
         return menu
     }
-
-    override fun dispose() {}
 }

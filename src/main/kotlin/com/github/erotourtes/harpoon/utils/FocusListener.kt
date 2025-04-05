@@ -1,4 +1,4 @@
-package com.github.erotourtes.harpoon.utils.menu
+package com.github.erotourtes.harpoon.utils
 
 import com.github.erotourtes.harpoon.services.HarpoonService
 import com.intellij.openapi.editor.Editor

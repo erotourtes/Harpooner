@@ -1,6 +1,6 @@
 package com.github.erotourtes.harpoon.utils.menu
 
-import com.github.erotourtes.harpoon.services.settings.SettingsState
+import com.github.erotourtes.harpoon.settings.SettingsState
 import com.intellij.openapi.editor.FoldRegion
 import com.intellij.openapi.editor.FoldingModel
 import com.intellij.openapi.fileEditor.FileEditorManager

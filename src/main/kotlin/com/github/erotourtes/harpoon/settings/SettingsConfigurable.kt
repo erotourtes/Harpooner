@@ -1,4 +1,4 @@
-package com.github.erotourtes.harpoon.services.settings
+package com.github.erotourtes.harpoon.settings
 
 import com.github.erotourtes.harpoon.utils.SETTINGS_HEADER
 import com.intellij.openapi.options.Configurable
