@@ -3,8 +3,8 @@ package com.github.erotourtes.harpoon.utils.menu
 import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.application.runReadAction
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -19,21 +19,22 @@ class QuickMenu(private val project: Project) {
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
         private set
-    private val foldsManager: FoldsManager = FoldsManager(this, project)
+    private val foldsManager: FoldsManager
     private var processor: PathsProcessor
     private val fileEditorManager: FileEditorManager get() = FileEditorManager.getInstance(project)
 
     init {
         initMenuFile()
         projectInfo = ProjectInfo.from(virtualFile.path)
+        foldsManager = FoldsManager(projectInfo, ::isMenuFileOpenedWithCurEditor, project)
         processor = PathsProcessor(projectInfo)
     }
 
-    fun readLines(): List<String> {
+    fun readLines(): List<String> = runReadAction {
         val docManager = FileDocumentManager.getInstance()
         val document = docManager.getDocument(virtualFile) ?: throw Error("Can't read file")
 
-        return document.text.split("\n").map { processor.unprocess(it) }
+        return@runReadAction document.text.split("\n").map { processor.unprocess(it) }
     }
 
     fun open(paths: List<String>): QuickMenu {
@@ -43,7 +44,7 @@ class QuickMenu(private val project: Project) {
 
         fileManager.openFile(virtualFile, true)
         updateFile(paths)
-        //        foldsManager.collapseAllFolds()
+//        foldsManager.collapseAllFolds()
         setCursorToEnd()
 
         return this
@@ -57,28 +58,21 @@ class QuickMenu(private val project: Project) {
         fileEditorManager.closeFile(virtualFile)
     }
 
-    fun updateSettings(settings: SettingsState, paths: List<String>) {
+    fun updateSettings(settings: SettingsState) {
         foldsManager.updateSettings(settings)
         processor.updateSettings(settings)
-        updateFile(paths);
     }
 
-    private fun updateFile(content: List<String>): QuickMenu {
+    fun updateFile(content: List<String>): QuickMenu {
         val processedContent = processor.process(content)
+        runWriteAction {
+            val docManager = FileDocumentManager.getInstance()
+            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
 
-        val app = ApplicationManager.getApplication()
-        app.invokeLater {
-            if (project.isDisposed) return@invokeLater
-
-            WriteCommandAction.runWriteCommandAction(project) {
-                val docManager = FileDocumentManager.getInstance()
-                val document = docManager.getDocument(virtualFile) ?: return@runWriteCommandAction
-
-                processedContent.joinToString("\n").let { document.setText(it) }
-                processedContent.forEachIndexed { index, it ->
-                    val line = document.getLineStartOffset(index)
-                    foldsManager.updateFoldsAt(line, it)
-                }
+            processedContent.joinToString("\n").let { document.setText(it) }
+            processedContent.forEachIndexed { index, it ->
+                val line = document.getLineStartOffset(index)
+                foldsManager.updateFoldsAt(line, it)
             }
         }
 

@@ -33,7 +33,7 @@ class MenuChangeListener(
 
     override fun documentChanged(event: DocumentEvent) {
         debouncer.debounce {
-            harpoonService.syncWithMenuSafe()
+            harpoonService.syncWithMenu()
         }
     }
 

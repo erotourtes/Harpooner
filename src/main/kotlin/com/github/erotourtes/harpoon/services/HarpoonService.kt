@@ -1,13 +1,14 @@
 package com.github.erotourtes.harpoon.services
 
 import com.github.erotourtes.harpoon.listeners.FilesRenameListener
-import com.github.erotourtes.harpoon.utils.FocusListener
-import com.github.erotourtes.harpoon.utils.FileTypingChangeHandler
-import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.github.erotourtes.harpoon.settings.SettingsChangeListener
+import com.github.erotourtes.harpoon.utils.FileTypingChangeHandler
+import com.github.erotourtes.harpoon.utils.FocusListener
+import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.*
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -25,11 +26,16 @@ class HarpoonService(project: Project) : Disposable {
     private val menu = QuickMenu(project)
     private var state = State()
     private val fileEditorManager = FileEditorManager.getInstance(project)
+    private val log = Logger.getInstance(HarpoonService::class.java)
 
     init {
         FilesRenameListener(::onRenameFile, this)
         FocusListener(this, menu::isMenuEditor)
-        SettingsChangeListener(this) { menu.updateSettings(it, getPaths()) }
+        SettingsChangeListener(this) {
+            log.info("Settings changed")
+            menu.updateSettings(it)
+            menu.updateFile(getPaths())
+        }
         FileTypingChangeHandler(this) { menu.virtualFile }
         syncWithMenu()
     }
@@ -44,15 +50,6 @@ class HarpoonService(project: Project) : Disposable {
 
     fun toggleMenu() {
         if (menu.isOpen()) closeMenu() else openMenu()
-    }
-
-    fun syncWithMenuSafe() {
-        val application = ApplicationManager.getApplication()
-        application.invokeLater {
-            application.runReadAction {
-                syncWithMenu()
-            }
-        }
     }
 
     fun syncWithMenu() {
@@ -121,7 +118,7 @@ class HarpoonService(project: Project) : Disposable {
                 oldPath, newPath
             )
         ) // TODO: somehow rename listener can go crazy and spam file change events
-            openMenu()
+            menu.updateFile(getPaths())
     }
 
     class State {

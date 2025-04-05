@@ -7,12 +7,15 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import org.intellij.markdown.lexer.push
 
-class FoldsManager(private val menu: QuickMenu, private val project: Project) {
-    private val projectInfo = menu.projectInfo
+class FoldsManager(
+    private val projectInfo: ProjectInfo,
+    private val isInRightEditor: () -> Boolean,
+    private val project: Project
+) {
     private var settings = SettingsState.getInstance()
 
     fun updateFoldsAt(line: Int, str: String) {
-        if (!menu.isMenuFileOpenedWithCurEditor()) return
+        if (!isInRightEditor()) return
 
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
         val foldingModel = editor.foldingModel
