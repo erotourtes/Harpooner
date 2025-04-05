@@ -52,6 +52,11 @@ class HarpoonService(project: Project) : Disposable {
         if (menu.isOpen()) closeMenu() else openMenu()
     }
 
+    fun clearMenu() {
+        state.clear()
+        menu.updateFile(getPaths())
+    }
+
     fun syncWithMenu() {
         setPaths(menu.readLines())
     }
@@ -148,6 +153,11 @@ class HarpoonService(project: Project) : Disposable {
             if (index == -1) return
             data.removeAt(index)
             virtualFiles.remove(path)
+        }
+
+        fun clear() {
+            data.clear()
+            virtualFiles.clear()
         }
 
         fun includes(path: String): Boolean = data.indexOf(path) != -1
