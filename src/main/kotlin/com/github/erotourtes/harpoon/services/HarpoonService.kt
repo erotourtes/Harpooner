@@ -14,6 +14,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.TestOnly
 
 // TODO: optimise live save of the menu
 // TODO: folding builder
@@ -184,4 +185,10 @@ class HarpoonService(project: Project) : Disposable {
 
     // Needs for other classes to be able to register in Disposer
     override fun dispose() {}
+
+
+    @TestOnly
+    fun getMenVf(): VirtualFile {
+        return menu.virtualFile
+    }
 }
