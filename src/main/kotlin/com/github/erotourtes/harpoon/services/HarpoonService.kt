@@ -2,6 +2,7 @@ package com.github.erotourtes.harpoon.services
 
 import com.github.erotourtes.harpoon.listeners.FilesRenameListener
 import com.github.erotourtes.harpoon.settings.SettingsChangeListener
+import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.FileTypingChangeHandler
 import com.github.erotourtes.harpoon.utils.FocusListener
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
@@ -23,7 +24,7 @@ import com.intellij.openapi.vfs.VirtualFile
 
 @Service(Service.Level.PROJECT)
 class HarpoonService(project: Project) : Disposable {
-    private val menu = QuickMenu(project)
+    private val menu = QuickMenu(project, SettingsState.getInstance())
     private var state = State()
     private val fileEditorManager = FileEditorManager.getInstance(project)
     private val log = Logger.getInstance(HarpoonService::class.java)

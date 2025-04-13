@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import java.io.File
 
 
-class QuickMenu(private val project: Project) {
+class QuickMenu(private val project: Project, settings: SettingsState) {
     val projectInfo: ProjectInfo
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
@@ -26,8 +26,15 @@ class QuickMenu(private val project: Project) {
     init {
         initMenuFile()
         projectInfo = ProjectInfo.from(virtualFile.path)
-        foldsManager = FoldsManager(projectInfo, ::isMenuFileOpenedWithCurEditor, project)
-        processor = PathsProcessor(projectInfo)
+
+        foldsManager = FoldsManager(
+            projectInfo, ::isMenuFileOpenedWithCurEditor, {
+                val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@FoldsManager null
+                val foldingModel = editor.foldingModel
+                return@FoldsManager foldingModel
+            }, settings.toFoldsSettings()
+        )
+        processor = PathsProcessor(projectInfo, settings.toProcessorSettings())
     }
 
     fun readLines(): List<String> = runReadAction {
@@ -59,8 +66,8 @@ class QuickMenu(private val project: Project) {
     }
 
     fun updateSettings(settings: SettingsState) {
-        foldsManager.updateSettings(settings)
-        processor.updateSettings(settings)
+        foldsManager.updateSettings(settings.toFoldsSettings())
+        processor.updateSettings(settings.toProcessorSettings())
     }
 
     fun updateFile(content: List<String>): QuickMenu {
