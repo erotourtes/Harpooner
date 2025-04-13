@@ -115,9 +115,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Run tests
-      - name: Run Tests
-        run: ./gradlew harpoonerTests
+      # Run checks
+      - name: Run check
+        run: ./gradlew check
 
       # Collect Tests Result of failed tests
       - name: Collect Tests Result
