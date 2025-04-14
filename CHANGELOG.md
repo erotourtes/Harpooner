@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-04-14
+
+### Added
+
+- `HarpoonerClearMenu` → Clear all saved paths.
+- Plugin now sets `g:Harpooner` global variable if the IdeaVim plugin is installed
+
 ## [1.1.0] - 2025-03-02
 
 ### Added
