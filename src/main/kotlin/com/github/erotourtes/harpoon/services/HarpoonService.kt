@@ -2,6 +2,7 @@ package com.github.erotourtes.harpoon.services
 
 import com.github.erotourtes.harpoon.listeners.FilesRenameListener
 import com.github.erotourtes.harpoon.settings.SettingsChangeListener
+import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.FileTypingChangeHandler
 import com.github.erotourtes.harpoon.utils.FocusListener
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
@@ -13,6 +14,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.TestOnly
 
 // TODO: optimise live save of the menu
 // TODO: folding builder
@@ -23,7 +25,7 @@ import com.intellij.openapi.vfs.VirtualFile
 
 @Service(Service.Level.PROJECT)
 class HarpoonService(project: Project) : Disposable {
-    private val menu = QuickMenu(project)
+    private val menu = QuickMenu(project, SettingsState.getInstance())
     private var state = State()
     private val fileEditorManager = FileEditorManager.getInstance(project)
     private val log = Logger.getInstance(HarpoonService::class.java)
@@ -183,4 +185,10 @@ class HarpoonService(project: Project) : Disposable {
 
     // Needs for other classes to be able to register in Disposer
     override fun dispose() {}
+
+
+    @TestOnly
+    fun getMenVf(): VirtualFile {
+        return menu.virtualFile
+    }
 }

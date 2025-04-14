@@ -3,22 +3,19 @@ package com.github.erotourtes.harpoon.utils.menu
 import com.github.erotourtes.harpoon.settings.SettingsState
 import com.intellij.openapi.editor.FoldRegion
 import com.intellij.openapi.editor.FoldingModel
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.project.Project
 import org.intellij.markdown.lexer.push
 
 class FoldsManager(
     private val projectInfo: ProjectInfo,
     private val isInRightEditor: () -> Boolean,
-    private val project: Project
+    private val getFoldingModel: () -> FoldingModel?,
+    private var settings: Settings,
 ) {
-    private var settings = SettingsState.getInstance()
 
     fun updateFoldsAt(line: Int, str: String) {
         if (!isInRightEditor()) return
 
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        val foldingModel = editor.foldingModel
+        val foldingModel = getFoldingModel() ?: return
         val newFolds = getFoldsFrom(line, str)
 
         foldingModel.runBatchFoldingOperation {
@@ -44,18 +41,18 @@ class FoldsManager(
         }
     }
 
-    fun updateSettings(newState: SettingsState) {
+    fun updateSettings(newState: Settings) {
         settings = newState
     }
 
-    fun collapseAllFolds() {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        val foldingModel = editor.foldingModel
-
-        foldingModel.runBatchFoldingOperation {
-            foldingModel.allFoldRegions.forEach { it.isExpanded = false }
-        }
-    }
+//    fun collapseAllFolds() {
+//        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+//        val foldingModel = editor.foldingModel
+//
+//        foldingModel.runBatchFoldingOperation {
+//            foldingModel.allFoldRegions.forEach { it.isExpanded = false }
+//        }
+//    }
 
     private fun getCurrentLineFolds(foldingModel: FoldingModel, start: Int, end: Int): MutableList<FoldRegion> {
         return foldingModel.allFoldRegions.filter {
@@ -84,4 +81,23 @@ class FoldsManager(
 
         return folds
     }
+
+
+    data class Settings(
+        var showProjectPath: Boolean,
+        var numberOfSlashes: Int,
+    ) {
+        companion object {
+            fun from(settings: SettingsState): Settings {
+                return Settings(
+                    showProjectPath = settings.showProjectPath,
+                    numberOfSlashes = settings.numberOfSlashes,
+                )
+            }
+        }
+    }
+}
+
+fun SettingsState.toFoldsSettings(): FoldsManager.Settings {
+    return FoldsManager.Settings.from(this)
 }

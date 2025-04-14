@@ -71,13 +71,39 @@ koverReport {
     }
 }
 
+val intTest = "intTest"
+
+sourceSets {
+    create(intTest) {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+    }
+}
+
+idea {
+    module {
+        testSources.from(sourceSets[intTest].kotlin.srcDirs)
+    }
+}
+
+val intTestImplementation: Configuration by configurations.getting { extendsFrom(configurations.testImplementation.get()) }
+val intTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(configurations.runtimeOnly.get()) }
+
 tasks {
-    withType<Test> {
+    test<Test> {
         useJUnitPlatform()
     }
 
-    register<Test>("harpoonerTests") {
+    register<Test>("integrationTests") {
+        description = "Runs integration tests."
         group = "verification"
+
+        testClassesDirs = sourceSets[intTest].output.classesDirs
+        classpath = sourceSets[intTest].runtimeClasspath
+
+        testLogging {
+            events("passed")
+        }
     }
 }
 
