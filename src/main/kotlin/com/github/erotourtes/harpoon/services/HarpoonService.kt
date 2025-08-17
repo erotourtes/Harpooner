@@ -5,6 +5,7 @@ import com.github.erotourtes.harpoon.settings.SettingsChangeListener
 import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.FileTypingChangeHandler
 import com.github.erotourtes.harpoon.utils.FocusListener
+import com.github.erotourtes.harpoon.utils.State
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
@@ -12,7 +13,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.TestOnly
 
@@ -120,61 +120,11 @@ class HarpoonService(project: Project) : Disposable {
 
     private fun onRenameFile(oldPath: String, newPath: String?) {
         val isDeleteEvent = newPath == null
-        if (isDeleteEvent) state.remove(oldPath)
-        else if (state.update(
-                oldPath, newPath
-            )
-        ) // TODO: somehow rename listener can go crazy and spam file change events
+        if (isDeleteEvent) {
+            state.remove(oldPath)
+        } else if (state.update(oldPath, newPath!!)) {
             menu.updateFile(getPaths())
-    }
-
-    class State {
-        private var data: ArrayList<String> = ArrayList()
-        private val virtualFiles = mutableMapOf<String, VirtualFile?>()
-
-        val paths: List<String> get() = data.toList()
-
-        fun getFile(index: Int): VirtualFile? {
-            val path = data.getOrNull(index) ?: return null
-            return virtualFiles.getOrPut(path) { LocalFileSystem.getInstance().findFileByPath(path) }
         }
-
-        fun set(newPaths: List<String>) {
-            val filtered = newPaths.filter { it.isNotEmpty() }.distinct()
-            data = ArrayList(filtered)
-        }
-
-        fun add(path: String) {
-            if (data.contains(path)) return
-            data.add(path)
-            virtualFiles[path] = LocalFileSystem.getInstance().findFileByPath(path)
-        }
-
-        fun remove(path: String) {
-            val index = data.indexOf(path)
-            if (index == -1) return
-            data.removeAt(index)
-            virtualFiles.remove(path)
-        }
-
-        fun clear() {
-            data.clear()
-            virtualFiles.clear()
-        }
-
-        fun includes(path: String): Boolean = data.indexOf(path) != -1
-
-        fun update(oldPath: String, newPath: String?): Boolean {
-            val index = data.indexOf(oldPath)
-            if (index == -1) return false
-
-            data[index] = newPath!!
-            virtualFiles[newPath] = virtualFiles.remove(oldPath)
-            return true
-        }
-
-        fun size(): Int = data.size
-
     }
 
     companion object {
