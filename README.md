@@ -67,6 +67,7 @@ nmap <leader>hc <action>(HarpoonerClearMenu)
 - `HarpoonerAddFile` → Add the current file to Harpoon’s menu.
 - `HarpoonerRemoveFile` → Remove the current file from Harpoon’s menu.
 - `HarpoonerToggleFile` → Toggle the current file in Harpoon - adds it if it's not already in the list, removes it if it is.
+- `HarpoonerReplaceFile0` - `HarpoonerReplaceFile9` → Replace the entry at position 0-9 in the Harpoon menu with the current file.
 
 #### **File Navigation**
 - `HarpoonerOpenFile0` - `HarpoonerOpenFile9` → Open a specific file from the menu (indexed 0-9)
