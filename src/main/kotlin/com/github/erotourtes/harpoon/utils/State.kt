@@ -69,12 +69,51 @@ class State {
         }
     }
 
-    fun includes(path: String): Boolean = data.find { it?.isTheSameAs(path) ?: false } != null
+    fun getNextIndexOf(path: String?): Int {
+        val index = getRelativeIndexOf(path, forward = true)
+        return index
+    }
+
+    fun getPrevIndexOf(path: String?): Int {
+        val index = getRelativeIndexOf(path, forward = false)
+        return index
+    }
+
+    private fun getRelativeIndexOf(path: String?, forward: Boolean): Int {
+        val index = getIndexOf(path).let {
+            when {
+                it != -1 -> it
+                data.size == 0 -> -1
+                forward -> -1
+                else -> data.size
+            }
+        }
+
+        for (step in 1..data.size) {
+            val offset = if (forward) step else -step
+            val nextIndex = (index + offset + data.size) % data.size
+            if (data[nextIndex] != null) {
+                return nextIndex
+            }
+        }
+
+        return index
+    }
+
+    private fun getIndexOf(path: String?): Int {
+        if (path.isNullOrEmpty()) {
+            return -1
+        }
+        val index = data.indexOfFirst { it?.isTheSameAs(path) ?: false }
+        return index
+    }
+
+    fun includes(path: String): Boolean = getIndexOf(path) != -1
 
     fun update(oldPath: String, newPath: String): Boolean {
         val oldRecordIndex = data.indexOfFirst { it?.isTheSameAs(oldPath) ?: false }
         if (oldRecordIndex == -1) {
-            return false;
+            return false
         }
 
         data[oldRecordIndex] = PathRecord.from(newPath)

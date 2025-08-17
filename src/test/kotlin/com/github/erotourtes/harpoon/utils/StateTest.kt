@@ -295,4 +295,64 @@ class StateTest {
             state.paths.toTypedArray()
         )
     }
+
+    @Test
+    fun `should return next indexes of existing entries`() {
+        val state = State()
+        state.set(
+            listOf(
+                "",
+                "file1.txt",
+                "",
+                "file3.txt",
+                "file4.txt",
+                "",
+                "",
+                "file7.txt"
+            )
+        )
+
+        assertEquals(3, state.getNextIndexOf("file1.txt"))
+        assertEquals(4, state.getNextIndexOf("file3.txt"))
+        assertEquals(7, state.getNextIndexOf("file4.txt"))
+        assertEquals(1, state.getNextIndexOf("file7.txt"))
+        assertEquals(1, state.getNextIndexOf("non-existing.txt"))
+    }
+
+    @Test
+    fun `should return -1 for next index in empty paths`() {
+        val state = State()
+
+        assertEquals(-1, state.getNextIndexOf("non-existing.txt"))
+    }
+
+    @Test
+    fun `should return prev indexes of existing entries`() {
+        val state = State()
+        state.set(
+            listOf(
+                "",
+                "file1.txt",
+                "",
+                "file3.txt",
+                "file4.txt",
+                "",
+                "",
+                "file7.txt"
+            )
+        )
+
+        assertEquals(7, state.getPrevIndexOf("file1.txt"))
+        assertEquals(1, state.getPrevIndexOf("file3.txt"))
+        assertEquals(3, state.getPrevIndexOf("file4.txt"))
+        assertEquals(4, state.getPrevIndexOf("file7.txt"))
+        assertEquals(7, state.getPrevIndexOf("non-existing.txt"))
+    }
+
+    @Test
+    fun `should return -1 for prev index in empty paths`() {
+        val state = State()
+
+        assertEquals(-1, state.getPrevIndexOf("non-existing.txt"))
+    }
 }
