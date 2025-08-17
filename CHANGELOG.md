@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-08-17
+
+### Added
+
+- `HarpoonerReplaceFile0` through `HarpoonerReplaceFile9`: actions that replace the entry at positions 0–9 in the
+  Harpoon menu with the current file.
+
 ## [1.2.0] - 2025-04-14
 
 ### Added
@@ -16,9 +23,10 @@
 ### Added
 
 - `HarpoonerToggleQuickMenu` - Toggle the Harpoon menu
-- `HarpoonerToggleFile` - Toggle the current file in Harpoon - adds it if it's not already in the list, removes it if it is.
+- `HarpoonerToggleFile` - Toggle the current file in Harpoon - adds it if it's not already in the list, removes it if it
+  is.
 - `HarpoonerRemoveFile` - Remove the current file from Harpoon’s menu.
- 
+
 ### Changed
 
 - Recommended `ideavimrc` configuration in Readme
