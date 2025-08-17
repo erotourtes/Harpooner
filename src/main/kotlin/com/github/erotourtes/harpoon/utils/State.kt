@@ -18,7 +18,7 @@ class State {
     fun set(newPaths: List<String>) {
         val seen = mutableSetOf<String>()
         val lastIndexOfNotEmptyPath = newPaths.indexOfLast { it.isNotEmpty() }
-        val filtered = newPaths.subList(0, lastIndexOfNotEmptyPath + 1).filter {
+        val filtered = newPaths.take(lastIndexOfNotEmptyPath + 1).filter {
             val shouldRemain = it.isEmpty() || !seen.contains(it)
             if (shouldRemain) {
                 seen.add(it)
@@ -40,7 +40,7 @@ class State {
     }
 
     fun remove(path: String) {
-        val record = data.find { it?.path == path }
+        val record = data.find { it?.isTheSameAs(path) ?: false }
         if (record == null) return
         data.remove(record)
     }
@@ -49,10 +49,30 @@ class State {
         data.clear()
     }
 
-    fun includes(path: String): Boolean = data.find { it?.path == path } != null
+    fun replace(atIndex: Int, withPath: String) {
+        if (atIndex < 0 || withPath.isEmpty()) {
+            return
+        }
+
+        data.replaceAll {
+            if (it?.isTheSameAs(withPath) == true) null else it
+        }
+
+        val record = PathRecord.from(withPath) ?: return
+        while (data.size <= atIndex) {
+            data.add(null)
+        }
+        data[atIndex] = record
+
+        while (data.isNotEmpty() && data.last() == null) {
+            data.removeLast()
+        }
+    }
+
+    fun includes(path: String): Boolean = data.find { it?.isTheSameAs(path) ?: false } != null
 
     fun update(oldPath: String, newPath: String): Boolean {
-        val oldRecordIndex = data.indexOfFirst { it?.path == oldPath }
+        val oldRecordIndex = data.indexOfFirst { it?.isTheSameAs(oldPath) ?: false }
         if (oldRecordIndex == -1) {
             return false;
         }
@@ -72,6 +92,11 @@ class State {
                 return null
             }
             return virtualFile
+        }
+
+        fun isTheSameAs(other: String): Boolean {
+            // TODO: don't compare by raw paths
+            return this.path == other
         }
 
         companion object {

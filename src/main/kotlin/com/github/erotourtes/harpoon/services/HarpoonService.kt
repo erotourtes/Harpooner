@@ -91,6 +91,10 @@ class HarpoonService(project: Project) : Disposable {
         }
     }
 
+    fun replaceFile(index: Int, file: VirtualFile) {
+        state.replace(index, file.path)
+    }
+
     fun nextFile() {
         val currentIndex = currentIndex()
         if (currentIndex != -1 && state.size() > 0) {

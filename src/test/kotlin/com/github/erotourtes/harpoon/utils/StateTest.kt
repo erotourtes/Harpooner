@@ -157,7 +157,7 @@ class StateTest {
     }
 
     @Test
-    fun `should replace existing entry`() {
+    fun `should update existing entry`() {
         val state = State()
         state.set(
             listOf(
@@ -178,7 +178,7 @@ class StateTest {
     }
 
     @Test
-    fun `should not replace non-existing entry`() {
+    fun `should not update non-existing entry`() {
         val state = State()
         state.set(
             listOf(
@@ -194,6 +194,104 @@ class StateTest {
         assertFalse(modified)
         assertArrayEquals(
             arrayOf("file0.txt", "", "file2.txt", "file3.txt"),
+            state.paths.toTypedArray()
+        )
+    }
+
+    @Test
+    fun `should replace existing entries`() {
+        val state = State()
+        state.set(
+            listOf(
+                "file0.txt",
+                "",
+                "file2.txt",
+                "file3.txt"
+            )
+        )
+
+        state.replace(0, "file0r.txt")
+        assertArrayEquals(
+            arrayOf("file0r.txt", "", "file2.txt", "file3.txt"),
+            state.paths.toTypedArray()
+        )
+
+        state.replace(1, "file1r.txt")
+        assertArrayEquals(
+            arrayOf("file0r.txt", "file1r.txt", "file2.txt", "file3.txt"),
+            state.paths.toTypedArray()
+        )
+
+        state.replace(1, "file1rr.txt")
+        assertArrayEquals(
+            arrayOf("file0r.txt", "file1rr.txt", "file2.txt", "file3.txt"),
+            state.paths.toTypedArray()
+        )
+    }
+
+    @Test
+    fun `should not replace entries`() {
+        val state = State()
+        val originalList = listOf(
+            "file0.txt",
+            "",
+            "file2.txt",
+            "file3.txt"
+        )
+        state.set(originalList)
+
+        state.replace(-1, "file0r.txt")
+        assertArrayEquals(
+            originalList.toTypedArray(),
+            state.paths.toTypedArray()
+        )
+
+        state.replace(0, "")
+        assertArrayEquals(
+            originalList.toTypedArray(),
+            state.paths.toTypedArray()
+        )
+    }
+
+    @Test
+    fun `should replace entry at non existing index`() {
+        val state = State()
+        val originalList = listOf(
+            "file0.txt",
+            "",
+            "file2.txt",
+            "file3.txt"
+        )
+        state.set(originalList)
+
+        state.replace(5, "file5.txt")
+
+        assertArrayEquals(
+            arrayOf("file0.txt", "", "file2.txt", "file3.txt", "", "file5.txt"),
+            state.paths.toTypedArray()
+        )
+    }
+
+    @Test
+    fun `should replace existing entry`() {
+        val state = State()
+        val originalList = listOf(
+            "file0.txt",
+            "",
+            "file2.txt",
+            "file3.txt"
+        )
+        state.set(originalList)
+
+        state.replace(1, "file2.txt")
+        assertArrayEquals(
+            arrayOf("file0.txt", "file2.txt", "", "file3.txt"),
+            state.paths.toTypedArray()
+        )
+
+        state.replace(0, "file3.txt")
+        assertArrayEquals(
+            arrayOf("file3.txt", "file2.txt"),
             state.paths.toTypedArray()
         )
     }
