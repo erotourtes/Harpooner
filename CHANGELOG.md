@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.3.1] - 2025-08-17
+
+### Fixed
+
+- Plugin kotlin compatibility version
+
 ## [1.3.0] - 2025-08-17
 
 ### Added
