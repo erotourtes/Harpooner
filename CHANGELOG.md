@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.3.2] - 2025-08-18
+
+### Fixed
+
+- Plugin compatibility
+
 ## [1.3.1] - 2025-08-17
 
 ### Fixed

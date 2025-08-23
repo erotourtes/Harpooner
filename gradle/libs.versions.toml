@@ -1,20 +1,25 @@
 [versions]
 # libraries
-annotations = "24.0.1"
+junit = "5.10.1"
+mockito = "5.10.0"
 
 # plugins
 kotlin = "2.2.0"
-changelog = "2.1.2"
-gradleIntelliJPlugin = "1.15.0"
-qodana = "0.1.13"
-kover = "0.7.2"
+changelog = "2.4.0"
+intelliJPlatform = "2.7.1"
+qodana = "2025.1.1"
+kover = "0.9.1"
 
 [libraries]
-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
-gradleIntelliJPlugin = { id = "org.jetbrains.intellij", version.ref = "gradleIntelliJPlugin" }
+intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
