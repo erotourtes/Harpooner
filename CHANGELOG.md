@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.4.0] - 2025-09-16
+
+### Added
+
+- Setting that allows disabling automatic addition of the `Harpooner menu` to the `.gitignore`
+
 ## [1.3.2] - 2025-08-18
 
 ### Fixed
