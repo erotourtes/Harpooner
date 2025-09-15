@@ -13,6 +13,7 @@ data class HarpoonSettings(
     var numberOfSlashes: Int = 3,
     var showNotifications: Boolean = true,
     var isSavingOnTyping: Boolean = true,
+    var adjustGitIgnore: Boolean = true,
 )
 
 @State(
@@ -32,6 +33,9 @@ class SettingsState : PersistentStateComponent<SettingsState>, Observable<Settin
 
     val isSavingOnTyping: Boolean
         get() = settings.isSavingOnTyping
+
+    val adjustGitIgnore: Boolean
+        get() = settings.adjustGitIgnore
 
     override fun getState(): SettingsState = this
     override fun loadState(state: SettingsState) = XmlSerializerUtil.copyBean(state, this)
