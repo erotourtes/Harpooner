@@ -1,6 +1,7 @@
 package com.github.erotourtes.harpoon.listeners
 
 import com.github.erotourtes.harpoon.services.HarpoonService
+import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.GITIGNORE
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
@@ -37,6 +38,8 @@ class ProjectOnStartListener : ProjectActivity {
     }
 
     private fun gitIgnoreMenuFiles(project: Project) {
+        if (!SettingsState.getInstance().adjustGitIgnore) return
+
         val path = getGitignorePath(project) ?: return
 
         val gitignoreVF = LocalFileSystem.getInstance().findFileByPath(path) ?: return
