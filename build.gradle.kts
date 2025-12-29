@@ -4,7 +4,6 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("java") // Java support
-    id("idea")
     alias(libs.plugins.kotlin) // Kotlin support
     alias(libs.plugins.intelliJPlatform) // Gradle IntelliJ Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
@@ -30,20 +29,16 @@ repositories {
 }
 
 val intTest: SourceSet by sourceSets.creating {
-    kotlin.srcDir("src/intTest/kotlin")
-    resources.srcDir("src/intTest/resources")
+    kotlin.setSrcDirs(listOf("src/intTest/kotlin"))
+    resources.setSrcDirs(listOf("src/intTest/resources"))
 
-    compileClasspath += sourceSets.main.get().output
-    runtimeClasspath += output + sourceSets.main.get().output
+    // Intellij sdk is not available without adding test source sets
+    compileClasspath += sourceSets.main.get().output + sourceSets.test.get().compileClasspath
+    runtimeClasspath += output + sourceSets.main.get().output + sourceSets.test.get().runtimeClasspath
 }
 
 val intTestImplementation: Configuration = configurations[intTest.implementationConfigurationName]
 val intTestRuntimeOnly: Configuration = configurations[intTest.runtimeOnlyConfigurationName]
-
-configurations[intTest.compileClasspathConfigurationName]
-    .extendsFrom(configurations.testCompileClasspath.get())
-configurations[intTest.runtimeClasspathConfigurationName]
-    .extendsFrom(configurations.testRuntimeClasspath.get())
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
@@ -200,7 +195,8 @@ val intTestTask by intellijPlatformTesting.testIde.registering {
         group = "verification"
         description = "Runs IntelliJ in-process integration tests (BasePlatformTestCase)"
 
-        testClassesDirs = files(intTest.output.classesDirs.files.filter { it.exists() })
+        testClassesDirs = intTest.output.classesDirs
+        // Somehow it can't find the tests without addition
         classpath += intTest.runtimeClasspath
 
         useJUnit()
