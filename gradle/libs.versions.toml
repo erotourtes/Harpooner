@@ -4,11 +4,11 @@ junit = "5.10.1"
 mockito = "5.10.0"
 
 # plugins
-kotlin = "2.2.0"
-changelog = "2.4.0"
-intelliJPlatform = "2.7.1"
-qodana = "2025.1.1"
-kover = "0.9.1"
+kotlin = "2.2.21"
+changelog = "2.5.0"
+intelliJPlatform = "2.10.5"
+qodana = "2025.2.2"
+kover = "0.9.3"
 
 [libraries]
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
