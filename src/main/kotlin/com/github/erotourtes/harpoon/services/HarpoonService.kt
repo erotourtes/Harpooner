@@ -171,9 +171,14 @@ class HarpoonService(project: Project) : Disposable {
         }
     }
 
-    // Needs for other classes to be able to register in Disposer
-    override fun dispose() {}
-
+    override fun dispose() {
+        log.debug("dispose")
+        try {
+            menu.updateFile(getPaths())
+        } catch (e: Exception) {
+            log.error("Filed to dispose the plugin", e)
+        }
+    }
 
     @TestOnly
     fun getMenVf(): VirtualFile {
