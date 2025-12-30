@@ -2,21 +2,15 @@ package com.github.erotourtes.harpoon
 
 import com.github.erotourtes.harpoon.helpers.HarpoonActions
 import com.github.erotourtes.harpoon.services.HarpoonService
-import com.github.erotourtes.harpoon.settings.SettingsState
-import com.intellij.openapi.application.Application
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import com.intellij.testFramework.utils.vfs.getDocument
 
 abstract class HarpoonTestCase : BasePlatformTestCase() {
     protected lateinit var fixture: CodeInsightTestFixture
-
-    val app: Application
-        get() = ApplicationManager.getApplication()
 
     val harpoonService: HarpoonService
         get() = HarpoonService.getInstance(fixture.project)
@@ -35,12 +29,9 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
         }
 
     fun getMenuHelper(): MenuHelper {
-        val menuHelper = MenuHelper(harpoonService, project)
+        val menuHelper = MenuHelper(harpoonService)
         return menuHelper
     }
-
-    // TODO: figure out how to deal with multiple states of settings throughout the tests
-    private val settingsState by lazy { SettingsState.getInstance() }
 
     fun performHarpoonAction(action: HarpoonActions) {
         fixture.performEditorAction(action.actionName)
@@ -50,17 +41,7 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
         DummyFile(
             testDataPath,
             "dummy$it.txt",
-            { file -> fixture.configureByFile(file) }
-        )
-    }
-
-    fun changeSettings(action: SettingsState.() -> Unit) {
-        val newSettings = settingsState.snapshot().apply {
-            action(this)
-        }
-
-        settingsState.settings = newSettings.settings
-        settingsState.notifyObservers(newSettings)
+        ) { file -> fixture.configureByFile(file) }
     }
 
     override fun setUp() {
@@ -86,8 +67,6 @@ data class DummyFile(
     val relativeFilePath: String,
     private val _configureFixtureByFile: (String) -> Unit
 ) {
-    fun getFulPath() = "$testDataPath$relativeFilePath"
-
     fun configureFixture() {
         _configureFixtureByFile(relativeFilePath)
     }
@@ -100,7 +79,6 @@ data class DummyFile(
 
 class MenuHelper(
     private val harpoonService: HarpoonService,
-    private val project: Project,
 ) {
     val name: String
         get() {
@@ -116,15 +94,15 @@ class MenuHelper(
 
     val text: String
         get() {
-            val document = harpoonService
-                .getMenVf()
-                .getDocument()
+            val document = harpoonService.getMenVf().getDocument()
             val text = document.text
             return text
         }
 
-    fun closeMenuEditor() {
-        val fileEditorManager = FileEditorManager.getInstance(project)
-        fileEditorManager.closeFile(harpoonService.getMenVf())
+    fun updateText(text: String) {
+        runWriteAction {
+            val document = harpoonService.getMenVf().getDocument()
+            document.setText(text)
+        }
     }
 }

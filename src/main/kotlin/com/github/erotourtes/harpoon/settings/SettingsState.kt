@@ -31,9 +31,6 @@ class SettingsState : PersistentStateComponent<SettingsState>, Observable<Settin
     val showNotifications: Boolean
         get() = settings.showNotifications
 
-    val isSavingOnTyping: Boolean
-        get() = settings.isSavingOnTyping
-
     val adjustGitIgnore: Boolean
         get() = settings.adjustGitIgnore
 
