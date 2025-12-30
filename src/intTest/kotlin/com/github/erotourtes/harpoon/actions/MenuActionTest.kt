@@ -4,10 +4,12 @@ import com.github.erotourtes.harpoon.HarpoonTestCase
 import com.github.erotourtes.harpoon.MenuHelper
 import com.github.erotourtes.harpoon.helpers.HarpoonActions
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldBeEmpty
+import io.kotest.matchers.string.shouldNotBeEmpty
 
 @Suppress("FunctionName")
 class MenuActionTest : HarpoonTestCase() {
@@ -58,16 +60,22 @@ class MenuActionTest : HarpoonTestCase() {
     }
 
     fun `test(MenuClear) - should clear the menu when it's closed`() {
-        performHarpoonAction(HarpoonActions.FileAdd)
-        harpoonService.getPaths().shouldNotBeEmpty()
-
+        harpoonService.getPaths().shouldBeEmpty()
         menu.text.shouldBeEmpty()
+
+        performHarpoonAction(HarpoonActions.FileAdd)
+        harpoonService.getPaths() shouldContainExactly listOf(dummyFiles[0].getProjectPath())
+        menu.text.shouldBeEmpty()
+
         performHarpoonAction(HarpoonActions.QuickMenuOpen)
         menu.text shouldBe dummyFiles[0].getProjectPath()
 
         performHarpoonAction(HarpoonActions.QuickMenuToggle)
         performHarpoonAction(HarpoonActions.QuickMenuClear)
         harpoonService.getPaths().shouldBeEmpty()
+        menu.text.shouldNotBeEmpty()
+
+        performHarpoonAction(HarpoonActions.QuickMenuOpen)
         menu.text.shouldBeEmpty()
     }
 
