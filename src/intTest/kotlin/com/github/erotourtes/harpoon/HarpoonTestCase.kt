@@ -27,6 +27,13 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
             return fileEditorManager.selectedEditor?.file?.name ?: ""
         }
 
+    val curOpenedFilePath: String
+        get() {
+            val fileEditorManager = FileEditorManager.getInstance(project)
+            val path = fileEditorManager.selectedEditor?.file?.path ?: ""
+            return path
+        }
+
     fun getMenuHelper(): MenuHelper {
         val menuHelper = MenuHelper(harpoonService, project)
         return menuHelper

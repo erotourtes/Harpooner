@@ -21,6 +21,7 @@ import org.jetbrains.annotations.TestOnly
 // TODO: optimise live save + editor focus close trigger 2 saves
 // TODO: fix rare bug with menu is overwriting itself
 // TODO: fix bug with folds not closing after opening a file
+// TODO: allow working with multiple file system protocols (temp/jar/file etc.)
 
 
 @Service(Service.Level.PROJECT)
@@ -87,7 +88,7 @@ class HarpoonService(project: Project) : Disposable {
             if (file.path == menu.virtualFile.path) openMenu()
             else fileEditorManager.openFile(file, true)
         } catch (e: Exception) {
-            throw Exception("Can't find file. It might be deleted")
+            throw Exception("Can't find file. It might be deleted", e)
         }
     }
 
