@@ -2,6 +2,7 @@ package com.github.erotourtes.harpoon
 
 import com.github.erotourtes.harpoon.helpers.HarpoonActions
 import com.github.erotourtes.harpoon.services.HarpoonService
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -97,4 +98,11 @@ class MenuHelper(
             val text = document.text
             return text
         }
+
+    fun updateText(text: String) {
+        runWriteAction {
+            val document = harpoonService.getMenVf().getDocument()
+            document.setText(text)
+        }
+    }
 }

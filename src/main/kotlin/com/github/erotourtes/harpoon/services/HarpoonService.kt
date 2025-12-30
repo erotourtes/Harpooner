@@ -96,7 +96,8 @@ class HarpoonService(project: Project) : Disposable {
     }
 
     fun syncWithMenu() {
-        setPaths(menu.readLines())
+        val paths = menu.readLines()
+        setPaths(paths)
     }
 
     fun getPaths(): List<String> = state.paths
