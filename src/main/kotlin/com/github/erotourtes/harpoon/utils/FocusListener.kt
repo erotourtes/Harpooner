@@ -19,7 +19,7 @@ class FocusListener(private val harpoonService: HarpoonService, private val isMe
     private fun listenToEditorFocus() {
         val multicaster = EditorFactory.getInstance().eventMulticaster
         if (multicaster !is EditorEventMulticasterEx) {
-            println("EditorEventMulticasterEx is not supported")
+            log.error("EditorEventMulticasterEx is not supported")
             return
         }
 

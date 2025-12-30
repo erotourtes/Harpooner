@@ -42,7 +42,7 @@ class HarpoonService(project: Project) : Disposable {
         menu.open(getPaths())
     }
 
-    fun closeMenu() = withSync {
+    fun closeMenu() = withSync(syncWithMenuForce = true) {
         menu.close()
     }
 
@@ -139,11 +139,12 @@ class HarpoonService(project: Project) : Disposable {
 
     private fun <T> withSync(
         syncWithMenu: Boolean = true,
+        syncWithMenuForce: Boolean = false,
         updateMenu: Boolean = true,
         action: () -> T,
     ): Result<T> {
         try {
-            if (syncWithMenu && menu.isMenuFileOpenedWithCurEditor()) {
+            if (syncWithMenuForce || (syncWithMenu && menu.isMenuFileOpenedWithCurEditor())) {
                 syncWithMenu()
             }
         } catch (e: Exception) {

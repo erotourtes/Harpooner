@@ -4,6 +4,7 @@ import com.github.erotourtes.harpoon.HarpoonTestCase
 import com.github.erotourtes.harpoon.helpers.HarpoonActions
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import java.io.File
 import kotlin.io.path.createTempFile
@@ -134,5 +135,29 @@ class MenuTest : HarpoonTestCase() {
 
     private fun VirtualFile.configureFixture() {
         fixture.configureFromExistingVirtualFile(this@configureFixture)
+    }
+
+    fun `test() - should update menu if it's updated and closed`() {
+        (0..3).forEach {
+            tempFiles[it].configureFixture()
+            performHarpoonAction(HarpoonActions.FileAdd)
+        }
+
+        performHarpoonAction(HarpoonActions.QuickMenuOpen)
+        curOpenedFilePath shouldBe getMenuHelper().path
+
+        getMenuHelper().updateText(
+            """
+            ${tempFiles[7].path}
+            ${tempFiles[8].path}
+            """.trimIndent()
+        )
+
+        fixture.configureFromExistingVirtualFile(tempFiles[0])
+        curOpenedFilePath shouldBe tempFiles[0].path
+
+        harpoonService.closeMenu()
+
+        harpoonService.getPaths() shouldContainExactly listOf(tempFiles[7].path, tempFiles[8].path)
     }
 }
