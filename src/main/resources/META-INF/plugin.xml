@@ -154,15 +154,15 @@
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup.openFiles"/>
         </action>
 
-        <action id="HarpoonerNextFileAction" class="com.github.erotourtes.harpoon.actions.navigate.NextFileAction"/>
-        <action id="HarpoonerOpenNextFile" class="com.github.erotourtes.harpoon.actions.navigate.NextFileAction">
+        <action id="HarpoonerNextFileAction" class="com.github.erotourtes.harpoon.actions.navigate.OpenNextFileAction"/>
+        <action id="HarpoonerOpenNextFile" class="com.github.erotourtes.harpoon.actions.navigate.OpenNextFileAction">
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup.openFiles"/>
         </action>
 
         <action id="HarpoonerPreviousFileAction"
-                class="com.github.erotourtes.harpoon.actions.navigate.PreviousFileAction"/>
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenPreviousFileAction"/>
         <action id="HarpoonerOpenPreviousFile"
-                class="com.github.erotourtes.harpoon.actions.navigate.PreviousFileAction">
+                class="com.github.erotourtes.harpoon.actions.navigate.OpenPreviousFileAction">
             <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup.openFiles"/>
         </action>
 
