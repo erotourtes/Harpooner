@@ -84,7 +84,7 @@ class State {
         val index = getIndexOf(path).let {
             when {
                 it != -1 -> it
-                data.size == 0 -> -1
+                data.isEmpty() -> -1
                 forward -> -1
                 else -> data.size
             }

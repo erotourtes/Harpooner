@@ -5,6 +5,7 @@ import com.github.erotourtes.harpoon.helpers.HarpoonActions
 import io.kotest.matchers.collections.*
 import io.kotest.matchers.shouldBe
 
+@Suppress("FunctionName")
 class FileActionTest : HarpoonTestCase() {
     fun `test(FileAdd) - should add file to the menu`() {
         harpoonService.getPaths() shouldHaveSize 0
@@ -66,7 +67,7 @@ class FileActionTest : HarpoonTestCase() {
         )
     }
 
-    fun `test(FileTogggle) - should toggle the same file in the menu`() {
+    fun `test(FileToggle) - should toggle the same file in the menu`() {
         harpoonService.getPaths() shouldHaveSize 0
 
         fixture.configureByFile(dummyFiles[0].relativeFilePath)

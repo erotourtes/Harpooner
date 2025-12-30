@@ -9,6 +9,7 @@ import java.io.File
 import kotlin.io.path.createTempFile
 import kotlin.io.path.pathString
 
+@Suppress("FunctionName")
 class NavigateActionTest : HarpoonTestCase() {
     var tempFiles: Array<VirtualFile> = emptyArray()
 

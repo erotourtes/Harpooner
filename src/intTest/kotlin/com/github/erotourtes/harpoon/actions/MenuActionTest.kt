@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldBeEmpty
 
+@Suppress("FunctionName")
 class MenuActionTest : HarpoonTestCase() {
     lateinit var menu: MenuHelper
 
