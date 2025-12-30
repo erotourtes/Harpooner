@@ -5,6 +5,7 @@ import com.github.erotourtes.harpoon.helpers.HarpoonActions
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldBeEmpty
 import java.io.File
 import kotlin.io.path.createTempFile
 import kotlin.io.path.pathString
@@ -56,7 +57,7 @@ class NavigateActionTest : HarpoonTestCase() {
         }
     }
 
-    fun `test(FileOpenNext) - shouold open the next file`() {
+    fun `test(FileOpenNext) - should open the next file`() {
         for (i in tempFiles.indices) {
             performHarpoonAction(HarpoonActions.FileOpenNext)
 
@@ -68,7 +69,21 @@ class NavigateActionTest : HarpoonTestCase() {
         curOpenedFilePath shouldBe tempFiles[0].path
     }
 
-    fun `test(FileOpenPrevious) - shouold open the previous file`() {
+    fun `test(FileOpenNext) - should open the next file ignoring empty records`() {
+        fixture.configureFromExistingVirtualFile(tempFiles[1])
+        performHarpoonAction(HarpoonActions.File2Replace)
+        harpoonService.getPaths()[1].shouldBeEmpty()
+
+
+        fixture.configureFromExistingVirtualFile(tempFiles[0])
+        curOpenedFilePath shouldBe tempFiles[0].path
+
+
+        performHarpoonAction(HarpoonActions.FileOpenNext)
+        curOpenedFilePath shouldBe tempFiles[1].path
+    }
+
+    fun `test(FileOpenPrevious) - should open the previous file`() {
         for (i in tempFiles.indices) {
             performHarpoonAction(HarpoonActions.FileOpenPrevious)
 
@@ -78,5 +93,19 @@ class NavigateActionTest : HarpoonTestCase() {
         performHarpoonAction(HarpoonActions.FileOpenPrevious)
 
         curOpenedFilePath shouldBe tempFiles[9].path
+    }
+
+    fun `test(FileOpenPrevious) - should open the previous file ignoring empty records`() {
+        fixture.configureFromExistingVirtualFile(tempFiles[1])
+        performHarpoonAction(HarpoonActions.File2Replace)
+        harpoonService.getPaths()[1].shouldBeEmpty()
+
+
+        fixture.configureFromExistingVirtualFile(tempFiles[1])
+        curOpenedFilePath shouldBe tempFiles[1].path
+
+
+        performHarpoonAction(HarpoonActions.FileOpenPrevious)
+        curOpenedFilePath shouldBe tempFiles[0].path
     }
 }
