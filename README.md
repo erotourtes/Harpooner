@@ -91,9 +91,6 @@ You can change the settings:
 > With the number of visible words: 1  
 > ![settings3](https://github.com/erotourtes/Harpooner/assets/67370189/09dbde64-4d2f-4fe9-9cd4-2d46ddf3b890)
 
-> With save on type `off`  
-> Changes are saved after and only after closing the file
-
 
 ### Installation
 
