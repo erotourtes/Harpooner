@@ -17,6 +17,7 @@
 ### Changed
 
 - Renamed actions, while keeping compatibility
+    - `HarpoonerQuickMenu` -> `HarpoonerOpenMenu`
     - `HarpoonerToggleQuickMenu` -> `HarpoonerToggleMenu`
     - `HarpoonerNextFileAction` -> `HarpoonerOpenNextFile`
     - `HarpoonerPreviousFileAction` -> `HarpoonerOpenPreviousFile`
