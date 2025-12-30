@@ -6,15 +6,14 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
 
-
-class NextFileAction: AnAction() {
+ class OpenPreviousFileAction : AnAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val harpoonService = project.service<HarpoonService>()
 
         try {
-            harpoonService.nextFile()
+            harpoonService.previousFile()
         } catch (e: Exception) {
             notify(e.message ?: "Error opening file")
         }

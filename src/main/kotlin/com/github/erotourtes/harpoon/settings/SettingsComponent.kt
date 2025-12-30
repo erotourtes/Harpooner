@@ -26,7 +26,6 @@ class SettingsComponent {
     private val numberOfSlashesUI = JBSlider(1, 10, SettingsState.getInstance().settings.numberOfSlashes)
     private val numberOfSlashesLabelUI = JBLabel("Number of visible words: ")
     private val showProjectPathUI = JBCheckBox("Show project path")
-    private val saveOnType = JBCheckBox("Save on type")
     private val showNotificationsUI = JBCheckBox("Show notifications")
     private val adjustGitIgnoreUI = JBCheckBox("Automatically adjust .gitignore to include the menu file")
 
@@ -53,7 +52,6 @@ class SettingsComponent {
                 false
             )
             .addComponent(showProjectPathUI, 1)
-            .addComponent(saveOnType, 1)
             .addComponent(showNotificationsUI, 1)
             .addComponent(adjustGitIgnoreUI, 1)
             .addComponentFillVertically(JPanel(), 0)
@@ -66,7 +64,6 @@ class SettingsComponent {
         private var numberOfSlashes: Int by SliderDelegate(numberOfSlashesUI)
         private var showProjectPath: Boolean by CheckBoxDelegate(showProjectPathUI)
         private var showNotifications: Boolean by CheckBoxDelegate(showNotificationsUI)
-        private var isSavingOnType: Boolean by CheckBoxDelegate(saveOnType)
         private var adjustGitIgnore: Boolean by CheckBoxDelegate(adjustGitIgnoreUI)
 
         private var uiSettings: HarpoonSettings
@@ -74,14 +71,12 @@ class SettingsComponent {
                 numberOfSlashes = numberOfSlashes,
                 showProjectPath = showProjectPath,
                 showNotifications = showNotifications,
-                isSavingOnTyping = isSavingOnType,
                 adjustGitIgnore = adjustGitIgnore
             )
             set(value) {
                 numberOfSlashes = value.numberOfSlashes
                 showProjectPath = value.showProjectPath
                 showNotifications = value.showNotifications
-                isSavingOnType = value.isSavingOnTyping
                 adjustGitIgnore = value.adjustGitIgnore
             }
 

@@ -12,7 +12,6 @@ data class HarpoonSettings(
     var showProjectPath: Boolean = false,
     var numberOfSlashes: Int = 3,
     var showNotifications: Boolean = true,
-    var isSavingOnTyping: Boolean = true,
     var adjustGitIgnore: Boolean = true,
 )
 
