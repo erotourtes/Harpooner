@@ -4,6 +4,25 @@
 
 ## [Unreleased]
 
+## [1.4.1] - 2025-12-30
+
+### Added
+
+- Integration tests
+
+### Fixed
+
+- Plugin compatibility
+
+### Changed
+
+- Renamed actions, while keeping compatibility
+    - `HarpoonerQuickMenu` -> `HarpoonerOpenMenu`
+    - `HarpoonerToggleQuickMenu` -> `HarpoonerToggleMenu`
+    - `HarpoonerNextFileAction` -> `HarpoonerOpenNextFile`
+    - `HarpoonerPreviousFileAction` -> `HarpoonerOpenPreviousFile`
+- Reworked how plugin syncs with the menu file
+
 ## [1.4.0] - 2025-09-16
 
 ### Added
