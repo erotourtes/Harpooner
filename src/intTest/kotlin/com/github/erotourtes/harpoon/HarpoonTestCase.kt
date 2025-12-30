@@ -108,6 +108,12 @@ class MenuHelper(
             return name
         }
 
+    val path: String
+        get() {
+            val path = harpoonService.getMenVf().path
+            return path
+        }
+
     val text: String
         get() {
             val document = harpoonService
