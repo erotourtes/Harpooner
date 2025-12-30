@@ -38,7 +38,7 @@ You need to use [IdeaVim](https://plugins.jetbrains.com/plugin/164-ideavim) plug
 ```Vim
 " Harpoon
 
-nmap <leader>hm <action>(HarpoonerToggleQuickMenu)
+nmap <leader>hm <action>(HarpoonerToggleMenu)
 
 nmap <leader>ha <action>(HarpoonerToggleFile)
 
@@ -47,8 +47,8 @@ nmap <M-k> <action>(HarpoonerOpenFile1)
 nmap <M-l> <action>(HarpoonerOpenFile2)
 nmap <M-;> <action>(HarpoonerOpenFile3)
 
-nmap <leader>hn <action>(HarpoonerNextFileAction)
-nmap <leader>hp <action>(HarpoonerPreviousFileAction)
+nmap <leader>hn <action>(HarpoonerOpenNextFile)
+nmap <leader>hp <action>(HarpoonerOpenPreviousFile)
 
 nmap <leader>hc <action>(HarpoonerClearMenu)
 ```
@@ -71,12 +71,12 @@ nmap <leader>hc <action>(HarpoonerClearMenu)
 
 #### **File Navigation**
 - `HarpoonerOpenFile0` - `HarpoonerOpenFile9` → Open a specific file from the menu (indexed 0-9)
-- `HarpoonerNextFileAction` → Open the next file in the Harpoon list.
-- `HarpoonerPreviousFileAction` → Open the previous file in the Harpoon list.
+- `HarpoonerOpenNextFile` → Open the next file in the Harpoon list.
+- `HarpoonerOpenPreviousFile` → Open the previous file in the Harpoon list.
 
 #### **Menu Management**
-- `HarpoonerQuickMenu` → Open the Harpoon menu.
-- `HarpoonerToggleQuickMenu` → Toggle the Harpoon menu.
+- `HarpoonerOpenMenu` → Open the Harpoon menu.
+- `HarpoonerToggleMenu` → Toggle the Harpoon menu.
 - `HarpoonerClearMenu` → Clear all saved paths.
  
 

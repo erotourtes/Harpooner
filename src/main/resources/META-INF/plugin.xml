@@ -23,7 +23,7 @@
 
     <actions>
         <group id="com.github.erotourtes.harpoon.pluginsGroup" text="Harpooner"
-               description="Harpooner is a navigation plugin" popup="true">
+               description="Harpooner is a navigation plugin" popup="true" icon="/icons/pluginIcon.svg">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
 
@@ -159,7 +159,15 @@
         #### Menu actions ####
         -->
         <action id="HarpoonerQuickMenu"
-                class="com.github.erotourtes.harpoon.actions.menu.QuickMenuAction"
+                class="com.github.erotourtes.harpoon.actions.menu.OpenMenuAction"
+                text="Show Menu"
+                description="Show quick menu of harpoon"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+        <action id="HarpoonerOpenMenu"
+                class="com.github.erotourtes.harpoon.actions.menu.OpenMenuAction"
                 text="Show Menu"
                 description="Show quick menu of harpoon"
                 popup="true"
@@ -168,7 +176,15 @@
         </action>
 
         <action id="HarpoonerToggleQuickMenu"
-                class="com.github.erotourtes.harpoon.actions.menu.ToggleQuickMenuAction"
+                class="com.github.erotourtes.harpoon.actions.menu.ToggleMenuAction"
+                text="Toggle Menu"
+                description="Toggle quick menu of harpoon"
+                popup="true"
+        >
+            <add-to-group group-id="com.github.erotourtes.harpoon.pluginsGroup"/>
+        </action>
+        <action id="HarpoonerToggleMenu"
+                class="com.github.erotourtes.harpoon.actions.menu.ToggleMenuAction"
                 text="Toggle Menu"
                 description="Toggle quick menu of harpoon"
                 popup="true"
@@ -278,8 +294,19 @@
                 text="Open Next File"
                 description="Open the next file"
         />
+        <action id="HarpoonerOpenNextFile"
+                class="com.github.erotourtes.harpoon.actions.navigate.NextFileAction"
+                text="Open Next File"
+                description="Open the next file"
+        />
 
         <action id="HarpoonerPreviousFileAction"
+                class="com.github.erotourtes.harpoon.actions.navigate.PreviousFileAction"
+                text="Open Previous File"
+                description="Open the Previous file"
+                popup="true"
+        />
+        <action id="HarpoonerOpenPreviousFile"
                 class="com.github.erotourtes.harpoon.actions.navigate.PreviousFileAction"
                 text="Open Previous File"
                 description="Open the Previous file"
