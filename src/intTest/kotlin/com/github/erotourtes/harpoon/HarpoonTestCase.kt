@@ -1,14 +1,16 @@
 package com.github.erotourtes.harpoon
 
+import com.github.erotourtes.harpoon.helpers.HarpoonActions
 import com.github.erotourtes.harpoon.services.HarpoonService
 import com.github.erotourtes.harpoon.settings.SettingsState
 import com.intellij.openapi.application.Application
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.editor.FoldingModel
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import com.intellij.testFramework.utils.vfs.getDocument
 
 abstract class HarpoonTestCase : BasePlatformTestCase() {
     protected lateinit var fixture: CodeInsightTestFixture
@@ -19,55 +21,37 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
     val harpoonService: HarpoonService
         get() = HarpoonService.getInstance(fixture.project)
 
-
-//    val menuDc: Document
-//        get() {
-//            val menu = harpoonService.menuVF
-//            return FileDocumentManager.getInstance().getDocument(menu) ?: throw Error("Can't read file")
-//        }
-
     val curOpenedFilename: String
         get() {
             val fileEditorManager = FileEditorManager.getInstance(project)
             return fileEditorManager.selectedEditor?.file?.name ?: ""
         }
 
-    val foldingModel: FoldingModel
+    val curOpenedFilePath: String
         get() {
-            return FileEditorManager.getInstance(project).selectedTextEditor?.foldingModel
-                ?: throw Error("Can't get folding model")
+            val fileEditorManager = FileEditorManager.getInstance(project)
+            val path = fileEditorManager.selectedEditor?.file?.path ?: ""
+            return path
         }
+
+    fun getMenuHelper(): MenuHelper {
+        val menuHelper = MenuHelper(harpoonService, project)
+        return menuHelper
+    }
 
     // TODO: figure out how to deal with multiple states of settings throughout the tests
     private val settingsState by lazy { SettingsState.getInstance() }
 
-    fun menuCloseInEditor() {
-        val fileEditorManager = FileEditorManager.getInstance(project)
-        fileEditorManager.closeFile(harpoonService.getMenVf())
+    fun performHarpoonAction(action: HarpoonActions) {
+        fixture.performEditorAction(action.actionName)
     }
 
-    fun performAddFileAction() {
-        fixture.performEditorAction("HarpoonerAddFile")
-    }
-
-    fun performOpenFileAction(file: Int) {
-        fixture.performEditorAction("HarpoonerOpenFile${file}")
-    }
-
-    fun performQuickMenuAction() {
-        fixture.performEditorAction("HarpoonerQuickMenu")
-    }
-
-    val dummy0Filename = "dummy0.txt"
-    val dummy0FullPath = "${testDataPath}${dummy0Filename}"
-    fun fixtureAddDummyFile0() {
-        fixture.configureByFile(dummy0Filename)
-    }
-
-    val dummy1Filename = "dummy1.txt"
-    val dummy1FullPath = "${testDataPath}${dummy1Filename}"
-    fun fixtureAddDummyFile1() {
-        fixture.configureByFile(dummy1Filename)
+    val dummyFiles: Array<DummyFile> = Array(10) {
+        DummyFile(
+            testDataPath,
+            "dummy$it.txt",
+            { file -> fixture.configureByFile(file) }
+        )
     }
 
     fun changeSettings(action: SettingsState.() -> Unit) {
@@ -86,7 +70,7 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
     override fun tearDown() {
         WriteCommandAction.runWriteCommandAction(fixture.project) {
-            harpoonService.getMenVf().delete(this)
+            harpoonService.clearMenu()
         }
 
         super.tearDown()
@@ -95,4 +79,52 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
     override fun getBasePath(): String = "/src/intTest/resources/"
 
     override fun getTestDataPath(): String = System.getProperty("user.dir") + basePath
+}
+
+data class DummyFile(
+    private val testDataPath: String,
+    val relativeFilePath: String,
+    private val _configureFixtureByFile: (String) -> Unit
+) {
+    fun getFulPath() = "$testDataPath$relativeFilePath"
+
+    fun configureFixture() {
+        _configureFixtureByFile(relativeFilePath)
+    }
+
+    fun getProjectPath(): String {
+        val fullPath = "/src/$relativeFilePath"
+        return fullPath
+    }
+}
+
+class MenuHelper(
+    private val harpoonService: HarpoonService,
+    private val project: Project,
+) {
+    val name: String
+        get() {
+            val name = harpoonService.getMenVf().name
+            return name
+        }
+
+    val path: String
+        get() {
+            val path = harpoonService.getMenVf().path
+            return path
+        }
+
+    val text: String
+        get() {
+            val document = harpoonService
+                .getMenVf()
+                .getDocument()
+            val text = document.text
+            return text
+        }
+
+    fun closeMenuEditor() {
+        val fileEditorManager = FileEditorManager.getInstance(project)
+        fileEditorManager.closeFile(harpoonService.getMenVf())
+    }
 }

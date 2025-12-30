@@ -28,17 +28,23 @@ repositories {
     }
 }
 
-val intTest by sourceSets.creating {
-    compileClasspath += sourceSets.main.get().output
-    runtimeClasspath += sourceSets.main.get().output
+val intTest: SourceSet by sourceSets.creating {
+    kotlin.setSrcDirs(listOf("src/intTest/kotlin"))
+    resources.setSrcDirs(listOf("src/intTest/resources"))
+
+    // Intellij sdk is not available without adding test source sets
+    compileClasspath += sourceSets.main.get().output + sourceSets.test.get().compileClasspath
+    runtimeClasspath += output + sourceSets.main.get().output + sourceSets.test.get().runtimeClasspath
 }
-val intTestImplementation = configurations[intTest.implementationConfigurationName]
+
+val intTestImplementation: Configuration = configurations[intTest.implementationConfigurationName]
+val intTestRuntimeOnly: Configuration = configurations[intTest.runtimeOnlyConfigurationName]
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
     testImplementation(libs.mockito.core)
     testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.junit.jupiter.params)
     testRuntimeOnly(libs.junit.platform.launcher)
 
@@ -48,8 +54,10 @@ dependencies {
     // Workaround https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-faq.html#junit5-test-framework-refers-to-junit4
     testRuntimeOnly("junit:junit:4.13.2")
 
-    intTestImplementation("junit:junit:3.8.2")
+    intTestImplementation("junit:junit:4.13.2")
+    intTestRuntimeOnly("org.opentest4j:opentest4j:1.3.0")
     intTestImplementation(kotlin("stdlib"))
+    intTestImplementation(libs.kotest.assertions.core)
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
@@ -65,8 +73,6 @@ dependencies {
         bundledModules(providers.gradleProperty("platformBundledModules").map { it.split(',') })
 
         testFramework(TestFrameworkType.Platform)
-        testFramework(TestFrameworkType.JUnit5)
-        testFramework(TestFrameworkType.Starter)
     }
 }
 
@@ -157,56 +163,54 @@ tasks {
     }
 }
 
-intellijPlatformTesting {
-    runIde {
-        register("runIdeForUiTests") {
-            task {
-                jvmArgumentProviders += CommandLineArgumentProvider {
-                    listOf(
-                        "-Drobot-server.port=8082",
-                        "-Dide.mac.message.dialogs.as.sheets=false",
-                        "-Djb.privacy.policy.text=<!--999.999-->",
-                        "-Djb.consents.confirmation.enabled=false",
-                    )
-                }
-            }
-
-            plugins {
-                robotServerPlugin()
-            }
+tasks.register<Task>("printSourceSetInformation") {
+    outputs.upToDateWhen { false }
+    sourceSets.forEach { srcSet ->
+        println("[" + srcSet.name + "]")
+        print("-->Source directories: " + srcSet.allJava.srcDirs + "\n")
+        print("-->Output directories: " + srcSet.output.classesDirs.files + "\n")
+        print("-->Compile classpath:\n")
+        srcSet.compileClasspath.files.forEach {
+            print("  " + it.path + "\n")
         }
+        println("")
     }
 }
 
 idea {
     module {
         testSources.from(sourceSets[intTest.name].kotlin.srcDirs)
+        testResources.from(sourceSets[intTest.name].resources.srcDirs)
     }
 }
-
-configurations[intTest.implementationConfigurationName]
-    .extendsFrom(configurations.testImplementation.get())
-configurations[intTest.runtimeOnlyConfigurationName]
-    .extendsFrom(configurations.testRuntimeOnly.get())
-configurations[intTest.compileOnlyConfigurationName]
-    .extendsFrom(configurations.testCompileOnly.get())
 
 tasks {
     test {
         useJUnitPlatform()
     }
+}
 
-// TODO: write integration tests and fix this mess
+val intTestTask by intellijPlatformTesting.testIde.registering {
+    task {
+        group = "verification"
+        description = "Runs IntelliJ in-process integration tests (BasePlatformTestCase)"
 
-//    register<Test>("integrationTests") {
-//        description = "Runs integration tests."
-//        group = "verification"
-//
-//        testClassesDirs = sourceSets[intTest.name].output.classesDirs
-//        classpath = sourceSets[intTest.name].runtimeClasspath
-//
-//        testLogging {
-//            events("passed", "failed", "skipped")
-//        }
-//    }
+        testClassesDirs = intTest.output.classesDirs
+        // Somehow it can't find the tests without addition
+        classpath += intTest.runtimeClasspath
+
+        useJUnit()
+
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+    }
+}
+
+tasks.named<ProcessResources>(intTest.processResourcesTaskName) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.check {
+    dependsOn(intTestTask)
 }

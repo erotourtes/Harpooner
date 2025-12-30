@@ -2,6 +2,7 @@ package com.github.erotourtes.harpoon.utils
 
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import java.nio.file.Paths
 
 class State {
     private val data: ArrayList<PathRecord?> = ArrayList()
@@ -134,8 +135,16 @@ class State {
         }
 
         fun isTheSameAs(other: String): Boolean {
-            // TODO: don't compare by raw paths
-            return this.path == other
+            if (this.path == other) {
+                return true
+            }
+            val result = runCatching {
+                val otherPath = Paths.get(other).toRealPath()
+                val thisPath = Paths.get(this.path).toRealPath()
+                val isEqual = otherPath == thisPath
+                return@runCatching isEqual
+            }
+            return result.getOrElse { false }
         }
 
         companion object {
