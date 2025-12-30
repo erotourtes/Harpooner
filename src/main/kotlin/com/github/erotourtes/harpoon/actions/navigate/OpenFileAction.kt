@@ -1,7 +1,7 @@
 package com.github.erotourtes.harpoon.actions.navigate
 
-import com.github.erotourtes.harpoon.utils.notify
 import com.github.erotourtes.harpoon.services.HarpoonService
+import com.github.erotourtes.harpoon.utils.notify
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
@@ -12,10 +12,8 @@ abstract class OpenFileAction : AnAction() {
         val project = event.project ?: return
         val harpoonService = project.service<HarpoonService>()
 
-        try {
-            harpoonService.openFile(index())
-        } catch (e: Exception) {
-            notify(e.message ?: "Error opening file")
+        harpoonService.openFile(index()).onFailure {
+            notify(it.message ?: "Error opening file")
         }
     }
 }

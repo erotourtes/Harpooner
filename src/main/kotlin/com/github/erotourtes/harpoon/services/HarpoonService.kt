@@ -3,7 +3,6 @@ package com.github.erotourtes.harpoon.services
 import com.github.erotourtes.harpoon.listeners.FilesRenameListener
 import com.github.erotourtes.harpoon.settings.SettingsChangeListener
 import com.github.erotourtes.harpoon.settings.SettingsState
-import com.github.erotourtes.harpoon.utils.FileTypingChangeHandler
 import com.github.erotourtes.harpoon.utils.FocusListener
 import com.github.erotourtes.harpoon.utils.State
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
@@ -16,10 +15,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.TestOnly
 
-// TODO: optimise live save of the menu
 // TODO: folding builder
-// TODO: optimise live save + editor focus close trigger 2 saves
-// TODO: fix rare bug with menu is overwriting itself
 // TODO: fix bug with folds not closing after opening a file
 // TODO: allow working with multiple file system protocols (temp/jar/file etc.)
 
@@ -39,15 +35,14 @@ class HarpoonService(project: Project) : Disposable {
             menu.updateSettings(it)
             menu.updateFile(getPaths())
         }
-        FileTypingChangeHandler(this) { menu.virtualFile }
         syncWithMenu()
     }
 
-    fun openMenu() {
+    fun openMenu() = withSync {
         menu.open(getPaths())
     }
 
-    fun closeMenu() {
+    fun closeMenu() = withSync {
         menu.close()
     }
 
@@ -55,9 +50,49 @@ class HarpoonService(project: Project) : Disposable {
         if (menu.isOpen()) closeMenu() else openMenu()
     }
 
-    fun clearMenu() {
+    fun clearMenu() = withSync(syncWithMenu = false) {
         state.clear()
-        menu.updateFile(getPaths())
+    }
+
+    fun addFile(file: VirtualFile) = withSync {
+        state.add(file.path)
+    }
+
+    fun removeFile(file: VirtualFile) = withSync {
+        state.remove(file.path)
+    }
+
+    fun toggleFile(file: VirtualFile) {
+        val path = file.path
+        if (state.includes(path)) {
+            removeFile(file)
+        } else {
+            addFile(file)
+        }
+    }
+
+    fun openFile(index: Int) = withSync {
+        openFileWithoutSync(index)
+    }
+
+    fun replaceFile(index: Int, file: VirtualFile) = withSync {
+        state.replace(index, file.path)
+    }
+
+    fun nextFile() = withSync {
+        val path = currentFilePath()
+        val nextFileIndex = state.getNextIndexOf(path)
+        if (nextFileIndex != -1) {
+            openFileWithoutSync(nextFileIndex)
+        }
+    }
+
+    fun previousFile() = withSync {
+        val path = currentFilePath()
+        val nextFileIndex = state.getPrevIndexOf(path)
+        if (nextFileIndex != -1) {
+            openFileWithoutSync(nextFileIndex)
+        }
     }
 
     fun syncWithMenu() {
@@ -66,23 +101,12 @@ class HarpoonService(project: Project) : Disposable {
 
     fun getPaths(): List<String> = state.paths
 
-    fun addFile(file: VirtualFile): Unit = state.add(file.path)
-
-    fun removeFile(file: VirtualFile): Unit = state.remove(file.path)
-
-    fun toggleFile(file: VirtualFile) {
-        val path = file.path
-        if (state.includes(path)) {
-            state.remove(path)
-        } else {
-            state.add(path)
-        }
-    }
-
     /**
-     * @throws Exception if file is not found or can't be opened
+     * Doesn't get the latest state from the menu contrary to {@link [openFile]}
+     *
+     * @throws [Exception] if file is not found or can't be opened
      */
-    fun openFile(index: Int) {
+    private fun openFileWithoutSync(index: Int) {
         val file = getFile(index) ?: throw Exception("Can't find file")
         try {
             if (file.path == menu.virtualFile.path) openMenu()
@@ -92,25 +116,6 @@ class HarpoonService(project: Project) : Disposable {
         }
     }
 
-    fun replaceFile(index: Int, file: VirtualFile) {
-        state.replace(index, file.path)
-    }
-
-    fun nextFile() {
-        val path = currentFilePath()
-        val nextFileIndex = state.getNextIndexOf(path)
-        if (nextFileIndex != -1) {
-            openFile(nextFileIndex)
-        }
-    }
-
-    fun previousFile() {
-        val path = currentFilePath()
-        val nextFileIndex = state.getPrevIndexOf(path)
-        if (nextFileIndex != -1) {
-            openFile(nextFileIndex)
-        }
-    }
 
     private fun currentFilePath(): String? {
         val currentFile = fileEditorManager.selectedEditor?.file
@@ -126,9 +131,37 @@ class HarpoonService(project: Project) : Disposable {
         val isDeleteEvent = newPath == null
         if (isDeleteEvent) {
             state.remove(oldPath)
-        } else if (state.update(oldPath, newPath!!)) {
+        } else if (state.update(oldPath, newPath)) {
             menu.updateFile(getPaths())
         }
+    }
+
+    private fun <T> withSync(
+        syncWithMenu: Boolean = true,
+        updateMenu: Boolean = true,
+        action: () -> T,
+    ): Result<T> {
+        try {
+            if (syncWithMenu && menu.isMenuFileOpenedWithCurEditor()) {
+                syncWithMenu()
+            }
+        } catch (e: Exception) {
+            log.error("Could not sync with menu", e)
+        }
+
+        val result = runCatching {
+            action()
+        }
+
+        try {
+            if (updateMenu && menu.isMenuFileOpenedWithCurEditor()) {
+                menu.updateFile(getPaths())
+            }
+        } catch (e: Exception) {
+            log.error("Could not update menu file", e)
+        }
+
+        return result
     }
 
     companion object {
