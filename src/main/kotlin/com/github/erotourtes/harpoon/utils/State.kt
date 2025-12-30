@@ -135,6 +135,9 @@ class State {
         }
 
         fun isTheSameAs(other: String): Boolean {
+            if (this.path == other) {
+                return true
+            }
             val result = runCatching {
                 val otherPath = Paths.get(other).toRealPath()
                 val thisPath = Paths.get(this.path).toRealPath()
