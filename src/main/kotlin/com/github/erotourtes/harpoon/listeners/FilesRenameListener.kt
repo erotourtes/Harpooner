@@ -25,8 +25,8 @@ class FilesRenameListener(
 
                 when (event) {
                     is VFilePropertyChangeEvent -> {
-                        val oldPath = event.oldPath as? String ?: continue
-                        val newPath = event.newPath as? String ?: continue
+                        val oldPath = event.oldPath
+                        val newPath = event.newPath
                         if (oldPath != newPath) callback(oldPath, newPath)
                     }
 

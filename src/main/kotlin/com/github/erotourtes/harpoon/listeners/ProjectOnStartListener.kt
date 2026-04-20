@@ -24,7 +24,7 @@ class ProjectOnStartListener : ProjectActivity {
     override suspend fun execute(project: Project) {
         gitIgnoreMenuFiles(project)
         withContext(Dispatchers.EDT) {
-            val service = HarpoonService.getInstance(project);
+            val service = HarpoonService.getInstance(project)
             service.init()
         }
     }
