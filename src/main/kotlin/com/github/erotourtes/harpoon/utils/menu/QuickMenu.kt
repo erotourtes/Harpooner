@@ -31,8 +31,9 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         projectInfo = ProjectInfo.from(virtualFile.path)
 
         foldsManager = FoldsManager(
-            projectInfo, ::isSelectedEditorMenuFile, {
+            projectInfo, {
                 val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@FoldsManager null
+                if (!isMenuEditor(editor)) return@FoldsManager null
                 val foldingModel = editor.foldingModel
                 return@FoldsManager foldingModel
             }, settings.toFoldsSettings()
@@ -104,12 +105,8 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
     }
 
     suspend fun isMenuFileOpenedWithCurEditor(): Boolean = withContext(Dispatchers.EDT) {
-        return@withContext isSelectedEditorMenuFile()
-    }
-
-    private fun isSelectedEditorMenuFile(): Boolean {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return false
-        return isMenuEditor(editor)
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@withContext false
+        return@withContext isMenuEditor(editor)
     }
 
     fun isMenuEditor(editor: Editor): Boolean {

@@ -29,7 +29,6 @@ class FoldsManagerTest {
         val path = "/home/user/project/MyProject/src/main/kotlin/com/example/MyClass.kt"
         val foldsManager = FoldsManager(
             projectInfo,
-            { true },
             { foldingModel },
             FoldsManager.Settings(true, 2)
         )
@@ -48,7 +47,6 @@ class FoldsManagerTest {
         val path = "/home/user/project/MyProject/src/main/kotlin/com/example/MyClass.kt"
         val foldsManager = FoldsManager(
             projectInfo,
-            { true },
             { foldingModel },
             FoldsManager.Settings(false, 3)
         )
@@ -70,7 +68,6 @@ class FoldsManagerTest {
         val path = "src/main/kotlin/com/example/MyClass.kt"
         val foldsManager = FoldsManager(
             projectInfo,
-            { true },
             { foldingModel },
             FoldsManager.Settings(false, 3)
         )
@@ -90,7 +87,6 @@ class FoldsManagerTest {
         val path = "src/main/kotlin/com/example/MyClass.kt"
         val foldsManager = FoldsManager(
             projectInfo,
-            { true },
             { foldingModel },
             FoldsManager.Settings(false, 3)
         )
@@ -110,8 +106,7 @@ class FoldsManagerTest {
         val path = "src/main/kotlin/com/example/MyClass.kt"
         val foldsManager = FoldsManager(
             projectInfo,
-            isInRightEditor = { false },
-            { foldingModel },
+            { null },
             FoldsManager.Settings(false, 3)
         )
 

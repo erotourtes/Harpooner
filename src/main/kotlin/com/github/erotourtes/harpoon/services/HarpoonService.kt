@@ -46,7 +46,7 @@ class HarpoonService(
                 this@HarpoonService.launch {
                     log.info("Settings changed")
                     menu.updateSettings(it)
-                    menu.updateFile(getPaths())
+                    menu.updateFile(state.paths)
                 }
             }
         }
@@ -55,7 +55,7 @@ class HarpoonService(
 
     suspend fun openMenu() = onServiceDispatcher {
         withMenuSync {
-            menu.open(getPaths())
+            menu.open(state.paths)
         }
     }
 
@@ -128,11 +128,6 @@ class HarpoonService(
         }
     }
 
-    suspend fun syncWithMenu() {
-        val paths = menu.readLines()
-        setPaths(paths)
-    }
-
     suspend fun getPaths(): List<String> = onServiceDispatcher {
         state.paths
     }
@@ -170,6 +165,10 @@ class HarpoonService(
         }
     }
 
+    private suspend fun syncWithMenu() {
+        val paths = menu.readLines()
+        setPaths(paths)
+    }
 
     private suspend fun currentFilePath(): String? = withContext(Dispatchers.EDT) {
         val currentFile = fileEditorManager.selectedEditor?.file
@@ -187,7 +186,7 @@ class HarpoonService(
         if (isDeleteEvent) {
             state.remove(oldPath)
         } else if (state.update(oldPath, newPath)) {
-            menu.updateFile(getPaths())
+            menu.updateFile(state.paths)
         }
     }
 
@@ -211,13 +210,22 @@ class HarpoonService(
 
         try {
             if (updateMenu && menu.isMenuFileOpenedWithCurEditor()) {
-                menu.updateFile(getPaths())
+                menu.updateFile(state.paths)
             }
         } catch (e: Exception) {
             log.error("Could not update menu file", e)
         }
 
         return result
+    }
+
+    private suspend fun <T> onServiceDispatcher(action: suspend HarpoonService.() -> T): T {
+        if (currentCoroutineContext()[ContinuationInterceptor] === serviceDispatcher) {
+            return action()
+        }
+        return withContext(serviceDispatcher) {
+            action()
+        }
     }
 
     companion object {
@@ -238,14 +246,5 @@ class HarpoonService(
     @TestOnly
     suspend fun awaitIdle() = onServiceDispatcher {
         Unit
-    }
-
-    private suspend fun <T> onServiceDispatcher(action: suspend HarpoonService.() -> T): T {
-        if (currentCoroutineContext()[ContinuationInterceptor] === serviceDispatcher) {
-            return action()
-        }
-        return withContext(serviceDispatcher) {
-            action()
-        }
     }
 }
