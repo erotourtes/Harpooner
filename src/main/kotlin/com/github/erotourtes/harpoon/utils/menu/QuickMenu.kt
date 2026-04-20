@@ -31,7 +31,7 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         projectInfo = ProjectInfo.from(virtualFile.path)
 
         foldsManager = FoldsManager(
-            projectInfo, ::isMenuFileOpenedWithCurEditorOnEdt, {
+            projectInfo, ::isSelectedEditorMenuFile, {
                 val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@FoldsManager null
                 val foldingModel = editor.foldingModel
                 return@FoldsManager foldingModel
@@ -78,21 +78,17 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
     }
 
     suspend fun updateFile(content: List<String>): QuickMenu {
-        return withContext(Dispatchers.EDT) {
-            updateFileOnEdt(content)
-        }
-    }
-
-    fun updateFileOnEdt(content: List<String>): QuickMenu {
         val processedContent = processor.process(content)
-        runWriteAction {
-            val docManager = FileDocumentManager.getInstance()
-            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+        withContext(Dispatchers.EDT) {
+            runWriteAction {
+                val docManager = FileDocumentManager.getInstance()
+                val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
 
-            processedContent.joinToString("\n").let { document.setText(it) }
-            processedContent.forEachIndexed { index, it ->
-                val line = document.getLineStartOffset(index)
-                foldsManager.updateFoldsAt(line, it)
+                processedContent.joinToString("\n").let { document.setText(it) }
+                processedContent.forEachIndexed { index, it ->
+                    val line = document.getLineStartOffset(index)
+                    foldsManager.updateFoldsAt(line, it)
+                }
             }
         }
 
@@ -108,10 +104,10 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
     }
 
     suspend fun isMenuFileOpenedWithCurEditor(): Boolean = withContext(Dispatchers.EDT) {
-        return@withContext isMenuFileOpenedWithCurEditorOnEdt()
+        return@withContext isSelectedEditorMenuFile()
     }
 
-    private fun isMenuFileOpenedWithCurEditorOnEdt(): Boolean {
+    private fun isSelectedEditorMenuFile(): Boolean {
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return false
         return isMenuEditor(editor)
     }

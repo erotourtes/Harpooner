@@ -10,6 +10,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import com.intellij.testFramework.utils.vfs.getDocument
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.Callable
 
 abstract class HarpoonTestCase : BasePlatformTestCase() {
     protected lateinit var fixture: CodeInsightTestFixture
@@ -74,14 +75,20 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
         }
     }
 
-    protected fun runHarpoonServiceAction(action: suspend HarpoonService.() -> Unit) {
-        val future = ApplicationManager.getApplication().executeOnPooledThread {
+    protected fun paths(): List<String> {
+        return runHarpoonServiceAction {
+            getPaths()
+        }
+    }
+
+    protected fun <T> runHarpoonServiceAction(action: suspend HarpoonService.() -> T): T {
+        val future = ApplicationManager.getApplication().executeOnPooledThread(Callable {
             runBlocking {
                 harpoonService.action()
             }
-        }
+        })
         PlatformTestUtil.waitWithEventsDispatching("Waiting for Harpoon service", { future.isDone }, 10_000)
-        future.get()
+        return future.get()
     }
 }
 

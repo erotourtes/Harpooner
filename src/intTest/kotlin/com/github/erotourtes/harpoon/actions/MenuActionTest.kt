@@ -51,7 +51,7 @@ class MenuActionTest : HarpoonTestCase() {
 
     fun `test(MenuClear) - should not clear empty menu`() {
         val editor = curOpenedFilename
-        harpoonService.getPaths().shouldBeEmpty()
+        paths().shouldBeEmpty()
 
         performHarpoonAction(HarpoonActions.QuickMenuClear)
         performHarpoonAction(HarpoonActions.File0Open)
@@ -60,11 +60,11 @@ class MenuActionTest : HarpoonTestCase() {
     }
 
     fun `test(MenuClear) - should clear the menu when it's closed`() {
-        harpoonService.getPaths().shouldBeEmpty()
+        paths().shouldBeEmpty()
         menu.text.shouldBeEmpty()
 
         performHarpoonAction(HarpoonActions.FileAdd)
-        harpoonService.getPaths() shouldContainExactly listOf(dummyFiles[0].getProjectPath())
+        paths() shouldContainExactly listOf(dummyFiles[0].getProjectPath())
         menu.text.shouldBeEmpty()
 
         performHarpoonAction(HarpoonActions.QuickMenuOpen)
@@ -72,7 +72,7 @@ class MenuActionTest : HarpoonTestCase() {
 
         performHarpoonAction(HarpoonActions.QuickMenuToggle)
         performHarpoonAction(HarpoonActions.QuickMenuClear)
-        harpoonService.getPaths().shouldBeEmpty()
+        paths().shouldBeEmpty()
         menu.text.shouldNotBeEmpty()
 
         performHarpoonAction(HarpoonActions.QuickMenuOpen)
@@ -81,14 +81,14 @@ class MenuActionTest : HarpoonTestCase() {
 
     fun `test(MenuClear) - should clear the menu while it's open`() {
         performHarpoonAction(HarpoonActions.FileAdd)
-        harpoonService.getPaths().shouldNotBeEmpty()
+        paths().shouldNotBeEmpty()
 
         menu.text.shouldBeEmpty()
         performHarpoonAction(HarpoonActions.QuickMenuOpen)
         menu.text shouldBe dummyFiles[0].getProjectPath()
 
         performHarpoonAction(HarpoonActions.QuickMenuClear)
-        harpoonService.getPaths().shouldBeEmpty()
+        paths().shouldBeEmpty()
         menu.text.shouldBeEmpty()
     }
 }

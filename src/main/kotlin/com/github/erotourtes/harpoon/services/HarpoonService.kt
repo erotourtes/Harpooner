@@ -7,7 +7,6 @@ import com.github.erotourtes.harpoon.utils.FocusListener
 import com.github.erotourtes.harpoon.utils.State
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -18,7 +17,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import kotlinx.coroutines.*
 import org.jetbrains.annotations.TestOnly
 import kotlin.coroutines.ContinuationInterceptor
-import kotlin.coroutines.coroutineContext
 
 // TODO: folding builder
 // TODO: fix bug with folds not closing after opening a file
@@ -32,22 +30,20 @@ class HarpoonService(
 ) : Disposable {
     private val menu = QuickMenu(project, SettingsState.getInstance())
     private var state = State()
-    private val dispatcher = Dispatchers.Default.limitedParallelism(1)
-    @Volatile
-    private var pathsSnapshot: List<String> = emptyList()
+    private val serviceDispatcher = Dispatchers.Default.limitedParallelism(1)
     private val fileEditorManager = FileEditorManager.getInstance(project)
     private val log = Logger.getInstance(HarpoonService::class.java)
 
-    suspend fun init() = withServiceContext {
+    suspend fun init() = onServiceDispatcher {
         withContext(Dispatchers.EDT) {
             FilesRenameListener(this@HarpoonService) { oldPath, newPath ->
-                launch {
+                this@HarpoonService.launch {
                     onRenameFile(oldPath, newPath)
                 }
             }
             FocusListener(this@HarpoonService, menu::isMenuEditor)
             SettingsChangeListener(this@HarpoonService) {
-                launch {
+                this@HarpoonService.launch {
                     log.info("Settings changed")
                     menu.updateSettings(it)
                     menu.updateFile(getPaths())
@@ -57,44 +53,41 @@ class HarpoonService(
         syncWithMenu()
     }
 
-    suspend fun openMenu() = withServiceContext {
-        withSync {
+    suspend fun openMenu() = onServiceDispatcher {
+        withMenuSync {
             menu.open(getPaths())
         }
     }
 
-    suspend fun closeMenu() = withServiceContext {
-        withSync(syncWithMenuForce = true) {
+    suspend fun closeMenu() = onServiceDispatcher {
+        withMenuSync(syncWithMenuForce = true) {
             menu.close()
         }
     }
 
-    suspend fun toggleMenu() = withServiceContext {
+    suspend fun toggleMenu() = onServiceDispatcher {
         if (menu.isOpen()) closeMenu() else openMenu()
     }
 
-    suspend fun clearMenu() = withServiceContext {
-        withSync(syncWithMenu = false) {
+    suspend fun clearMenu() = onServiceDispatcher {
+        withMenuSync(syncWithMenu = false) {
             state.clear()
-            refreshPathsSnapshot()
         }
     }
 
-    suspend fun addFile(file: VirtualFile) = withServiceContext {
-        withSync {
+    suspend fun addFile(file: VirtualFile) = onServiceDispatcher {
+        withMenuSync {
             state.add(file.path)
-            refreshPathsSnapshot()
         }
     }
 
-    suspend fun removeFile(file: VirtualFile) = withServiceContext {
-        withSync {
+    suspend fun removeFile(file: VirtualFile) = onServiceDispatcher {
+        withMenuSync {
             state.remove(file.path)
-            refreshPathsSnapshot()
         }
     }
 
-    suspend fun toggleFile(file: VirtualFile) = withServiceContext {
+    suspend fun toggleFile(file: VirtualFile) = onServiceDispatcher {
         val path = file.path
         if (state.includes(path)) {
             removeFile(file)
@@ -103,21 +96,20 @@ class HarpoonService(
         }
     }
 
-    suspend fun openFile(index: Int) = withServiceContext {
-        withSync {
+    suspend fun openFile(index: Int) = onServiceDispatcher {
+        withMenuSync {
             openFileWithoutSync(index)
         }
     }
 
-    suspend fun replaceFile(index: Int, file: VirtualFile) = withServiceContext {
-        withSync {
+    suspend fun replaceFile(index: Int, file: VirtualFile) = onServiceDispatcher {
+        withMenuSync {
             state.replace(index, file.path)
-            refreshPathsSnapshot()
         }
     }
 
-    suspend fun nextFile() = withServiceContext {
-        withSync {
+    suspend fun nextFile() = onServiceDispatcher {
+        withMenuSync {
             val path = currentFilePath()
             val nextFileIndex = state.getNextIndexOf(path)
             if (nextFileIndex != -1) {
@@ -126,8 +118,8 @@ class HarpoonService(
         }
     }
 
-    suspend fun previousFile() = withServiceContext {
-        withSync {
+    suspend fun previousFile() = onServiceDispatcher {
+        withMenuSync {
             val path = currentFilePath()
             val nextFileIndex = state.getPrevIndexOf(path)
             if (nextFileIndex != -1) {
@@ -141,10 +133,12 @@ class HarpoonService(
         setPaths(paths)
     }
 
-    fun getPaths(): List<String> = pathsSnapshot
+    suspend fun getPaths(): List<String> = onServiceDispatcher {
+        state.paths
+    }
 
     fun launch(action: suspend HarpoonService.() -> Unit): Job {
-        val job = scope.launch(dispatcher) {
+        val job = scope.launch(serviceDispatcher) {
             try {
                 action()
             } catch (e: CancellationException) {
@@ -184,11 +178,6 @@ class HarpoonService(
 
     private fun setPaths(paths: List<String>) {
         state.set(paths)
-        refreshPathsSnapshot()
-    }
-
-    private fun refreshPathsSnapshot() {
-        pathsSnapshot = state.paths
     }
 
     private fun getFile(index: Int): VirtualFile? = state.getFile(index)
@@ -197,14 +186,12 @@ class HarpoonService(
         val isDeleteEvent = newPath == null
         if (isDeleteEvent) {
             state.remove(oldPath)
-            refreshPathsSnapshot()
         } else if (state.update(oldPath, newPath)) {
-            refreshPathsSnapshot()
             menu.updateFile(getPaths())
         }
     }
 
-    private suspend fun <T> withSync(
+    private suspend fun <T> withMenuSync(
         syncWithMenu: Boolean = true,
         syncWithMenuForce: Boolean = false,
         updateMenu: Boolean = true,
@@ -241,19 +228,6 @@ class HarpoonService(
 
     override fun dispose() {
         log.debug("dispose")
-        try {
-            val application = ApplicationManager.getApplication()
-            val paths = getPaths()
-            if (application.isDispatchThread) {
-                menu.updateFileOnEdt(paths)
-            } else {
-                application.invokeAndWait {
-                    menu.updateFileOnEdt(paths)
-                }
-            }
-        } catch (e: Exception) {
-            log.error("Filed to dispose the plugin", e)
-        }
     }
 
     @TestOnly
@@ -262,15 +236,15 @@ class HarpoonService(
     }
 
     @TestOnly
-    suspend fun awaitIdle() = withServiceContext {
+    suspend fun awaitIdle() = onServiceDispatcher {
         Unit
     }
 
-    private suspend fun <T> withServiceContext(action: suspend HarpoonService.() -> T): T {
-        if (coroutineContext[ContinuationInterceptor] === dispatcher) {
+    private suspend fun <T> onServiceDispatcher(action: suspend HarpoonService.() -> T): T {
+        if (currentCoroutineContext()[ContinuationInterceptor] === serviceDispatcher) {
             return action()
         }
-        return withContext(dispatcher) {
+        return withContext(serviceDispatcher) {
             action()
         }
     }

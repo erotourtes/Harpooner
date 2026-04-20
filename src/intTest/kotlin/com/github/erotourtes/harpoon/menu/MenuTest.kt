@@ -160,6 +160,6 @@ class MenuTest : HarpoonTestCase() {
             closeMenu()
         }
 
-        harpoonService.getPaths() shouldContainExactly listOf(tempFiles[7].path, tempFiles[8].path)
+        paths() shouldContainExactly listOf(tempFiles[7].path, tempFiles[8].path)
     }
 }

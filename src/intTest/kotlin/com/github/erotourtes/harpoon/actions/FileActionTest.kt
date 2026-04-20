@@ -8,19 +8,19 @@ import io.kotest.matchers.shouldBe
 @Suppress("FunctionName")
 class FileActionTest : HarpoonTestCase() {
     fun `test(FileAdd) - should add file to the menu`() {
-        harpoonService.getPaths() shouldHaveSize 0
+        paths() shouldHaveSize 0
 
         fixture.configureByFile(dummyFiles[0].relativeFilePath)
         performHarpoonAction(HarpoonActions.FileAdd)
 
 
-        harpoonService.getPaths() shouldContainExactly listOf(
+        paths() shouldContainExactly listOf(
             dummyFiles[0].getProjectPath(),
         )
     }
 
     fun `test(FileAdd) - should not add duplicate files to the menu`() {
-        harpoonService.getPaths() shouldHaveSize 0
+        paths() shouldHaveSize 0
 
         fixture.configureByFile(dummyFiles[0].relativeFilePath)
         performHarpoonAction(HarpoonActions.FileAdd)
@@ -32,24 +32,24 @@ class FileActionTest : HarpoonTestCase() {
         performHarpoonAction(HarpoonActions.FileAdd)
 
 
-        harpoonService.getPaths() shouldContainExactly listOf(
+        paths() shouldContainExactly listOf(
             dummyFiles[0].getProjectPath(),
             dummyFiles[1].getProjectPath()
         )
     }
 
     fun `test(FileRemove) - should add and remove file to the menu`() {
-        harpoonService.getPaths() shouldHaveSize 0
+        paths() shouldHaveSize 0
 
         fixture.configureByFile(dummyFiles[0].relativeFilePath)
         performHarpoonAction(HarpoonActions.FileAdd)
         performHarpoonAction(HarpoonActions.FileRemove)
 
-        harpoonService.getPaths().shouldBeEmpty()
+        paths().shouldBeEmpty()
     }
 
     fun `test(FileRemove) - should remove the first element form the list`() {
-        harpoonService.getPaths() shouldHaveSize 0
+        paths() shouldHaveSize 0
 
         fixture.configureByFile(dummyFiles[0].relativeFilePath)
         performHarpoonAction(HarpoonActions.FileAdd)
@@ -62,17 +62,17 @@ class FileActionTest : HarpoonTestCase() {
         performHarpoonAction(HarpoonActions.FileRemove)
 
 
-        harpoonService.getPaths() shouldContainExactly listOf(
+        paths() shouldContainExactly listOf(
             dummyFiles[1].getProjectPath(),
         )
     }
 
     fun `test(FileToggle) - should toggle the same file in the menu`() {
-        harpoonService.getPaths() shouldHaveSize 0
+        paths() shouldHaveSize 0
 
         fixture.configureByFile(dummyFiles[0].relativeFilePath)
         performHarpoonAction(HarpoonActions.FileToggle)
-        harpoonService.getPaths() shouldContainExactly listOf(dummyFiles[0].getProjectPath())
+        paths() shouldContainExactly listOf(dummyFiles[0].getProjectPath())
     }
 
     fun `test(FileXReplace) - should replace each file with the QuickMenu`() {
@@ -96,12 +96,12 @@ class FileActionTest : HarpoonTestCase() {
 
         performHarpoonAction(HarpoonActions.QuickMenuOpen)
 
-        harpoonService.getPaths().shouldNotBeEmpty()
-        harpoonService.getPaths().shouldNotContainDuplicates()
+        paths().shouldNotBeEmpty()
+        paths().shouldNotContainDuplicates()
 
         actions.forEachIndexed { index, action ->
             performHarpoonAction(action)
-            val curPath = harpoonService.getPaths()[index]
+            val curPath = paths()[index]
             val menuPath = getMenuHelper().path
 
             curPath shouldBe menuPath
