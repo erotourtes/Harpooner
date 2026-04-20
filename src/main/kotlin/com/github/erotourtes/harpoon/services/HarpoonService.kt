@@ -7,6 +7,7 @@ import com.github.erotourtes.harpoon.utils.FocusListener
 import com.github.erotourtes.harpoon.utils.State
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -16,6 +17,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import kotlinx.coroutines.*
 import org.jetbrains.annotations.TestOnly
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.coroutineContext
 
 // TODO: folding builder
 // TODO: fix bug with folds not closing after opening a file
@@ -29,51 +32,69 @@ class HarpoonService(
 ) : Disposable {
     private val menu = QuickMenu(project, SettingsState.getInstance())
     private var state = State()
+    private val dispatcher = Dispatchers.Default.limitedParallelism(1)
+    @Volatile
+    private var pathsSnapshot: List<String> = emptyList()
     private val fileEditorManager = FileEditorManager.getInstance(project)
     private val log = Logger.getInstance(HarpoonService::class.java)
 
-    suspend fun init() {
-        FilesRenameListener(this) { oldPath, newPath ->
-            launch {
-                onRenameFile(oldPath, newPath)
+    suspend fun init() = withServiceContext {
+        withContext(Dispatchers.EDT) {
+            FilesRenameListener(this@HarpoonService) { oldPath, newPath ->
+                launch {
+                    onRenameFile(oldPath, newPath)
+                }
             }
-        }
-        FocusListener(this, menu::isMenuEditor)
-        SettingsChangeListener(this) {
-            launch {
-                log.info("Settings changed")
-                menu.updateSettings(it)
-                menu.updateFile(getPaths())
+            FocusListener(this@HarpoonService, menu::isMenuEditor)
+            SettingsChangeListener(this@HarpoonService) {
+                launch {
+                    log.info("Settings changed")
+                    menu.updateSettings(it)
+                    menu.updateFile(getPaths())
+                }
             }
         }
         syncWithMenu()
     }
 
-    suspend fun openMenu() = withSync {
-        menu.open(getPaths())
+    suspend fun openMenu() = withServiceContext {
+        withSync {
+            menu.open(getPaths())
+        }
     }
 
-    suspend fun closeMenu() = withSync(syncWithMenuForce = true) {
-        menu.close()
+    suspend fun closeMenu() = withServiceContext {
+        withSync(syncWithMenuForce = true) {
+            menu.close()
+        }
     }
 
-    suspend fun toggleMenu() {
+    suspend fun toggleMenu() = withServiceContext {
         if (menu.isOpen()) closeMenu() else openMenu()
     }
 
-    suspend fun clearMenu() = withSync(syncWithMenu = false) {
-        state.clear()
+    suspend fun clearMenu() = withServiceContext {
+        withSync(syncWithMenu = false) {
+            state.clear()
+            refreshPathsSnapshot()
+        }
     }
 
-    suspend fun addFile(file: VirtualFile) = withSync {
-        state.add(file.path)
+    suspend fun addFile(file: VirtualFile) = withServiceContext {
+        withSync {
+            state.add(file.path)
+            refreshPathsSnapshot()
+        }
     }
 
-    suspend fun removeFile(file: VirtualFile) = withSync {
-        state.remove(file.path)
+    suspend fun removeFile(file: VirtualFile) = withServiceContext {
+        withSync {
+            state.remove(file.path)
+            refreshPathsSnapshot()
+        }
     }
 
-    suspend fun toggleFile(file: VirtualFile) {
+    suspend fun toggleFile(file: VirtualFile) = withServiceContext {
         val path = file.path
         if (state.includes(path)) {
             removeFile(file)
@@ -82,27 +103,36 @@ class HarpoonService(
         }
     }
 
-    suspend fun openFile(index: Int) = withSync {
-        openFileWithoutSync(index)
-    }
-
-    suspend fun replaceFile(index: Int, file: VirtualFile) = withSync {
-        state.replace(index, file.path)
-    }
-
-    suspend fun nextFile() = withSync {
-        val path = currentFilePath()
-        val nextFileIndex = state.getNextIndexOf(path)
-        if (nextFileIndex != -1) {
-            openFileWithoutSync(nextFileIndex)
+    suspend fun openFile(index: Int) = withServiceContext {
+        withSync {
+            openFileWithoutSync(index)
         }
     }
 
-    suspend fun previousFile() = withSync {
-        val path = currentFilePath()
-        val nextFileIndex = state.getPrevIndexOf(path)
-        if (nextFileIndex != -1) {
-            openFileWithoutSync(nextFileIndex)
+    suspend fun replaceFile(index: Int, file: VirtualFile) = withServiceContext {
+        withSync {
+            state.replace(index, file.path)
+            refreshPathsSnapshot()
+        }
+    }
+
+    suspend fun nextFile() = withServiceContext {
+        withSync {
+            val path = currentFilePath()
+            val nextFileIndex = state.getNextIndexOf(path)
+            if (nextFileIndex != -1) {
+                openFileWithoutSync(nextFileIndex)
+            }
+        }
+    }
+
+    suspend fun previousFile() = withServiceContext {
+        withSync {
+            val path = currentFilePath()
+            val nextFileIndex = state.getPrevIndexOf(path)
+            if (nextFileIndex != -1) {
+                openFileWithoutSync(nextFileIndex)
+            }
         }
     }
 
@@ -111,10 +141,10 @@ class HarpoonService(
         setPaths(paths)
     }
 
-    fun getPaths(): List<String> = state.paths
+    fun getPaths(): List<String> = pathsSnapshot
 
     fun launch(action: suspend HarpoonService.() -> Unit): Job {
-        val job = scope.launch {
+        val job = scope.launch(dispatcher) {
             try {
                 action()
             } catch (e: CancellationException) {
@@ -147,13 +177,19 @@ class HarpoonService(
     }
 
 
-    private fun currentFilePath(): String? {
+    private suspend fun currentFilePath(): String? = withContext(Dispatchers.EDT) {
         val currentFile = fileEditorManager.selectedEditor?.file
-        val currentFilePath = currentFile?.path
-        return currentFilePath
+        return@withContext currentFile?.path
     }
 
-    private fun setPaths(paths: List<String>): Unit = state.set(paths)
+    private fun setPaths(paths: List<String>) {
+        state.set(paths)
+        refreshPathsSnapshot()
+    }
+
+    private fun refreshPathsSnapshot() {
+        pathsSnapshot = state.paths
+    }
 
     private fun getFile(index: Int): VirtualFile? = state.getFile(index)
 
@@ -161,7 +197,9 @@ class HarpoonService(
         val isDeleteEvent = newPath == null
         if (isDeleteEvent) {
             state.remove(oldPath)
+            refreshPathsSnapshot()
         } else if (state.update(oldPath, newPath)) {
+            refreshPathsSnapshot()
             menu.updateFile(getPaths())
         }
     }
@@ -204,8 +242,14 @@ class HarpoonService(
     override fun dispose() {
         log.debug("dispose")
         try {
-            launch {
-                menu.updateFile(getPaths())
+            val application = ApplicationManager.getApplication()
+            val paths = getPaths()
+            if (application.isDispatchThread) {
+                menu.updateFileOnEdt(paths)
+            } else {
+                application.invokeAndWait {
+                    menu.updateFileOnEdt(paths)
+                }
             }
         } catch (e: Exception) {
             log.error("Filed to dispose the plugin", e)
@@ -215,5 +259,19 @@ class HarpoonService(
     @TestOnly
     fun getMenVf(): VirtualFile {
         return menu.virtualFile
+    }
+
+    @TestOnly
+    suspend fun awaitIdle() = withServiceContext {
+        Unit
+    }
+
+    private suspend fun <T> withServiceContext(action: suspend HarpoonService.() -> T): T {
+        if (coroutineContext[ContinuationInterceptor] === dispatcher) {
+            return action()
+        }
+        return withContext(dispatcher) {
+            action()
+        }
     }
 }

@@ -31,7 +31,7 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         projectInfo = ProjectInfo.from(virtualFile.path)
 
         foldsManager = FoldsManager(
-            projectInfo, ::isMenuFileOpenedWithCurEditor, {
+            projectInfo, ::isMenuFileOpenedWithCurEditorOnEdt, {
                 val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@FoldsManager null
                 val foldingModel = editor.foldingModel
                 return@FoldsManager foldingModel
@@ -62,8 +62,8 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         return this
     }
 
-    fun isOpen(): Boolean {
-        return fileEditorManager.isFileOpen(virtualFile)
+    suspend fun isOpen(): Boolean = withContext(Dispatchers.EDT) {
+        return@withContext fileEditorManager.isFileOpen(virtualFile)
     }
 
     suspend fun close() {
@@ -78,32 +78,40 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
     }
 
     suspend fun updateFile(content: List<String>): QuickMenu {
-        val processedContent = processor.process(content)
-        withContext(Dispatchers.EDT) {
-            runWriteAction {
-                val docManager = FileDocumentManager.getInstance()
-                val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+        return withContext(Dispatchers.EDT) {
+            updateFileOnEdt(content)
+        }
+    }
 
-                processedContent.joinToString("\n").let { document.setText(it) }
-                processedContent.forEachIndexed { index, it ->
-                    val line = document.getLineStartOffset(index)
-                    foldsManager.updateFoldsAt(line, it)
-                }
+    fun updateFileOnEdt(content: List<String>): QuickMenu {
+        val processedContent = processor.process(content)
+        runWriteAction {
+            val docManager = FileDocumentManager.getInstance()
+            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+
+            processedContent.joinToString("\n").let { document.setText(it) }
+            processedContent.forEachIndexed { index, it ->
+                val line = document.getLineStartOffset(index)
+                foldsManager.updateFoldsAt(line, it)
             }
         }
 
         return this
     }
 
-    private fun setCursorToEnd() {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+    private suspend fun setCursorToEnd() = withContext(Dispatchers.EDT) {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@withContext
         val caretModel = editor.caretModel
         val currentLineNumber = caretModel.logicalPosition.line
         val currentLineEndOffset = editor.document.getLineEndOffset(currentLineNumber)
         caretModel.moveToOffset(currentLineEndOffset)
     }
 
-    fun isMenuFileOpenedWithCurEditor(): Boolean {
+    suspend fun isMenuFileOpenedWithCurEditor(): Boolean = withContext(Dispatchers.EDT) {
+        return@withContext isMenuFileOpenedWithCurEditorOnEdt()
+    }
+
+    private fun isMenuFileOpenedWithCurEditorOnEdt(): Boolean {
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return false
         return isMenuEditor(editor)
     }

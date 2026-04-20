@@ -39,21 +39,28 @@ class ProjectOnStartListener : ProjectActivity {
             return@readAction FileDocumentManager.getInstance().getDocument(gitignoreVF)
         } ?: return
 
-        if (gitignoreDocument.text.contains(MENU_NAME)) return
+        val shouldUpdateGitignore = readAction {
+            !gitignoreDocument.text.contains(MENU_NAME)
+        }
+        if (!shouldUpdateGitignore) return
 
         try {
-            val endLine = gitignoreDocument.getLineEndOffset(gitignoreDocument.lineCount - 1)
-            CommandProcessor.getInstance().executeCommand(
-                project, {
-                    WriteCommandAction.runWriteCommandAction(project) {
-                        val message = """
-                            # $PLUGIN_NAME
-                            $MENU_NAME
-                        """.trimIndent()
-                        gitignoreDocument.insertString(endLine, message)
-                    }
-                }, PLUGIN_NAME, null
-            )
+            val endLine = readAction {
+                gitignoreDocument.getLineEndOffset(gitignoreDocument.lineCount - 1)
+            }
+            withContext(Dispatchers.EDT) {
+                CommandProcessor.getInstance().executeCommand(
+                    project, {
+                        WriteCommandAction.runWriteCommandAction(project) {
+                            val message = """
+                                # $PLUGIN_NAME
+                                $MENU_NAME
+                            """.trimIndent()
+                            gitignoreDocument.insertString(endLine, message)
+                        }
+                    }, PLUGIN_NAME, null
+                )
+            }
         } catch (e: Exception) {
             log.error(e.toString())
         }

@@ -2,12 +2,14 @@ package com.github.erotourtes.harpoon
 
 import com.github.erotourtes.harpoon.helpers.HarpoonActions
 import com.github.erotourtes.harpoon.services.HarpoonService
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
-import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import com.intellij.testFramework.utils.vfs.getDocument
+import kotlinx.coroutines.runBlocking
 
 abstract class HarpoonTestCase : BasePlatformTestCase() {
     protected lateinit var fixture: CodeInsightTestFixture
@@ -35,6 +37,11 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
 
     fun performHarpoonAction(action: HarpoonActions) {
         fixture.performEditorAction(action.actionName)
+        waitForHarpoonService()
+        repeat(3) {
+            PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
+            waitForHarpoonService()
+        }
     }
 
     val dummyFiles: Array<DummyFile> = Array(10) {
@@ -50,8 +57,8 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
     }
 
     override fun tearDown() {
-        WriteCommandAction.runWriteCommandAction(fixture.project) {
-            harpoonService.clearMenu()
+        runHarpoonServiceAction {
+            clearMenu()
         }
 
         super.tearDown()
@@ -60,6 +67,22 @@ abstract class HarpoonTestCase : BasePlatformTestCase() {
     override fun getBasePath(): String = "/src/intTest/resources/"
 
     override fun getTestDataPath(): String = System.getProperty("user.dir") + basePath
+
+    protected fun waitForHarpoonService() {
+        runHarpoonServiceAction {
+            awaitIdle()
+        }
+    }
+
+    protected fun runHarpoonServiceAction(action: suspend HarpoonService.() -> Unit) {
+        val future = ApplicationManager.getApplication().executeOnPooledThread {
+            runBlocking {
+                harpoonService.action()
+            }
+        }
+        PlatformTestUtil.waitWithEventsDispatching("Waiting for Harpoon service", { future.isDone }, 10_000)
+        future.get()
+    }
 }
 
 data class DummyFile(

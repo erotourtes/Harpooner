@@ -156,7 +156,9 @@ class MenuTest : HarpoonTestCase() {
         fixture.configureFromExistingVirtualFile(tempFiles[0])
         curOpenedFilePath shouldBe tempFiles[0].path
 
-        harpoonService.closeMenu()
+        runHarpoonServiceAction {
+            closeMenu()
+        }
 
         harpoonService.getPaths() shouldContainExactly listOf(tempFiles[7].path, tempFiles[8].path)
     }
