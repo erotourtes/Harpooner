@@ -9,8 +9,8 @@ import com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent
 import com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent
 
 class FilesRenameListener(
-    private val callback: (oldPath: String, newPath: String?) -> Unit,
     parentDisposable: Disposable,
+    private val callback: (oldPath: String, newPath: String?) -> Unit,
 ) {
     private val vfm = VirtualFileManager.getInstance()
     private val listener = AsyncListener()

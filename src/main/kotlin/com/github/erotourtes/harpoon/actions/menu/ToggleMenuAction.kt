@@ -9,6 +9,6 @@ class ToggleMenuAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val harpoonService = project.service<HarpoonService>()
-        harpoonService.toggleMenu()
+        harpoonService.launch { toggleMenu() }
     }
 }

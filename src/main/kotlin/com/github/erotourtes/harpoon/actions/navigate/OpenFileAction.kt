@@ -12,8 +12,10 @@ abstract class OpenFileAction : AnAction() {
         val project = event.project ?: return
         val harpoonService = project.service<HarpoonService>()
 
-        harpoonService.openFile(index()).onFailure {
-            notify(it.message ?: "Error opening file")
+        harpoonService.launch {
+            openFile(index()).onFailure {
+                notify(it.message ?: "Error opening file")
+            }
         }
     }
 }

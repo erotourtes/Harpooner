@@ -9,6 +9,6 @@ class ClearMenuAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val harpoonService = project.service<HarpoonService>()
-        harpoonService.clearMenu()
+        harpoonService.launch { clearMenu() }
     }
 }

@@ -3,7 +3,8 @@ package com.github.erotourtes.harpoon.utils.menu
 import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
-import com.intellij.openapi.application.runReadAction
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -11,6 +12,8 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -37,19 +40,21 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         processor = PathsProcessor(projectInfo, settings.toProcessorSettings())
     }
 
-    fun readLines(): List<String> = runReadAction {
+    suspend fun readLines(): List<String> = readAction {
         val docManager = FileDocumentManager.getInstance()
         val document = docManager.getDocument(virtualFile) ?: throw Error("Can't read file")
 
-        return@runReadAction document.text.split("\n").map { processor.unprocess(it) }
+        return@readAction document.text.split("\n").map { processor.unprocess(it) }
     }
 
-    fun open(paths: List<String>): QuickMenu {
+    suspend fun open(paths: List<String>): QuickMenu {
         val fileManager = FileEditorManager.getInstance(project)
 
         if (!virtualFile.isValid) initMenuFile()
 
-        fileManager.openFile(virtualFile, true)
+        withContext(Dispatchers.EDT) {
+            fileManager.openFile(virtualFile, true)
+        }
         updateFile(paths)
 //        foldsManager.collapseAllFolds()
         setCursorToEnd()
@@ -61,8 +66,10 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         return fileEditorManager.isFileOpen(virtualFile)
     }
 
-    fun close() {
-        fileEditorManager.closeFile(virtualFile)
+    suspend fun close() {
+        withContext(Dispatchers.EDT) {
+            fileEditorManager.closeFile(virtualFile)
+        }
     }
 
     fun updateSettings(settings: SettingsState) {
@@ -70,16 +77,18 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         processor.updateSettings(settings.toProcessorSettings())
     }
 
-    fun updateFile(content: List<String>): QuickMenu {
+    suspend fun updateFile(content: List<String>): QuickMenu {
         val processedContent = processor.process(content)
-        runWriteAction {
-            val docManager = FileDocumentManager.getInstance()
-            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+        withContext(Dispatchers.EDT) {
+            runWriteAction {
+                val docManager = FileDocumentManager.getInstance()
+                val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
 
-            processedContent.joinToString("\n").let { document.setText(it) }
-            processedContent.forEachIndexed { index, it ->
-                val line = document.getLineStartOffset(index)
-                foldsManager.updateFoldsAt(line, it)
+                processedContent.joinToString("\n").let { document.setText(it) }
+                processedContent.forEachIndexed { index, it ->
+                    val line = document.getLineStartOffset(index)
+                    foldsManager.updateFoldsAt(line, it)
+                }
             }
         }
 

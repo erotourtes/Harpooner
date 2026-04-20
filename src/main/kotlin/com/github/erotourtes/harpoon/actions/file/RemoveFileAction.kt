@@ -12,6 +12,6 @@ class RemoveFileAction : AnAction() {
         val harpoonService = HarpoonService.getInstance(project)
         val file = event.dataContext.getData(CommonDataKeys.PSI_FILE) ?: return notify("File or project is not defined")
 
-        harpoonService.removeFile(file.virtualFile)
+        harpoonService.launch { removeFile(file.virtualFile) }
     }
 }
