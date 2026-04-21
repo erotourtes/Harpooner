@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-04-22
+
+### Fixed
+
+- Plugin compatibility
+- Undo/redo of menu changes
+
+### Changed
+
+- Plugin service public methods use coroutines 
+
 ## [1.4.1] - 2025-12-30
 
 ### Added
