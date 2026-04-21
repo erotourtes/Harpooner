@@ -9,6 +9,7 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -32,8 +33,7 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
 
         foldsManager = FoldsManager(
             projectInfo, {
-                val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@FoldsManager null
-                if (!isMenuEditor(editor)) return@FoldsManager null
+                val editor = getMenuEditor() ?: return@FoldsManager null
                 val foldingModel = editor.foldingModel
                 return@FoldsManager foldingModel
             }, settings.toFoldsSettings()
@@ -48,7 +48,7 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         return@readAction document.text.split("\n").map { processor.unprocess(it) }
     }
 
-    suspend fun open(paths: List<String>): QuickMenu {
+    suspend fun open(): QuickMenu {
         val fileManager = FileEditorManager.getInstance(project)
 
         if (!virtualFile.isValid) initMenuFile()
@@ -56,8 +56,6 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         withContext(Dispatchers.EDT) {
             fileManager.openFile(virtualFile, true)
         }
-        updateFile(paths)
-//        foldsManager.collapseAllFolds()
         setCursorToEnd()
 
         return this
@@ -99,7 +97,7 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
     }
 
     private suspend fun setCursorToEnd() = withContext(Dispatchers.EDT) {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@withContext
+        val editor = getMenuEditor() ?: return@withContext
         val caretModel = editor.caretModel
         val currentLineNumber = caretModel.logicalPosition.line
         val currentLineEndOffset = editor.document.getLineEndOffset(currentLineNumber)
@@ -114,6 +112,13 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
     fun isMenuEditor(editor: Editor): Boolean {
         val editorFilePath = FileDocumentManager.getInstance().getFile(editor.document)?.path ?: return false
         return editorFilePath == virtualFile.path
+    }
+
+    private fun getMenuEditor(): Editor? {
+        return fileEditorManager.getEditors(virtualFile)
+            .filterIsInstance<TextEditor>()
+            .firstOrNull()
+            ?.editor
     }
 
     private fun initMenuFile() {

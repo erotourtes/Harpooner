@@ -55,7 +55,7 @@ class HarpoonService(
 
     suspend fun openMenu() = onServiceDispatcher {
         withMenuSync {
-            menu.open(state.paths)
+            menu.open()
         }
     }
 
@@ -244,7 +244,5 @@ class HarpoonService(
     }
 
     @TestOnly
-    suspend fun awaitIdle() = onServiceDispatcher {
-        Unit
-    }
+    suspend fun awaitIdle() = onServiceDispatcher {}
 }
