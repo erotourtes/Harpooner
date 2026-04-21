@@ -1,7 +1,7 @@
 package com.github.erotourtes.harpoon.actions.file
 
-import com.github.erotourtes.harpoon.utils.notify
 import com.github.erotourtes.harpoon.services.HarpoonService
+import com.github.erotourtes.harpoon.utils.notify
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -12,6 +12,6 @@ class ToggleFileAction : AnAction() {
         val harpoonService = HarpoonService.getInstance(project)
         val file = event.dataContext.getData(CommonDataKeys.PSI_FILE) ?: return notify("File or project is not defined")
 
-        harpoonService.toggleFile(file.virtualFile)
+        harpoonService.launch { toggleFile(file.virtualFile) }
     }
 }

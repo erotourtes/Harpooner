@@ -32,7 +32,7 @@ class FocusListener(private val harpoonService: HarpoonService, private val isMe
         if (!isHarpoonerPrevFocused || isRefocusOnMenu) return
 
         log.info("Close menu")
-        harpoonService.closeMenu()
+        harpoonService.launch { closeMenu() }
         isHarpoonerPrevFocused = false
     }
 

@@ -14,7 +14,7 @@ abstract class ReplaceFileAction : AnAction() {
         val harpoonService = project.service<HarpoonService>()
         val file = event.dataContext.getData(CommonDataKeys.PSI_FILE) ?: return notify("File or project is not defined")
 
-        harpoonService.replaceFile(index(), file.virtualFile)
+        harpoonService.launch { replaceFile(index(), file.virtualFile) }
     }
 }
 

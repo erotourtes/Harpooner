@@ -72,7 +72,7 @@ class NavigateActionTest : HarpoonTestCase() {
     fun `test(FileOpenNext) - should open the next file ignoring empty records`() {
         fixture.configureFromExistingVirtualFile(tempFiles[1])
         performHarpoonAction(HarpoonActions.File2Replace)
-        harpoonService.getPaths()[1].shouldBeEmpty()
+        paths()[1].shouldBeEmpty()
 
 
         fixture.configureFromExistingVirtualFile(tempFiles[0])
@@ -98,7 +98,7 @@ class NavigateActionTest : HarpoonTestCase() {
     fun `test(FileOpenPrevious) - should open the previous file ignoring empty records`() {
         fixture.configureFromExistingVirtualFile(tempFiles[1])
         performHarpoonAction(HarpoonActions.File2Replace)
-        harpoonService.getPaths()[1].shouldBeEmpty()
+        paths()[1].shouldBeEmpty()
 
 
         fixture.configureFromExistingVirtualFile(tempFiles[1])

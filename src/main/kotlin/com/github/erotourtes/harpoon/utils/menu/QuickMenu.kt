@@ -3,14 +3,18 @@ package com.github.erotourtes.harpoon.utils.menu
 import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
-import com.intellij.openapi.application.runReadAction
-import com.intellij.openapi.application.runWriteAction
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.readAction
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -28,8 +32,8 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         projectInfo = ProjectInfo.from(virtualFile.path)
 
         foldsManager = FoldsManager(
-            projectInfo, ::isMenuFileOpenedWithCurEditor, {
-                val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@FoldsManager null
+            projectInfo, {
+                val editor = getMenuEditor() ?: return@FoldsManager null
                 val foldingModel = editor.foldingModel
                 return@FoldsManager foldingModel
             }, settings.toFoldsSettings()
@@ -37,32 +41,34 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         processor = PathsProcessor(projectInfo, settings.toProcessorSettings())
     }
 
-    fun readLines(): List<String> = runReadAction {
+    suspend fun readLines(): List<String> = readAction {
         val docManager = FileDocumentManager.getInstance()
         val document = docManager.getDocument(virtualFile) ?: throw Error("Can't read file")
 
-        return@runReadAction document.text.split("\n").map { processor.unprocess(it) }
+        return@readAction document.text.split("\n").map { processor.unprocess(it) }
     }
 
-    fun open(paths: List<String>): QuickMenu {
+    suspend fun open(): QuickMenu {
         val fileManager = FileEditorManager.getInstance(project)
 
         if (!virtualFile.isValid) initMenuFile()
 
-        fileManager.openFile(virtualFile, true)
-        updateFile(paths)
-//        foldsManager.collapseAllFolds()
+        withContext(Dispatchers.EDT) {
+            fileManager.openFile(virtualFile, true)
+        }
         setCursorToEnd()
 
         return this
     }
 
-    fun isOpen(): Boolean {
-        return fileEditorManager.isFileOpen(virtualFile)
+    suspend fun isOpen(): Boolean = withContext(Dispatchers.EDT) {
+        return@withContext fileEditorManager.isFileOpen(virtualFile)
     }
 
-    fun close() {
-        fileEditorManager.closeFile(virtualFile)
+    suspend fun close() {
+        withContext(Dispatchers.EDT) {
+            fileEditorManager.closeFile(virtualFile)
+        }
     }
 
     fun updateSettings(settings: SettingsState) {
@@ -70,38 +76,49 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         processor.updateSettings(settings.toProcessorSettings())
     }
 
-    fun updateFile(content: List<String>): QuickMenu {
+    suspend fun updateFile(content: List<String>): QuickMenu {
         val processedContent = processor.process(content)
-        runWriteAction {
-            val docManager = FileDocumentManager.getInstance()
-            val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+        withContext(Dispatchers.EDT) {
+            WriteCommandAction.runWriteCommandAction(project) {
+                val docManager = FileDocumentManager.getInstance()
+                val document = docManager.getDocument(virtualFile) ?: return@runWriteCommandAction
 
-            processedContent.joinToString("\n").let { document.setText(it) }
-            processedContent.forEachIndexed { index, it ->
-                val line = document.getLineStartOffset(index)
-                foldsManager.updateFoldsAt(line, it)
+                processedContent.joinToString("\n").let {
+                    document.replaceString(0, document.textLength, it)
+                }
+                processedContent.forEachIndexed { index, it ->
+                    val line = document.getLineStartOffset(index)
+                    foldsManager.updateFoldsAt(line, it)
+                }
             }
         }
 
         return this
     }
 
-    private fun setCursorToEnd() {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+    private suspend fun setCursorToEnd() = withContext(Dispatchers.EDT) {
+        val editor = getMenuEditor() ?: return@withContext
         val caretModel = editor.caretModel
         val currentLineNumber = caretModel.logicalPosition.line
         val currentLineEndOffset = editor.document.getLineEndOffset(currentLineNumber)
         caretModel.moveToOffset(currentLineEndOffset)
     }
 
-    fun isMenuFileOpenedWithCurEditor(): Boolean {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return false
-        return isMenuEditor(editor)
+    suspend fun isMenuFileOpenedWithCurEditor(): Boolean = withContext(Dispatchers.EDT) {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@withContext false
+        return@withContext isMenuEditor(editor)
     }
 
     fun isMenuEditor(editor: Editor): Boolean {
         val editorFilePath = FileDocumentManager.getInstance().getFile(editor.document)?.path ?: return false
         return editorFilePath == virtualFile.path
+    }
+
+    private fun getMenuEditor(): Editor? {
+        return fileEditorManager.getEditors(virtualFile)
+            .filterIsInstance<TextEditor>()
+            .firstOrNull()
+            ?.editor
     }
 
     private fun initMenuFile() {

@@ -7,14 +7,11 @@ import org.intellij.markdown.lexer.push
 
 class FoldsManager(
     private val projectInfo: ProjectInfo,
-    private val isInRightEditor: () -> Boolean,
     private val getFoldingModel: () -> FoldingModel?,
     private var settings: Settings,
 ) {
 
     fun updateFoldsAt(line: Int, str: String) {
-        if (!isInRightEditor()) return
-
         val foldingModel = getFoldingModel() ?: return
         val newFolds = getFoldsFrom(line, str)
 
@@ -27,7 +24,7 @@ class FoldsManager(
                 val foldAlreadyInLine = curLineFolds.find { it.startOffset == start && it.endOffset == end }
                 if (foldAlreadyInLine != null) {
                     curLineFolds.remove(foldAlreadyInLine)
-//                    foldAlreadyInLine.isExpanded = false
+                    foldAlreadyInLine.isExpanded = false
                     continue
                 }
 
