@@ -38,10 +38,8 @@ class ProjectOnStartListener : ProjectActivity {
             return@readAction FileDocumentManager.getInstance().getDocument(gitignoreVF)
         } ?: return
 
-        val shouldUpdateGitignore = readAction {
-            !gitignoreDocument.text.contains(MENU_NAME)
-        }
-        if (!shouldUpdateGitignore) return
+        val isAlreadyIgnored = readAction { gitignoreDocument.text.contains(MENU_NAME) }
+        if (isAlreadyIgnored) return
 
         try {
             val insertOffset = readAction {
@@ -49,12 +47,7 @@ class ProjectOnStartListener : ProjectActivity {
             }
             withContext(Dispatchers.EDT) {
                 WriteCommandAction.runWriteCommandAction(project, PLUGIN_NAME, null, {
-                    val prefix =
-                        if (gitignoreDocument.text.endsWith("\n") || gitignoreDocument.text.isEmpty()) "" else "\n"
-                    val message = """
-                        ${prefix}# $PLUGIN_NAME
-                        $MENU_NAME
-                    """.trimIndent()
+                    val message = buildGitignoreMessage(gitignoreDocument.text)
                     gitignoreDocument.insertString(insertOffset, message)
                 })
             }
@@ -71,4 +64,9 @@ class ProjectOnStartListener : ProjectActivity {
         if (ideaPath.isEmpty()) return null
         return "$ideaPath/$IDEA_PROJECT_FOLDER/$GITIGNORE"
     }
+}
+
+internal fun buildGitignoreMessage(currentText: String): String {
+    val prefix = if (currentText.endsWith("\n") || currentText.isEmpty()) "" else "\n"
+    return "${prefix}# $PLUGIN_NAME\n$MENU_NAME"
 }
