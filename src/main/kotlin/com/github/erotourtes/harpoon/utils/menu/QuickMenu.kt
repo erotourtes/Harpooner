@@ -5,7 +5,7 @@ import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
-import com.intellij.openapi.application.runWriteAction
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -81,11 +81,13 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
     suspend fun updateFile(content: List<String>): QuickMenu {
         val processedContent = processor.process(content)
         withContext(Dispatchers.EDT) {
-            runWriteAction {
+            WriteCommandAction.runWriteCommandAction(project) {
                 val docManager = FileDocumentManager.getInstance()
-                val document = docManager.getDocument(virtualFile) ?: return@runWriteAction
+                val document = docManager.getDocument(virtualFile) ?: return@runWriteCommandAction
 
-                processedContent.joinToString("\n").let { document.setText(it) }
+                processedContent.joinToString("\n").let {
+                    document.replaceString(0, document.textLength, it)
+                }
                 processedContent.forEachIndexed { index, it ->
                     val line = document.getLineStartOffset(index)
                     foldsManager.updateFoldsAt(line, it)

@@ -8,7 +8,6 @@ import com.github.erotourtes.harpoon.utils.MENU_NAME
 import com.github.erotourtes.harpoon.utils.PLUGIN_NAME
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
-import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -45,21 +44,19 @@ class ProjectOnStartListener : ProjectActivity {
         if (!shouldUpdateGitignore) return
 
         try {
-            val endLine = readAction {
-                gitignoreDocument.getLineEndOffset(gitignoreDocument.lineCount - 1)
+            val insertOffset = readAction {
+                gitignoreDocument.textLength
             }
             withContext(Dispatchers.EDT) {
-                CommandProcessor.getInstance().executeCommand(
-                    project, {
-                        WriteCommandAction.runWriteCommandAction(project) {
-                            val message = """
-                                # $PLUGIN_NAME
-                                $MENU_NAME
-                            """.trimIndent()
-                            gitignoreDocument.insertString(endLine, message)
-                        }
-                    }, PLUGIN_NAME, null
-                )
+                WriteCommandAction.runWriteCommandAction(project, PLUGIN_NAME, null, {
+                    val prefix =
+                        if (gitignoreDocument.text.endsWith("\n") || gitignoreDocument.text.isEmpty()) "" else "\n"
+                    val message = """
+                        ${prefix}# $PLUGIN_NAME
+                        $MENU_NAME
+                    """.trimIndent()
+                    gitignoreDocument.insertString(insertOffset, message)
+                })
             }
         } catch (e: Exception) {
             log.error(e.toString())
