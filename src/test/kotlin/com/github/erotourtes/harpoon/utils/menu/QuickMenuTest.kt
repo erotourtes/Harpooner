@@ -2,8 +2,8 @@ package com.github.erotourtes.harpoon.utils.menu
 
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
-import io.kotest.matchers.booleans.shouldBeTrue
-import io.kotest.matchers.equals.shouldBeEqual
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
@@ -21,10 +21,10 @@ class QuickMenuTest {
         val menuFile = getOrCreateMenuFile(projectFilePath)
         val tmpDirPath = System.getProperty("java.io.tmpdir")
 
-        menuFile.exists().shouldBeTrue()
-        Files.notExists(projectDir.resolve(IDEA_PROJECT_FOLDER)).shouldBeTrue()
-        menuFile.path.startsWith(tmpDirPath).shouldBeTrue()
-        menuFile.name.startsWith(MENU_NAME).shouldBeTrue()
+        assertTrue(menuFile.exists())
+        assertTrue(Files.notExists(projectDir.resolve(IDEA_PROJECT_FOLDER)))
+        assertTrue(menuFile.path.startsWith(tmpDirPath))
+        assertTrue(menuFile.name.startsWith(MENU_NAME))
     }
 
     @Test
@@ -37,7 +37,7 @@ class QuickMenuTest {
         val menuFile = getOrCreateMenuFile(projectFilePath)
         val expectedPath = ideaDir.resolve(MENU_NAME).toString()
 
-        menuFile.exists().shouldBeTrue()
-        menuFile.path shouldBeEqual expectedPath
+        assertTrue(menuFile.exists())
+        assertEquals(expectedPath, menuFile.path)
     }
 }

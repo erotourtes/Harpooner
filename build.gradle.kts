@@ -44,7 +44,7 @@ val intTestRuntimeOnly: Configuration = configurations[intTest.runtimeOnlyConfig
 dependencies {
     testImplementation(libs.mockito.core)
     testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.kotest.assertions.core)
+//    testImplementation(libs.kotest.assertions.core)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.junit.jupiter.params)
     testRuntimeOnly(libs.junit.platform.launcher)
