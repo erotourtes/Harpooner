@@ -11,7 +11,8 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
+import com.intellij.openapi.fileEditor.impl.FileEditorOpenOptions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import kotlinx.coroutines.*
@@ -31,7 +32,7 @@ class HarpoonService(
     private val menu = QuickMenu(project, SettingsState.getInstance())
     private var state = State()
     private val serviceDispatcher = Dispatchers.Default.limitedParallelism(1)
-    private val fileEditorManager = FileEditorManager.getInstance(project)
+    private val fileEditorManager = FileEditorManagerEx.getInstanceEx(project)
     private val log = Logger.getInstance(HarpoonService::class.java)
 
     suspend fun init() = onServiceDispatcher {
@@ -157,7 +158,7 @@ class HarpoonService(
                 openMenu()
             } else {
                 withContext(Dispatchers.EDT) {
-                    fileEditorManager.openFile(file, true)
+                    fileEditorManager.openFile(file, FileEditorOpenOptions(requestFocus = true))
                 }
             }
         } catch (e: Exception) {
