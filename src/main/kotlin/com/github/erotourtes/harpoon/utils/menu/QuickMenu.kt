@@ -10,6 +10,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
+import com.intellij.openapi.fileEditor.impl.FileEditorOpenOptions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -49,12 +51,13 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
     }
 
     suspend fun open(): QuickMenu {
-        val fileManager = FileEditorManager.getInstance(project)
+        val fileManager = FileEditorManagerEx.getInstanceEx(project)
 
         if (!virtualFile.isValid) initMenuFile()
 
         withContext(Dispatchers.EDT) {
-            fileManager.openFile(virtualFile, true)
+            // Await opening before looking up the menu editor and moving its caret.
+            fileManager.openFile(virtualFile, FileEditorOpenOptions(requestFocus = true))
         }
         setCursorToEnd()
 

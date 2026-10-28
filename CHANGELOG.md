@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Use suspending file-opening APIs for bookmarked files and the quick menu.
+
 ## [1.4.2] - 2026-04-22
 
 ### Fixed
