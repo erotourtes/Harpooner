@@ -6,6 +6,10 @@
 
 ### Changed
 
+- Require IntelliJ Platform 2026.2 (build 262) and Java 25; target IntelliJ IDEA 2026.2.3.
+- Align Gradle, Kotlin, IntelliJ Platform tooling, and CI workflows with the JetBrains template.
+- Update IdeaVim, Qodana, and Kover while retaining inspections and coverage reporting.
+
 - Use suspending file-opening APIs for bookmarked files and the quick menu.
 
 ## [1.4.2] - 2026-04-22

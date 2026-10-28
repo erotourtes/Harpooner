@@ -1,15 +1,15 @@
 [versions]
 # libraries
 junit = "5.10.1"
-mockito = "5.10.0"
+mockito = "5.24.0"
 kotest = "6.0.7"
 
 # plugins
-kotlin = "2.2.21"
+kotlin = "2.4.21"
 changelog = "2.5.0"
-intelliJPlatform = "2.10.5"
-qodana = "2025.2.2"
-kover = "0.9.3"
+intelliJPlatform = "2.19.0"
+qodana = "2026.2.2"
+kover = "0.9.11"
 
 [libraries]
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
