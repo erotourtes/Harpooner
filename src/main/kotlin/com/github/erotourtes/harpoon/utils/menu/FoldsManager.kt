@@ -24,7 +24,6 @@ class FoldsManager(
                 val foldAlreadyInLine = curLineFolds.find { it.startOffset == start && it.endOffset == end }
                 if (foldAlreadyInLine != null) {
                     curLineFolds.remove(foldAlreadyInLine)
-//                    foldAlreadyInLine.isExpanded = false
                     continue
                 }
 
@@ -43,8 +42,7 @@ class FoldsManager(
     }
 
 //    fun collapseAllFolds() {
-//        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-//        val foldingModel = editor.foldingModel
+//        val foldingModel = getFoldingModel() ?: return
 //
 //        foldingModel.runBatchFoldingOperation {
 //            foldingModel.allFoldRegions.forEach { it.isExpanded = false }
