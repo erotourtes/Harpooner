@@ -14,21 +14,19 @@ plugins {
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
 
-// Set the JVM language level used to build the project. Use Java 11 for 2020.3+, and Java 17 for 2022.2+.
+// IntelliJ Platform 2026.2 requires Java 25.
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
-// Configure project's dependencies
 repositories {
     mavenCentral()
-
     intellijPlatform {
         defaultRepositories()
     }
 }
 
-val intTest: SourceSet by sourceSets.creating {
+val intTest = sourceSets.create("intTest") {
     kotlin.setSrcDirs(listOf("src/intTest/kotlin"))
     resources.setSrcDirs(listOf("src/intTest/resources"))
 
@@ -74,6 +72,7 @@ dependencies {
         bundledModules(providers.gradleProperty("platformBundledModules").map { it.split(',') })
 
         testFramework(TestFrameworkType.Platform)
+        testBundledPlugins("com.intellij.modules.ultimate")
     }
 }
 
@@ -191,7 +190,12 @@ tasks {
     }
 }
 
-val intTestTask by intellijPlatformTesting.testIde.registering {
+val intTestTask = intellijPlatformTesting.testIde.register("intTestTask") {
+    testFramework(TestFrameworkType.Platform)
+    plugins {
+        bundledPlugin("com.intellij.modules.ultimate")
+    }
+
     task {
         group = "verification"
         description = "Runs IntelliJ in-process integration tests (BasePlatformTestCase)"
