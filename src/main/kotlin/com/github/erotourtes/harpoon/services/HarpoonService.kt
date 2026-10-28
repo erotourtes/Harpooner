@@ -5,14 +5,14 @@ import com.github.erotourtes.harpoon.settings.SettingsChangeListener
 import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.FocusListener
 import com.github.erotourtes.harpoon.utils.State
+import com.github.erotourtes.harpoon.utils.openFileInEditor
 import com.github.erotourtes.harpoon.utils.menu.QuickMenu
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
-import com.intellij.openapi.fileEditor.impl.FileEditorOpenOptions
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import kotlinx.coroutines.*
@@ -26,13 +26,13 @@ import kotlin.coroutines.ContinuationInterceptor
 
 @Service(Service.Level.PROJECT)
 class HarpoonService(
-    project: Project,
+    private val project: Project,
     private val scope: CoroutineScope,
 ) : Disposable {
     private val menu = QuickMenu(project, SettingsState.getInstance())
     private var state = State()
     private val serviceDispatcher = Dispatchers.Default.limitedParallelism(1)
-    private val fileEditorManager = FileEditorManagerEx.getInstanceEx(project)
+    private val fileEditorManager = FileEditorManager.getInstance(project)
     private val log = Logger.getInstance(HarpoonService::class.java)
 
     suspend fun init() = onServiceDispatcher {
@@ -157,9 +157,7 @@ class HarpoonService(
             if (file.path == menu.virtualFile.path) {
                 openMenu()
             } else {
-                withContext(Dispatchers.EDT) {
-                    fileEditorManager.openFile(file, FileEditorOpenOptions(requestFocus = true))
-                }
+                openFileInEditor(project, file)
             }
         } catch (e: Exception) {
             throw Exception("Can't find file. It might be deleted", e)

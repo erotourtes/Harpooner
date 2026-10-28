@@ -3,6 +3,7 @@ package com.github.erotourtes.harpoon.utils.menu
 import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
+import com.github.erotourtes.harpoon.utils.openFileInEditor
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.command.WriteCommandAction
@@ -11,8 +12,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
-import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
-import com.intellij.openapi.fileEditor.impl.FileEditorOpenOptions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -52,16 +51,14 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
     }
 
     suspend fun open(content: List<String>): QuickMenu {
-        val fileManager = FileEditorManagerEx.getInstanceEx(project)
-
         if (!virtualFile.isValid) initMenuFile()
 
         // Populate the document before opening it so the editor starts with current content.
         updateFile(content)
+        openFileInEditor(project, virtualFile)
         withContext(Dispatchers.EDT) {
-            fileManager.openFile(virtualFile, FileEditorOpenOptions(requestFocus = true))
             val editor = getMenuEditor() ?: return@withContext
-            fileManager.runWhenLoaded(editor) {
+            fileEditorManager.runWhenLoaded(editor) {
                 if (!editor.isDisposed) {
                     setCursorToEnd(editor)
                     updateFolds(editor.document)
