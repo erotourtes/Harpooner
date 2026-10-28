@@ -2,6 +2,8 @@ package com.github.erotourtes.harpoon.actions
 
 import com.github.erotourtes.harpoon.HarpoonTestCase
 import com.github.erotourtes.harpoon.helpers.HarpoonActions
+import com.intellij.openapi.application.runWriteAction
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import io.kotest.matchers.shouldBe
@@ -67,6 +69,20 @@ class NavigateActionTest : HarpoonTestCase() {
         performHarpoonAction(HarpoonActions.FileOpenNext)
 
         curOpenedFilePath shouldBe tempFiles[0].path
+    }
+
+    fun `test(FileXOpen) - should preserve the bookmarked editor caret`() {
+        fixture.configureFromExistingVirtualFile(tempFiles[0])
+        runWriteAction {
+            fixture.editor.document.setText("first line\nsecond line\nthird line")
+        }
+        fixture.editor.caretModel.moveToOffset(15)
+
+        performHarpoonAction(HarpoonActions.QuickMenuOpen)
+        performHarpoonAction(HarpoonActions.File0Open)
+
+        curOpenedFilePath shouldBe tempFiles[0].path
+        FileEditorManager.getInstance(project).selectedTextEditor!!.caretModel.offset shouldBe 15
     }
 
     fun `test(FileOpenNext) - should open the next file ignoring empty records`() {
