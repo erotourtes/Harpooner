@@ -7,6 +7,7 @@
 ### Changed
 
 - Use suspending file-opening APIs for bookmarked files and the quick menu.
+- Populate the menu before opening its editor and avoid rewriting unchanged content.
 
 ## [1.4.2] - 2026-04-22
 

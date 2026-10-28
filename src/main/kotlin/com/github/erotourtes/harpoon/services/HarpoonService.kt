@@ -55,8 +55,8 @@ class HarpoonService(
     }
 
     suspend fun openMenu() = onServiceDispatcher {
-        withMenuSync {
-            menu.open()
+        withMenuSync(updateMenu = false) {
+            menu.open(state.paths)
         }
     }
 

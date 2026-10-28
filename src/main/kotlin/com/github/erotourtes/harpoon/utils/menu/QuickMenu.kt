@@ -6,6 +6,7 @@ import com.github.erotourtes.harpoon.utils.MENU_NAME
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -50,16 +51,25 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         return@readAction document.text.split("\n").map { processor.unprocess(it) }
     }
 
-    suspend fun open(): QuickMenu {
+    suspend fun open(content: List<String>): QuickMenu {
         val fileManager = FileEditorManagerEx.getInstanceEx(project)
 
         if (!virtualFile.isValid) initMenuFile()
 
+        // Populate the document before opening it so the editor starts with current content.
+        updateFile(content)
         withContext(Dispatchers.EDT) {
-            // Await opening before looking up the menu editor and moving its caret.
             fileManager.openFile(virtualFile, FileEditorOpenOptions(requestFocus = true))
+            val editor = getMenuEditor() ?: return@withContext
+            fileManager.runWhenLoaded(editor) {
+                if (!editor.isDisposed) {
+                    setCursorToEnd(editor)
+                    updateFolds(editor.document)
+                    // Disabled until the cause of automatic re-expansion is understood.
+                    // foldsManager.collapseAllFolds()
+                }
+            }
         }
-        setCursorToEnd()
 
         return this
     }
@@ -86,21 +96,27 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
                 val docManager = FileDocumentManager.getInstance()
                 val document = docManager.getDocument(virtualFile) ?: return@runWriteCommandAction
 
-                processedContent.joinToString("\n").let {
-                    document.replaceString(0, document.textLength, it)
+                val text = processedContent.joinToString("\n")
+                if (document.text != text) {
+                    document.replaceString(0, document.textLength, text)
                 }
-                processedContent.forEachIndexed { index, it ->
-                    val line = document.getLineStartOffset(index)
-                    foldsManager.updateFoldsAt(line, it)
-                }
+                updateFolds(document)
             }
         }
 
         return this
     }
 
-    private suspend fun setCursorToEnd() = withContext(Dispatchers.EDT) {
-        val editor = getMenuEditor() ?: return@withContext
+    private fun updateFolds(document: Document) {
+        for (line in 0 until document.lineCount) {
+            val start = document.getLineStartOffset(line)
+            val end = document.getLineEndOffset(line)
+            val str = document.charsSequence.subSequence(start, end).toString()
+            foldsManager.updateFoldsAt(start, str)
+        }
+    }
+
+    private fun setCursorToEnd(editor: Editor) {
         val caretModel = editor.caretModel
         val currentLineNumber = caretModel.logicalPosition.line
         val currentLineEndOffset = editor.document.getLineEndOffset(currentLineNumber)

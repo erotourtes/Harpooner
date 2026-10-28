@@ -3,6 +3,10 @@ package com.github.erotourtes.harpoon.actions
 import com.github.erotourtes.harpoon.HarpoonTestCase
 import com.github.erotourtes.harpoon.MenuHelper
 import com.github.erotourtes.harpoon.helpers.HarpoonActions
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerListener
+import com.intellij.openapi.vfs.VirtualFile
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotBeEmpty
@@ -29,6 +33,42 @@ class MenuActionTest : HarpoonTestCase() {
         curOpenedFilename shouldBe menu.name
     }
 
+    fun `test(MenuOpen) - should populate the menu before opening the editor`() {
+        performHarpoonAction(HarpoonActions.FileAdd)
+        var textWhenOpened: String? = null
+        project.messageBus.connect(testRootDisposable).subscribe(
+            FileEditorManagerListener.FILE_EDITOR_MANAGER,
+            object : FileEditorManagerListener {
+                override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
+                    if (file == harpoonService.getMenVf()) {
+                        textWhenOpened = FileDocumentManager.getInstance().getDocument(file)?.text
+                    }
+                }
+            }
+        )
+
+        performHarpoonAction(HarpoonActions.QuickMenuOpen)
+
+        textWhenOpened shouldBe dummyFiles[0].getProjectPath()
+    }
+
+    fun `test(MenuOpen) - should preserve manually expanded folds during an unchanged update`() {
+        openMenuWithFoldableFile()
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor!!
+        val foldingModel = editor.foldingModel
+        foldingModel.allFoldRegions.toList().shouldNotBeEmpty()
+        foldingModel.runBatchFoldingOperation {
+            foldingModel.allFoldRegions.forEach { it.isExpanded = true }
+        }
+        val modificationStamp = editor.document.modificationStamp
+        val bookmarkedFile = fixture.findFileInTempDir("src/main/kotlin/com/example/Folded.kt")!!
+
+        runHarpoonServiceAction { replaceFile(0, bookmarkedFile) }
+
+        editor.document.modificationStamp shouldBe modificationStamp
+        foldingModel.allFoldRegions.all { it.isExpanded } shouldBe true
+    }
+
     fun `test(MenuOpen) - should not open menu once opened`() {
         curOpenedFilename shouldNotBe menu.name
 
@@ -47,6 +87,28 @@ class MenuActionTest : HarpoonTestCase() {
 
         performHarpoonAction(HarpoonActions.QuickMenuToggle)
         curOpenedFilename shouldNotBe menu.name
+    }
+
+    fun `test(MenuOpen) - should preserve expanded folds when opened again`() {
+        openMenuWithFoldableFile()
+        val foldingModel = FileEditorManager.getInstance(project).selectedTextEditor!!.foldingModel
+        foldingModel.allFoldRegions.toList().shouldNotBeEmpty()
+        foldingModel.runBatchFoldingOperation {
+            foldingModel.allFoldRegions.forEach { it.isExpanded = true }
+        }
+        foldingModel.allFoldRegions.all { it.isExpanded } shouldBe true
+
+        performHarpoonAction(HarpoonActions.QuickMenuOpen)
+
+        foldingModel.allFoldRegions.toList().shouldNotBeEmpty()
+        foldingModel.allFoldRegions.all { it.isExpanded } shouldBe true
+    }
+
+    private fun openMenuWithFoldableFile() {
+        val file = fixture.addFileToProject("src/main/kotlin/com/example/Folded.kt", "").virtualFile
+        fixture.configureFromExistingVirtualFile(file)
+        performHarpoonAction(HarpoonActions.FileAdd)
+        performHarpoonAction(HarpoonActions.QuickMenuOpen)
     }
 
     fun `test(MenuClear) - should not clear empty menu`() {
