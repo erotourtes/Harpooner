@@ -45,7 +45,7 @@ class QuickMenu(private val project: Project, settings: SettingsState, parentDis
                 editorsWithProviders: List<FileEditorWithProvider>,
             ) {
                 if (file != virtualFile) return
-                // This callback runs in the editor-opening EDT event, before it can repaint.
+                // Initialize folds in the opening EDT event, ahead of normal queued repaint work.
                 for ((fileEditor, _) in editorsWithProviders) {
                     val editor = (fileEditor as? TextEditor)?.editor ?: continue
                     setCursorToEnd(editor)
@@ -73,7 +73,6 @@ class QuickMenu(private val project: Project, settings: SettingsState, parentDis
             fileEditorManager.runWhenLoaded(editor) {
                 if (!editor.isDisposed) {
                     setCursorToEnd(editor)
-                    updateFolds(editor)
                 }
             }
         }

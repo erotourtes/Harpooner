@@ -76,21 +76,13 @@ class MenuActionTest : HarpoonTestCase() {
 
     fun `test(MenuOpen) - should initialize folds in the synchronous file open callback`() {
         openMenuWithFoldableFile()
-        val manager = FileEditorManager.getInstance(project)
-        val fileEditor = manager.getSelectedEditor(harpoonService.getMenVf()) as TextEditor
-        val foldingModel = fileEditor.editor.foldingModel
+        val foldingModel = FileEditorManager.getInstance(project).selectedTextEditor!!.foldingModel
         foldingModel.runBatchFoldingOperation {
             foldingModel.allFoldRegions.forEach(foldingModel::removeFoldRegion)
         }
         foldingModel.allFoldRegions.toList().shouldBeEmpty()
 
-        // TestEditorManagerImpl only publishes fileOpened. Exercise the earlier event
-        // explicitly; the real editor manager publishes it in the opening EDT event.
-        project.messageBus.syncPublisher(FileOpenedSyncListener.TOPIC).fileOpenedSync(
-            manager,
-            harpoonService.getMenVf(),
-            listOf(FileEditorWithProvider(fileEditor, mock(FileEditorProvider::class.java))),
-        )
+        notifyMenuOpenedSync()
 
         foldingModel.allFoldRegions.toList().shouldNotBeEmpty()
         foldingModel.allFoldRegions.all { !it.isExpanded } shouldBe true
@@ -135,7 +127,20 @@ class MenuActionTest : HarpoonTestCase() {
         val file = fixture.addFileToProject("src/main/kotlin/com/example/Folded.kt", "").virtualFile
         fixture.configureFromExistingVirtualFile(file)
         performHarpoonAction(HarpoonActions.FileAdd)
-        performHarpoonAction(HarpoonActions.QuickMenuOpen)
+        runHarpoonServiceAction { openMenu() }
+        notifyMenuOpenedSync()
+    }
+
+    private fun notifyMenuOpenedSync() {
+        // TestEditorManagerImpl only publishes fileOpened. Simulate the earlier event
+        // explicitly; the real editor manager publishes it in the opening EDT event.
+        val manager = FileEditorManager.getInstance(project)
+        val fileEditor = manager.getSelectedEditor(harpoonService.getMenVf()) as TextEditor
+        project.messageBus.syncPublisher(FileOpenedSyncListener.TOPIC).fileOpenedSync(
+            manager,
+            harpoonService.getMenVf(),
+            listOf(FileEditorWithProvider(fileEditor, mock(FileEditorProvider::class.java))),
+        )
     }
 
     fun `test(MenuClear) - should not clear empty menu`() {
