@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Create quick-menu folds during editor opening to avoid briefly showing unfolded paths.
+
 ## [1.4.3] - 2026-10-28
 
 ### Changed

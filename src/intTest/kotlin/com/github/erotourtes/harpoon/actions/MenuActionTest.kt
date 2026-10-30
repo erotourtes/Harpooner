@@ -6,6 +6,10 @@ import com.github.erotourtes.harpoon.helpers.HarpoonActions
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
+import com.intellij.openapi.fileEditor.FileEditorProvider
+import com.intellij.openapi.fileEditor.FileOpenedSyncListener
+import com.intellij.openapi.fileEditor.TextEditor
+import com.intellij.openapi.fileEditor.ex.FileEditorWithProvider
 import com.intellij.openapi.vfs.VirtualFile
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -14,6 +18,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldNotBeEmpty
+import org.mockito.Mockito.mock
 
 @Suppress("FunctionName")
 class MenuActionTest : HarpoonTestCase() {
@@ -28,7 +33,7 @@ class MenuActionTest : HarpoonTestCase() {
     fun `test(MenuOpen) - should open menu in the current editor`() {
         curOpenedFilename shouldNotBe menu.name
 
-        performHarpoonAction(HarpoonActions.QuickMenuOpen)
+        runHarpoonServiceAction { openMenu() }
 
         curOpenedFilename shouldBe menu.name
     }
@@ -67,6 +72,28 @@ class MenuActionTest : HarpoonTestCase() {
 
         editor.document.modificationStamp shouldBe modificationStamp
         foldingModel.allFoldRegions.all { it.isExpanded } shouldBe true
+    }
+
+    fun `test(MenuOpen) - should initialize folds in the synchronous file open callback`() {
+        openMenuWithFoldableFile()
+        val manager = FileEditorManager.getInstance(project)
+        val fileEditor = manager.getSelectedEditor(harpoonService.getMenVf()) as TextEditor
+        val foldingModel = fileEditor.editor.foldingModel
+        foldingModel.runBatchFoldingOperation {
+            foldingModel.allFoldRegions.forEach(foldingModel::removeFoldRegion)
+        }
+        foldingModel.allFoldRegions.toList().shouldBeEmpty()
+
+        // TestEditorManagerImpl only publishes fileOpened. Exercise the earlier event
+        // explicitly; the real editor manager publishes it in the opening EDT event.
+        project.messageBus.syncPublisher(FileOpenedSyncListener.TOPIC).fileOpenedSync(
+            manager,
+            harpoonService.getMenVf(),
+            listOf(FileEditorWithProvider(fileEditor, mock(FileEditorProvider::class.java))),
+        )
+
+        foldingModel.allFoldRegions.toList().shouldNotBeEmpty()
+        foldingModel.allFoldRegions.all { !it.isExpanded } shouldBe true
     }
 
     fun `test(MenuOpen) - should not open menu once opened`() {

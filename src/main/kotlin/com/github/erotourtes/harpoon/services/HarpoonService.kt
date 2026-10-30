@@ -29,7 +29,7 @@ class HarpoonService(
     private val project: Project,
     private val scope: CoroutineScope,
 ) : Disposable {
-    private val menu = QuickMenu(project, SettingsState.getInstance())
+    private val menu = QuickMenu(project, SettingsState.getInstance(), this)
     private var state = State()
     private val serviceDispatcher = Dispatchers.Default.limitedParallelism(1)
     private val fileEditorManager = FileEditorManager.getInstance(project)

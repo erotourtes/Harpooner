@@ -4,14 +4,18 @@ import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
 import com.github.erotourtes.harpoon.utils.openFileInEditor
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.FoldingModel
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileOpenedSyncListener
 import com.intellij.openapi.fileEditor.TextEditor
+import com.intellij.openapi.fileEditor.ex.FileEditorWithProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -20,7 +24,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 
-class QuickMenu(private val project: Project, settings: SettingsState) {
+class QuickMenu(private val project: Project, settings: SettingsState, parentDisposable: Disposable) {
     val projectInfo: ProjectInfo
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
@@ -41,6 +45,22 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
             }, settings.toFoldsSettings()
         )
         processor = PathsProcessor(projectInfo, settings.toProcessorSettings())
+
+        project.messageBus.connect(parentDisposable).subscribe(FileOpenedSyncListener.TOPIC, object : FileOpenedSyncListener {
+            override fun fileOpenedSync(
+                source: FileEditorManager,
+                file: VirtualFile,
+                editorsWithProviders: List<FileEditorWithProvider>,
+            ) {
+                if (file != virtualFile) return
+                // This callback runs in the editor-opening EDT event, before it can repaint.
+                for ((fileEditor, _) in editorsWithProviders) {
+                    val editor = (fileEditor as? TextEditor)?.editor ?: continue
+                    setCursorToEnd(editor)
+                    updateFolds(editor.document, editor.foldingModel)
+                }
+            }
+        })
     }
 
     suspend fun readLines(): List<String> = readAction {
@@ -104,12 +124,13 @@ class QuickMenu(private val project: Project, settings: SettingsState) {
         return this
     }
 
-    private fun updateFolds(document: Document) {
+    private fun updateFolds(document: Document, foldingModel: FoldingModel? = getMenuEditor()?.foldingModel) {
+        if (foldingModel == null) return
         for (line in 0 until document.lineCount) {
             val start = document.getLineStartOffset(line)
             val end = document.getLineEndOffset(line)
             val str = document.charsSequence.subSequence(start, end).toString()
-            foldsManager.updateFoldsAt(start, str)
+            foldsManager.updateFoldsAt(start, str, foldingModel)
         }
     }
 

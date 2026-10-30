@@ -11,8 +11,8 @@ class FoldsManager(
     private var settings: Settings,
 ) {
 
-    fun updateFoldsAt(line: Int, str: String) {
-        val foldingModel = getFoldingModel() ?: return
+    fun updateFoldsAt(line: Int, str: String, foldingModel: FoldingModel? = getFoldingModel()) {
+        if (foldingModel == null) return
         val newFolds = getFoldsFrom(line, str)
 
         foldingModel.runBatchFoldingOperation {
