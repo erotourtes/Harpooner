@@ -4,16 +4,12 @@
 
 ## [Unreleased]
 
-### Fixed
-
-- Create quick-menu folds during editor opening to avoid briefly showing unfolded paths.
-
 ## [1.4.3] - 2026-10-28
 
 ### Changed
 
 - Require IntelliJ Platform 2026.2 (build 262) and Java 25; target IntelliJ IDEA 2026.2.3.
-- Align Gradle, Kotlin, IntelliJ Platform tooling, and CI workflows with the JetBrains template.
+- Align Gradle, Kotlin, IntelliJ Platform tooling, and CI workflows with the plugin template.
 - Update IdeaVim, Qodana, and Kover while retaining inspections and coverage reporting.
 - Use public suspending navigation APIs for bookmarked files and the quick menu, preserving caret positions.
 - Populate the menu before opening its editor and avoid rewriting unchanged content.
