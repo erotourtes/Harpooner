@@ -7,12 +7,10 @@ import org.intellij.markdown.lexer.push
 
 class FoldsManager(
     private val projectInfo: ProjectInfo,
-    private val getFoldingModel: () -> FoldingModel?,
     private var settings: Settings,
 ) {
 
-    fun updateFoldsAt(line: Int, str: String) {
-        val foldingModel = getFoldingModel() ?: return
+    fun updateFoldsAt(line: Int, str: String, foldingModel: FoldingModel) {
         val newFolds = getFoldsFrom(line, str)
 
         foldingModel.runBatchFoldingOperation {
@@ -40,14 +38,6 @@ class FoldsManager(
     fun updateSettings(newState: Settings) {
         settings = newState
     }
-
-//    fun collapseAllFolds() {
-//        val foldingModel = getFoldingModel() ?: return
-//
-//        foldingModel.runBatchFoldingOperation {
-//            foldingModel.allFoldRegions.forEach { it.isExpanded = false }
-//        }
-//    }
 
     private fun getCurrentLineFolds(foldingModel: FoldingModel, start: Int, end: Int): MutableList<FoldRegion> {
         return foldingModel.allFoldRegions.filter {

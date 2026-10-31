@@ -94,7 +94,7 @@ class FileActionTest : HarpoonTestCase() {
             HarpoonActions.File9Replace,
         )
 
-        performHarpoonAction(HarpoonActions.QuickMenuOpen)
+        runHarpoonServiceAction { openMenu() }
 
         paths().shouldNotBeEmpty()
         paths().shouldNotContainDuplicates()

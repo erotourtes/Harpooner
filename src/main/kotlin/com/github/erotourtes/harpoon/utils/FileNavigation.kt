@@ -1,6 +1,7 @@
 package com.github.erotourtes.harpoon.utils
 
 import com.intellij.openapi.application.readAction
+import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.backend.navigation.NavigationRequest
@@ -15,7 +16,7 @@ internal suspend fun openFileInEditor(project: Project, file: VirtualFile): Unit
     } ?: error("Cannot create a navigation request for ${file.path}")
 
     // Await navigation outside the read action. The explicit 262 overload is also retained in 263.
-    NavigationService.getInstance(project).navigate(
+    project.serviceAsync<NavigationService>().navigate(
         request,
         NavigationOptions.requestFocus().preserveCaret(true),
         null,

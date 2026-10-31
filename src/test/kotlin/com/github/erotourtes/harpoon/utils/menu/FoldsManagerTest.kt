@@ -2,6 +2,7 @@ package com.github.erotourtes.harpoon.utils.menu
 
 import com.intellij.openapi.editor.*
 import com.intellij.openapi.util.Key
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -29,12 +30,11 @@ class FoldsManagerTest {
         val path = "/home/user/project/MyProject/src/main/kotlin/com/example/MyClass.kt"
         val foldsManager = FoldsManager(
             projectInfo,
-            { foldingModel },
             FoldsManager.Settings(true, 2)
         )
 
         `when`(foldingModel.allFoldRegions).thenReturn(arrayOf())
-        foldsManager.updateFoldsAt(0, path)
+        foldsManager.updateFoldsAt(0, path, foldingModel)
 
         verify(foldingModel).addFoldRegion(0, 29, "MyProject/")
         verify(foldingModel).addFoldRegion(29, 49, ".../")
@@ -47,7 +47,6 @@ class FoldsManagerTest {
         val path = "/home/user/project/MyProject/src/main/kotlin/com/example/MyClass.kt"
         val foldsManager = FoldsManager(
             projectInfo,
-            { foldingModel },
             FoldsManager.Settings(false, 3)
         )
         val folds = arrayOf(
@@ -56,7 +55,7 @@ class FoldsManagerTest {
         )
 
         `when`(foldingModel.allFoldRegions).thenReturn(folds)
-        foldsManager.updateFoldsAt(0, path)
+        foldsManager.updateFoldsAt(0, path, foldingModel)
 
         verify(foldingModel).addFoldRegion(0, 45, "/../")
         verify(foldingModel).removeFoldRegion(folds[0])
@@ -68,18 +67,18 @@ class FoldsManagerTest {
         val path = "src/main/kotlin/com/example/MyClass.kt"
         val foldsManager = FoldsManager(
             projectInfo,
-            { foldingModel },
             FoldsManager.Settings(false, 3)
         )
         val folds = arrayOf(
-            MockFoldRegion(0, 16, ".../"),
+            MockFoldRegion(0, 16, ".../", expanded = true),
         )
 
         `when`(foldingModel.allFoldRegions).thenReturn(folds)
-        foldsManager.updateFoldsAt(0, path)
+        foldsManager.updateFoldsAt(0, path, foldingModel)
 
         verify(foldingModel, times(0)).addFoldRegion(anyInt(), anyInt(), anyString())
         verify(foldingModel, times(0)).removeFoldRegion(any())
+        assertTrue(folds.single().isExpanded)
     }
 
     @Test
@@ -87,7 +86,6 @@ class FoldsManagerTest {
         val path = "src/main/kotlin/com/example/MyClass.kt"
         val foldsManager = FoldsManager(
             projectInfo,
-            { foldingModel },
             FoldsManager.Settings(false, 3)
         )
         val folds = arrayOf(
@@ -95,24 +93,10 @@ class FoldsManagerTest {
         )
 
         `when`(foldingModel.allFoldRegions).thenReturn(folds)
-        foldsManager.updateFoldsAt(0, path)
+        foldsManager.updateFoldsAt(0, path, foldingModel)
 
         verify(foldingModel, times(1)).addFoldRegion(0, 16, ".../")
         verify(foldingModel, times(1)).removeFoldRegion(folds[0])
-    }
-
-    @Test
-    fun `should not update folds if not in the editor`() {
-        val path = "src/main/kotlin/com/example/MyClass.kt"
-        val foldsManager = FoldsManager(
-            projectInfo,
-            { null },
-            FoldsManager.Settings(false, 3)
-        )
-
-        foldsManager.updateFoldsAt(0, path)
-
-        verify(foldingModel, never()).addFoldRegion(anyInt(), anyInt(), anyString())
     }
 
     class MockFoldRegion(
