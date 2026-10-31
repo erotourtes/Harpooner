@@ -5,9 +5,12 @@
     <vendor email="erotourtes@gmail.com" url="https://github.com/erotourtes">erotourtes</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="com.github.erotourtes.harpoon-ideavim.xml">IdeaVIM</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <lang.foldingBuilder language="TEXT"
+                             implementationClass="com.github.erotourtes.harpoon.utils.menu.MenuFoldingBuilder"/>
         <!-- The service is now light-weight and does not require defining it in the plugin.xml -->
         <!--        <projectService-->
         <!--                serviceImplementation="com.github.erotourtes.harpoon.services.HarpoonService"/>-->

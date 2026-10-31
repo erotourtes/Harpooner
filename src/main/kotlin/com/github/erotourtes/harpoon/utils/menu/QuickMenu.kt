@@ -4,6 +4,7 @@ import com.github.erotourtes.harpoon.settings.SettingsState
 import com.github.erotourtes.harpoon.utils.IDEA_PROJECT_FOLDER
 import com.github.erotourtes.harpoon.utils.MENU_NAME
 import com.github.erotourtes.harpoon.utils.openFileInEditor
+import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
@@ -15,6 +16,7 @@ import com.intellij.openapi.fileEditor.FileOpenedSyncListener
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileEditor.ex.FileEditorWithProvider
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import kotlinx.coroutines.Dispatchers
@@ -27,16 +29,18 @@ class QuickMenu(private val project: Project, settings: SettingsState, parentDis
     private lateinit var menuFile: File
     lateinit var virtualFile: VirtualFile
         private set
-    private val foldsManager: FoldsManager
+    private var foldingSettings = settings.toFoldsSettings()
     private var processor: PathsProcessor
+    private val foldingPolicy = MenuFoldingPolicy(project, parentDisposable)
+    private val foldingDiagnostics = MenuFoldingDiagnostics(parentDisposable)
     private val fileEditorManager: FileEditorManager get() = FileEditorManager.getInstance(project)
 
     init {
         initMenuFile()
         projectInfo = ProjectInfo.from(virtualFile.path)
 
-        foldsManager = FoldsManager(projectInfo, settings.toFoldsSettings())
         processor = PathsProcessor(projectInfo, settings.toProcessorSettings())
+        Disposer.register(parentDisposable, Disposable { virtualFile.putUserData(MenuFoldingBuilder.CONTEXT_KEY, null) })
 
         project.messageBus.connect(parentDisposable).subscribe(FileOpenedSyncListener.TOPIC, object : FileOpenedSyncListener {
             override fun fileOpenedSync(
@@ -45,11 +49,13 @@ class QuickMenu(private val project: Project, settings: SettingsState, parentDis
                 editorsWithProviders: List<FileEditorWithProvider>,
             ) {
                 if (file != virtualFile) return
-                // Initialize folds in the opening EDT event, ahead of normal queued repaint work.
+                // Observe native fold initialization; the folding builder owns the regions.
                 for ((fileEditor, _) in editorsWithProviders) {
                     val editor = (fileEditor as? TextEditor)?.editor ?: continue
+                    foldingPolicy.attach(editor)
+                    foldingDiagnostics.record(editor, "fileOpenedSync before caret")
                     setCursorToEnd(editor)
-                    updateFolds(editor)
+                    foldingDiagnostics.record(editor, "fileOpenedSync after caret")
                 }
             }
         })
@@ -70,9 +76,12 @@ class QuickMenu(private val project: Project, settings: SettingsState, parentDis
         openFileInEditor(project, virtualFile)
         withContext(Dispatchers.EDT) {
             val editor = getMenuEditor() ?: return@withContext
+            foldingDiagnostics.record(editor, "navigation returned")
             fileEditorManager.runWhenLoaded(editor) {
                 if (!editor.isDisposed) {
+                    foldingDiagnostics.record(editor, "runWhenLoaded before caret")
                     setCursorToEnd(editor)
+                    foldingDiagnostics.record(editor, "runWhenLoaded after caret")
                 }
             }
         }
@@ -86,12 +95,18 @@ class QuickMenu(private val project: Project, settings: SettingsState, parentDis
 
     suspend fun close() {
         withContext(Dispatchers.EDT) {
+            getMenuEditor()?.let { foldingDiagnostics.record(it, "close requested") }
             fileEditorManager.closeFile(virtualFile)
         }
     }
 
-    fun updateSettings(settings: SettingsState) {
-        foldsManager.updateSettings(settings.toFoldsSettings())
+    suspend fun updateSettings(settings: SettingsState) = withContext(Dispatchers.EDT) {
+        val newFoldingSettings = settings.toFoldsSettings()
+        if (newFoldingSettings != foldingSettings) {
+            foldingSettings = newFoldingSettings
+            virtualFile.putUserData(MenuFoldingBuilder.CONTEXT_KEY, MenuFoldingBuilder.Context(projectInfo, foldingSettings))
+            getMenuEditor()?.let { CodeFoldingManager.getInstance(project).scheduleAsyncFoldingUpdate(it) }
+        }
         processor.updateSettings(settings.toProcessorSettings())
     }
 
@@ -103,24 +118,19 @@ class QuickMenu(private val project: Project, settings: SettingsState, parentDis
                 val document = docManager.getDocument(virtualFile) ?: return@runWriteCommandAction
 
                 val text = processedContent.joinToString("\n")
+                getMenuEditor()?.let {
+                    foldingDiagnostics.record(it, "updateFile before replace changed=${document.text != text}")
+                }
                 if (document.text != text) {
                     document.replaceString(0, document.textLength, text)
                 }
-                getMenuEditor()?.let(::updateFolds)
+                getMenuEditor()?.let {
+                    foldingDiagnostics.record(it, "updateFile after content")
+                }
             }
         }
 
         return this
-    }
-
-    private fun updateFolds(editor: Editor) {
-        val document = editor.document
-        for (line in 0 until document.lineCount) {
-            val start = document.getLineStartOffset(line)
-            val end = document.getLineEndOffset(line)
-            val str = document.charsSequence.subSequence(start, end).toString()
-            foldsManager.updateFoldsAt(start, str, editor.foldingModel)
-        }
     }
 
     private fun setCursorToEnd(editor: Editor) {
@@ -148,9 +158,12 @@ class QuickMenu(private val project: Project, settings: SettingsState, parentDis
     }
 
     private fun initMenuFile() {
+        if (this::virtualFile.isInitialized) virtualFile.putUserData(MenuFoldingBuilder.CONTEXT_KEY, null)
         menuFile = getMenuFile()
         virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(menuFile)
             ?: throw Exception("File is not found, this should not happen")
+        virtualFile.putUserData(MenuFoldingBuilder.CONTEXT_KEY,
+            MenuFoldingBuilder.Context(ProjectInfo.from(virtualFile.path), foldingSettings))
     }
 
     private fun getMenuFile(): File {

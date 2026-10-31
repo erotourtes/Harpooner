@@ -19,8 +19,6 @@ import kotlinx.coroutines.*
 import org.jetbrains.annotations.TestOnly
 import kotlin.coroutines.ContinuationInterceptor
 
-// TODO: folding builder
-// TODO: fix bug with folds not closing after opening a file
 // TODO: allow working with multiple file system protocols (temp/jar/file etc.)
 
 
